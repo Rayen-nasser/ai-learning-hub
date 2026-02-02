@@ -40,6 +40,6 @@ app.use(function(err, req, res, next) {
 
 //2
 const server = http.createServer(app);
-server.listen(50000,()=>{
-  console.log('server is running at http://llocalhost:50000')
-});// create http server and listen on port 50000
+server.listen(5000,()=>{
+  console.log('server is running at http://llocalhost:5000')
+});// create http server and listen on port 5000
