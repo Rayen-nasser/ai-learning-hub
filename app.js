@@ -43,9 +43,15 @@ app.use(function(err, req, res, next) {
 
 //2
 const server = http.createServer(app);
+<<<<<<< HEAD
 
 server.listen(process.env.PORT, () => {
   connectToDatabase();
   console.log(`server is running on http://localhost:${process.env.PORT}`);
 });
 
+=======
+server.listen(5000,()=>{
+  console.log('server is running at http://llocalhost:5000')
+});// create http server and listen on port 5000
+>>>>>>> efac581be2c6275d83fa6b10ad8a64189f551873
