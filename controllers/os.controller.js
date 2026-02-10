@@ -1,11 +1,14 @@
- const osService = require("../services/os.service");
-
+const os = require('os');
 module.exports.getOsInfo = (req, res) => {
   try {
-    const osInformations = osService.getOsInfo();
-    if (!osInformations) {
-      throw new Error("No OS information found");
-    }
+    const osInformations = {
+      platform: os.platform(),
+      architecture: os.arch(),
+      totalMemory: os.totalmem(),
+      freeMemory: os.freemem(),
+      hostname: os.hostname(),
+      uptime: os.uptime()
+    };
     res.status(200).json({
       message: "OS Information retrieved successfully",
       data: osInformations,
@@ -13,4 +16,5 @@ module.exports.getOsInfo = (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}; 
+};
+ 
