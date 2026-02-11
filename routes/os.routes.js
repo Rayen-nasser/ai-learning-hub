@@ -1,17 +1,14 @@
+
 var express = require('express');
 var router = express.Router();
+const os = require('os');
 const osController = require('../controllers/os.controller');
-
-// GET /os
-router.get('/', function(req, res) {
+/* GET home page. */
+router.get('/os', function(req, res, next) {
   res.json('Operating Systems route');
 });
 
-// GET /os/getOs
 router.get('/getOs', osController.getOsInfo);
-
-
-
 
 // router.get("/getOs", (req, res, next) => {
 //   try {
