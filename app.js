@@ -3,17 +3,17 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-const http = require('http');// 1
+const http = require('http'); //1
 
-const { connectToDatabase } = require('./config/db');// 2
+const { connectToMongoDB } = require('./config/db');
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-const osRouter = require('./routes/os.routes');
+var usersRouter = require('./routes/users.routes');
+var osRouter = require('./routes/os.routes');
 
-require('dotenv').config(); // Load environment variables from .env file
+
+require('dotenv').config(); // Load environment variables
+
 var app = express();
-
-
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -43,10 +43,7 @@ app.use(function(err, req, res, next) {
 
 //2
 const server = http.createServer(app);
-
-
 server.listen(process.env.PORT, () => {
-  connectToDatabase();
-  console.log(`server is running on http://localhost:${process.env.PORT}`);
+  connectToMongoDB();
+  console.log(`Server is running on http://localhost:${process.env.PORT}`);
 });
-
