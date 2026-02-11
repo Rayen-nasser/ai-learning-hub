@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema(
     location: String,
 
     //champs role admin
-    tel:Number
+    tel:Number,
 
     //champs roley
   },
