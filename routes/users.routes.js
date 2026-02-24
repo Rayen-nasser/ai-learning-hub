@@ -2,20 +2,35 @@ var express = require('express');
 var router = express.Router();
 const userController = require('../controllers/user.controller');
 
-/* GET users listing. */
-router.get('/GetAllUsers', userController.getAllUsers);
+// ================= CREATE =================
 
-router.get('/GetUserById/:id', userController.getUserById);
+// CREATE normal user (apprenant par défaut)
+router.post('/', userController.createUser);
 
-router.post('/CreateUser', userController.createUser);
+// CREATE admin
+router.post('/admin', userController.createUserAdmin);
 
-router.post('/CreateUserAdmin', userController.createUserAdmin);
+// CREATE formateur
+router.post('/formateur', userController.createUserFormateur);
 
-router.post('/CreateUserModerateur', userController.createUserModerateur);
+// CREATE apprenant
+router.post('/apprenant', userController.createUserApprenant);
 
-router.delete('/deleteUser/:id', userController.deleteUser);
 
-router.put('/updateUser/:id', userController.updateUser);
+// ================= READ =================
 
+// GET all users
+router.get('/', userController.getAllUsers);
+
+// GET user by id (mettre toujours en dernier des GET dynamiques)
+router.get('/:id', userController.getUserById);
+
+
+// ================= UPDATE =================
+router.put('/:id', userController.updateUser);
+
+
+// ================= DELETE =================
+router.delete('/:id', userController.deleteUser);
 
 module.exports = router;

@@ -9,7 +9,12 @@ const { connectToMongoDB } = require('./config/db');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users.routes');
 var osRouter = require('./routes/os.routes');
-
+var learnersRouter = require("./routes/learner.routes");
+var adminsRouter = require("./routes/admin.routes");
+var formateursRouter = require("./routes/formateur.routes");
+var coursRouter = require("./routes/cours.routes");
+var leconsRouter = require("./routes/lecon.routes");
+var inscriptionsRouter = require("./routes/inscription.routes");
 
 require('dotenv').config(); // Load environment variables
 
@@ -24,6 +29,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/index', indexRouter);
 app.use('/users', usersRouter);
 app.use('/os', osRouter);
+app.use("/learners", learnersRouter);
+app.use("/admins", adminsRouter);
+app.use("/formateurs", formateursRouter);
+app.use("/cours", coursRouter);
+app.use("/lecons", leconsRouter);
+app.use("/inscriptions", inscriptionsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

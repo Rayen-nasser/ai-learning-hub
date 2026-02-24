@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const userSchema = new mongoose.Schema(
   {
     name: String,
+    prenom: String,
     email: {
       type: String,
       required: [true, "Email is required"],
@@ -23,8 +24,10 @@ const userSchema = new mongoose.Schema(
       ],
     },
     age: { type: Number, min: 20, max: 80 },
-    role: { type: String, enum: ["admin", "user", "moderateur"], default: "user" },
+    role: { type: String, enum: ["admin", "apprenant", "formateur"], default: "apprenant" },
     location: String,
+    photo : String,
+
 
     //champs role admin
     tel:Number,
@@ -35,13 +38,13 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.pre("save", async function () {
-  try {
-    const salt = await bcrypt.genSalt();
-    this.password = await bcrypt.hash(this.password, salt);
-  } catch (err) {
-    throw err;
-  }
+  if (!this.isModified("password")) return;
+
+  const salt = await bcrypt.genSalt();
+  this.password = await bcrypt.hash(this.password, salt);
 });
 
 
 module.exports = mongoose.model("User", userSchema);
+
+  

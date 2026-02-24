@@ -1,19 +1,9 @@
 const userModel = require("../models/user.model");
 
-// module.exports.esm = async (req, res) => {
-//   try {
-//logic here
-//     res.status(200).json({ message: "Hello from user controller" });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
-
 module.exports.getAllUsers = async (req, res) => {
   try {
     const users = await userModel.find();
     if (users.length === 0) {
-      //return res.status(404).json({ message: "No users found" });
       throw new Error("No users found");
     }
     res
@@ -55,8 +45,14 @@ module.exports.createUser = async (req, res) => {
 
 module.exports.createUserAdmin = async (req, res) => {
   try {
-    const { name, email, password ,tel} = req.body;
-    const newUser = new userModel({ name, email, password, tel ,role:"admin"});
+    const { name, email, password, tel } = req.body;
+    const newUser = new userModel({
+      name,
+      email,
+      password,
+      tel,
+      role: "admin",
+    });
     await newUser.save();
     res
       .status(201)
@@ -66,10 +62,35 @@ module.exports.createUserAdmin = async (req, res) => {
   }
 };
 
-module.exports.createUserModerateur = async (req, res) => {
+module.exports.createUserFormateur = async (req, res) => {
   try {
-    const { name, email, password ,tel} = req.body;
-    const newUser = new userModel({ name, email, password, tel ,role:"moderateur"});
+    const { name, email, password, tel } = req.body;
+    const newUser = new userModel({
+      name,
+      email,
+      password,
+      tel,
+      role: "formateur",
+    });
+    await newUser.save();
+    res
+      .status(201)
+      .json({ message: "User created successfully", data: newUser });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports.createUserApprenant = async (req, res) => {
+  try {
+    const { name, email, password, tel } = req.body;
+    const newUser = new userModel({
+      name,
+      email,
+      password,
+      tel,
+      role: "apprenant",
+    });
     await newUser.save();
     res
       .status(201)
@@ -82,16 +103,18 @@ module.exports.createUserModerateur = async (req, res) => {
 module.exports.updateUser = async (req, res) => {
   try {
     const userId = req.params.id;
-    const { name, age, location } = req.body
+    const { name, age, location } = req.body;
     const updatedUser = await userModel.findByIdAndUpdate(
       userId,
       { name, age, location },
-      { new: true },
+      { new: true }
     );
     if (!updatedUser) {
       throw new Error("User not found");
     }
-    res.status(200).json({ message: "User updated successfully", data: updatedUser });
+    res
+      .status(200)
+      .json({ message: "User updated successfully", data: updatedUser });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
