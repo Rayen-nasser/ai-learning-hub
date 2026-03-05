@@ -1,63 +1,76 @@
 const Lecon = require("../models/lecon.model");
-const Cours = require("../models/cours.model");
 
-module.exports.getAllLecons = async (req, res) => {
+module.exports.getAll = async (req, res) => {
   try {
-    const lecons = await Lecon.find().populate("cours", "titre");
-    res.status(200).json({ message: "Lessons retrieved successfully", data: lecons });
+    const lecons = await Lecon.find()
+      .populate("coursId", "titre")
+      .populate("formateurId", "specialite")
+      .sort({ ordre: 1 });
+    res.status(200).json({ message: "Leçons récupérées avec succès", data: lecons });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports.getLeconById = async (req, res) => {
+module.exports.getById = async (req, res) => {
   try {
-    const lecon = await Lecon.findById(req.params.id).populate("cours", "titre");
-    if (!lecon) return res.status(404).json({ error: "Leçon not found" });
-    res.status(200).json({ message: "Leçon retrieved successfully", data: lecon });
+    const lecon = await Lecon.findById(req.params.id)
+      .populate("coursId", "titre")
+      .populate("formateurId", "specialite");
+    if (!lecon) throw new Error("Leçon non trouvée");
+    res.status(200).json({ message: "Leçon récupérée avec succès", data: lecon });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports.createLecon = async (req, res) => {
+module.exports.create = async (req, res) => {
   try {
-    const { titre, description, duree, contenu, coursId } = req.body;
-
-    const cours = await Cours.findById(coursId);
-    if (!cours) return res.status(404).json({ error: "Cours not found" });
-
-    const lecon = await Lecon.create({
-      titre, description, duree, contenu, cours: cours._id,
-    });
-
-    cours.lecons.push(lecon._id);
-    await cours.save();
-
-    res.status(201).json({ message: "Leçon created successfully", data: lecon });
+    const { titre, contenu, ordre, coursId, formateurId, duree, videoUrl } = req.body;
+    const lecon = new Lecon({ titre, contenu, ordre, coursId, formateurId, duree, videoUrl });
+    await lecon.save();
+    res.status(201).json({ message: "Leçon créée avec succès", data: lecon });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports.updateLecon = async (req, res) => {
+module.exports.update = async (req, res) => {
   try {
-    const updated = await Lecon.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updated) return res.status(404).json({ error: "Leçon not found" });
-    res.status(200).json({ message: "Leçon updated successfully", data: updated });
+    const { titre, contenu, duree, videoUrl } = req.body;
+    const lecon = await Lecon.findByIdAndUpdate(
+      req.params.id,
+      { titre, contenu, duree, videoUrl },
+      { new: true }
+    );
+    if (!lecon) throw new Error("Leçon non trouvée");
+    res.status(200).json({ message: "Leçon mise à jour avec succès", data: lecon });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports.deleteLecon = async (req, res) => {
+module.exports.remove = async (req, res) => {
   try {
     const lecon = await Lecon.findByIdAndDelete(req.params.id);
-    if (!lecon) return res.status(404).json({ error: "Leçon not found" });
+    if (!lecon) throw new Error("Leçon non trouvée");
+    res.status(200).json({ message: "Leçon supprimée avec succès", data: lecon });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
-    await Cours.findByIdAndUpdate(lecon.cours, { $pull: { lecons: lecon._id } });
-
-    res.status(200).json({ message: "Leçon deleted successfully", data: lecon });
+// Changer l'ordre d'une leçon
+module.exports.changerOrdre = async (req, res) => {
+  try {
+    const { ordre } = req.body;
+    const lecon = await Lecon.findByIdAndUpdate(
+      req.params.id,
+      { ordre },
+      { new: true }
+    );
+    if (!lecon) throw new Error("Leçon non trouvée");
+    res.status(200).json({ message: "Ordre mis à jour avec succès", data: lecon });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

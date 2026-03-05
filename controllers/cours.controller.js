@@ -1,121 +1,85 @@
 const Cours = require("../models/cours.model");
-const Formateur = require("../models/formateur.model");
-const Lecon = require("../models/lecon.model");
 
-module.exports.getAllCours = async (req, res) => {
+module.exports.getAll = async (req, res) => {
   try {
-    const { statut } = req.query; // optionnel: ?statut=publie
-    const filter = statut ? { statut } : {};
-    const cours = await Cours.find(filter)
-      .populate("formateur", "name prenom email role")
-      .populate("lecons");
-    res.status(200).json({ message: "Courses retrieved successfully", data: cours });
+    const cours = await Cours.find()
+      .populate("formateurId", "specialite")
+      .populate("directeurId", "nomCentre");
+    res.status(200).json({ message: "Cours récupérés avec succès", data: cours });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports.getCoursById = async (req, res) => {
+module.exports.getById = async (req, res) => {
   try {
     const cours = await Cours.findById(req.params.id)
-      .populate("formateur", "name prenom email role")
-      .populate("lecons");
-    if (!cours) return res.status(404).json({ error: "Cours not found" });
-    res.status(200).json({ message: "Cours retrieved successfully", data: cours });
+      .populate("formateurId", "specialite")
+      .populate("directeurId", "nomCentre");
+    if (!cours) throw new Error("Cours non trouvé");
+    res.status(200).json({ message: "Cours récupéré avec succès", data: cours });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports.createCours = async (req, res) => {
+module.exports.create = async (req, res) => {
   try {
-    const { titre, description, prix, image, formateurId } = req.body;
-
-    const formateur = await Formateur.findById(formateurId);
-    if (!formateur) return res.status(404).json({ error: "Formateur not found" });
-
-    const newCours = await Cours.create({
-      titre,
-      description,
-      prix,
-      image,
-      formateur: formateur._id,
-    });
-
-    res.status(201).json({ message: "Cours created successfully", data: newCours });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-module.exports.updateCours = async (req, res) => {
-  try {
-    const updated = await Cours.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updated) return res.status(404).json({ error: "Cours not found" });
-    res.status(200).json({ message: "Cours updated successfully", data: updated });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-module.exports.deleteCours = async (req, res) => {
-  try {
-    const deleted = await Cours.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ error: "Cours not found" });
-
-    // optionnel: supprimer leçons liées
-    await Lecon.deleteMany({ cours: deleted._id });
-
-    res.status(200).json({ message: "Cours deleted successfully", data: deleted });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-module.exports.publierCours = async (req, res) => {
-  try {
-    const cours = await Cours.findById(req.params.id);
-    if (!cours) return res.status(404).json({ error: "Cours not found" });
-    cours.statut = "publie";
+    const { titre, description, prix, duree, mode, categorie, formateurId, directeurId, statut } = req.body;
+    const cours = new Cours({ titre, description, prix, duree, mode, categorie, formateurId, directeurId, statut });
     await cours.save();
-    res.status(200).json({ message: "Cours published", data: cours });
+    res.status(201).json({ message: "Cours créé avec succès", data: cours });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports.depublierCours = async (req, res) => {
+module.exports.update = async (req, res) => {
   try {
-    const cours = await Cours.findById(req.params.id);
-    if (!cours) return res.status(404).json({ error: "Cours not found" });
-    cours.statut = "depublie";
-    await cours.save();
-    res.status(200).json({ message: "Cours unpublished", data: cours });
+    const { titre, description, prix, duree, mode, categorie, statut } = req.body;
+    const cours = await Cours.findByIdAndUpdate(
+      req.params.id,
+      { titre, description, prix, duree, mode, categorie, statut },
+      { new: true }
+    );
+    if (!cours) throw new Error("Cours non trouvé");
+    res.status(200).json({ message: "Cours mis à jour avec succès", data: cours });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// créer une leçon et l'ajouter au cours
-module.exports.ajouterLecon = async (req, res) => {
+module.exports.remove = async (req, res) => {
   try {
-    const cours = await Cours.findById(req.params.id);
-    if (!cours) return res.status(404).json({ error: "Cours not found" });
+    const cours = await Cours.findByIdAndDelete(req.params.id);
+    if (!cours) throw new Error("Cours non trouvé");
+    res.status(200).json({ message: "Cours supprimé avec succès", data: cours });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
-    const { titre, description, duree, contenu } = req.body;
+// GET toutes les leçons d'un cours
+module.exports.getLecons = async (req, res) => {
+  try {
+    const Lecon = require("../models/lecon.model");
+    const lecons = await Lecon.find({ coursId: req.params.id }).sort({ ordre: 1 });
+    res.status(200).json({ message: "Leçons récupérées avec succès", data: lecons });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
-    const lecon = await Lecon.create({
-      titre,
-      description,
-      duree,
-      contenu,
-      cours: cours._id,
-    });
-
-    cours.lecons.push(lecon._id);
-    await cours.save();
-
-    res.status(201).json({ message: "Leçon ajoutée", data: lecon });
+// GET moyenne des notes d'un cours
+module.exports.getMoyenneNote = async (req, res) => {
+  try {
+    const Avis = require("../models/avis.model");
+    const avis = await Avis.find({ coursId: req.params.id, statut: "valide" });
+    if (avis.length === 0) {
+      return res.status(200).json({ message: "Aucun avis pour ce cours", moyenne: 0 });
+    }
+    const moyenne = avis.reduce((sum, a) => sum + a.note, 0) / avis.length;
+    res.status(200).json({ message: "Moyenne calculée avec succès", moyenne: moyenne.toFixed(2) });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

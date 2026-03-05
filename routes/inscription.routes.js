@@ -1,15 +1,13 @@
-const express = require("express");
-const router = express.Router();
-const inscriptionController = require("../controllers/inscription.controller");
+var express = require('express');
+var router = express.Router();
+const ctrl = require('../controllers/inscription.controller');
 
-router.post("/", inscriptionController.createInscription);
-router.get("/", inscriptionController.getAllInscriptions);
-router.get("/:id", inscriptionController.getInscriptionById);
-router.delete("/:id", inscriptionController.deleteInscription);
-
-router.patch("/:id/payer", inscriptionController.payerInscription);
-router.patch("/:id/annuler", inscriptionController.annulerInscription);
-router.patch("/:id/progression", inscriptionController.mettreAJourProgression);
-router.patch("/:id/complete", inscriptionController.marquerCoursComplete);
+router.get('/', ctrl.getAll);
+router.get('/:id', ctrl.getById);
+router.post('/', ctrl.create);
+router.delete('/:id', ctrl.remove);
+router.put('/:id/confirmer', ctrl.confirmer);
+router.put('/:id/annuler', ctrl.annuler);
+router.get('/:id/paiement', ctrl.getPaiement);
 
 module.exports = router;

@@ -3,34 +3,20 @@ var router = express.Router();
 const userController = require('../controllers/user.controller');
 
 // ================= CREATE =================
-
-// CREATE normal user (apprenant par défaut)
-router.post('/', userController.createUser);
-
-// CREATE admin
-router.post('/admin', userController.createUserAdmin);
-
-// CREATE formateur
-router.post('/formateur', userController.createUserFormateur);
-
-// CREATE apprenant
-router.post('/apprenant', userController.createUserApprenant);
-
+router.post('/',                        userController.createUser);
+router.post('/admin',                   userController.createUserAdmin);
+router.post('/formateur',               userController.createUserFormateur);
+router.post('/apprenant',               userController.createUserApprenant);
+router.post('/directeur',               userController.createUserDirecteur); // ✅ NOUVEAU
 
 // ================= READ =================
-
-// GET all users
-router.get('/', userController.getAllUsers);
-
-// GET user by id (mettre toujours en dernier des GET dynamiques)
-router.get('/:id', userController.getUserById);
-
+router.get('/',                         userController.getAllUsers);
+router.get('/:id',                      userController.getUserById);
 
 // ================= UPDATE =================
-router.put('/:id', userController.updateUser);
-
+router.put('/:id',                      userController.updateUser);
 
 // ================= DELETE =================
-router.delete('/:id', userController.deleteUser);
+router.delete('/:id',                   userController.deleteUser);
 
 module.exports = router;

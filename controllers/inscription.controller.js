@@ -1,109 +1,83 @@
 const Inscription = require("../models/inscription.model");
-const Cours = require("../models/cours.model");
-const Learner = require("../models/learner.model");
 
-module.exports.getAllInscriptions = async (req, res) => {
+module.exports.getAll = async (req, res) => {
   try {
     const inscriptions = await Inscription.find()
-      .populate("apprenant", "name prenom email role")
-      .populate("cours", "titre prix statut");
-    res.status(200).json({ message: "Inscriptions retrieved successfully", data: inscriptions });
+      .populate("apprenantId")
+      .populate("coursId", "titre prix");
+    res.status(200).json({ message: "Inscriptions récupérées avec succès", data: inscriptions });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports.getInscriptionById = async (req, res) => {
+module.exports.getById = async (req, res) => {
   try {
     const inscription = await Inscription.findById(req.params.id)
-      .populate("apprenant", "name prenom email role")
-      .populate("cours", "titre prix statut")
-      .populate("progression.completedLessons");
-    if (!inscription) return res.status(404).json({ error: "Inscription not found" });
-    res.status(200).json({ message: "Inscription retrieved successfully", data: inscription });
+      .populate("apprenantId")
+      .populate("coursId", "titre prix");
+    if (!inscription) throw new Error("Inscription non trouvée");
+    res.status(200).json({ message: "Inscription récupérée avec succès", data: inscription });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports.createInscription = async (req, res) => {
+module.exports.create = async (req, res) => {
   try {
     const { apprenantId, coursId } = req.body;
-
-    const apprenant = await Learner.findById(apprenantId);
-    if (!apprenant) return res.status(404).json({ error: "Apprenant not found" });
-
-    const cours = await Cours.findById(coursId);
-    if (!cours) return res.status(404).json({ error: "Cours not found" });
-
-    const existing = await Inscription.findOne({ apprenant: apprenantId, cours: coursId });
-    if (existing) return res.status(400).json({ error: "Already enrolled in this course" });
-
-    const inscription = await Inscription.create({
-      apprenant: apprenant._id,
-      cours: cours._id,
-      montant: cours.prix,
-      statutPaiement: "en_attente",
-    });
-
-    res.status(201).json({ message: "Inscription created successfully", data: inscription });
+    const inscription = new Inscription({ apprenantId, coursId });
+    await inscription.save();
+    res.status(201).json({ message: "Inscription créée avec succès", data: inscription });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports.payerInscription = async (req, res) => {
+module.exports.confirmer = async (req, res) => {
   try {
-    const inscription = await Inscription.findById(req.params.id);
-    if (!inscription) return res.status(404).json({ error: "Inscription not found" });
-    const updated = await inscription.payer();
-    res.status(200).json({ message: "Payment done", data: updated });
+    const inscription = await Inscription.findByIdAndUpdate(
+      req.params.id,
+      { statut: "confirme" },
+      { new: true }
+    );
+    if (!inscription) throw new Error("Inscription non trouvée");
+    res.status(200).json({ message: "Inscription confirmée avec succès", data: inscription });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports.annulerInscription = async (req, res) => {
+module.exports.annuler = async (req, res) => {
   try {
-    const inscription = await Inscription.findById(req.params.id);
-    if (!inscription) return res.status(404).json({ error: "Inscription not found" });
-    const updated = await inscription.annuler();
-    res.status(200).json({ message: "Inscription canceled", data: updated });
+    const inscription = await Inscription.findByIdAndUpdate(
+      req.params.id,
+      { statut: "annule" },
+      { new: true }
+    );
+    if (!inscription) throw new Error("Inscription non trouvée");
+    res.status(200).json({ message: "Inscription annulée avec succès", data: inscription });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports.mettreAJourProgression = async (req, res) => {
+module.exports.remove = async (req, res) => {
   try {
-    const { leconId } = req.body;
-    const inscription = await Inscription.findById(req.params.id);
-    if (!inscription) return res.status(404).json({ error: "Inscription not found" });
-
-    const updated = await inscription.mettreAJourProgression(leconId);
-    res.status(200).json({ message: "Progress updated", data: updated });
+    const inscription = await Inscription.findByIdAndDelete(req.params.id);
+    if (!inscription) throw new Error("Inscription non trouvée");
+    res.status(200).json({ message: "Inscription supprimée avec succès", data: inscription });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports.marquerCoursComplete = async (req, res) => {
+// GET le paiement lié à une inscription
+module.exports.getPaiement = async (req, res) => {
   try {
-    const inscription = await Inscription.findById(req.params.id);
-    if (!inscription) return res.status(404).json({ error: "Inscription not found" });
-
-    const updated = await inscription.marquerCommeComplete();
-    res.status(200).json({ message: "Course marked completed", data: updated });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-module.exports.deleteInscription = async (req, res) => {
-  try {
-    const deleted = await Inscription.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ error: "Inscription not found" });
-    res.status(200).json({ message: "Inscription deleted successfully", data: deleted });
+    const Paiement = require("../models/paiement.model");
+    const paiement = await Paiement.findOne({ inscriptionId: req.params.id });
+    res.status(200).json({ message: "Paiement récupéré avec succès", data: paiement });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -2,18 +2,48 @@ const mongoose = require("mongoose");
 
 const coursSchema = new mongoose.Schema(
   {
-    titre: { type: String, required: true },
-    description: { type: String, required: true },
-    prix: { type: Number, default: 0 },
-    image: { type: String },
-
-    statut: { type: String, enum: ["publie", "depublie"], default: "depublie" },
-
-    // Formateur qui a créé le cours
-    formateur: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-
-    // contient plusieurs leçons
-    lecons: [{ type: mongoose.Schema.Types.ObjectId, ref: "Lecon" }],
+    titre: {
+      type: String,
+      required: [true, "Titre est requis"],
+      trim: true,
+    },
+    description: {
+      type: String,
+      default: "",
+    },
+    prix: {
+      type: Number,
+      required: [true, "Prix est requis"],
+      min: 0,
+    },
+    duree: {
+      type: String,
+      default: "",
+    },
+    mode: {
+      type: String,
+      enum: ["presentiel", "enligne", "hybride"],
+      default: "enligne",
+    },
+    categorie: {
+      type: String,
+      default: "",
+    },
+    formateurId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Formateur",
+      required: true,
+    },
+    directeurId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "DirecteurCentreFormation",
+      required: true,
+    },
+    statut: {
+      type: String,
+      enum: ["actif", "inactif", "archive"],
+      default: "actif",
+    },
   },
   { timestamps: true }
 );

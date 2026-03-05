@@ -24,27 +24,24 @@ const userSchema = new mongoose.Schema(
       ],
     },
     age: { type: Number, min: 20, max: 80 },
-    role: { type: String, enum: ["admin", "apprenant", "formateur"], default: "apprenant" },
+    role: {
+      type: String,
+      enum: ["admin", "apprenant", "formateur", "directeurcentreformation"],
+      default: "apprenant",
+    },
     location: String,
-    photo : String,
+    photo: String,
 
-
-    //champs role admin
-    tel:Number,
-
-    //champs roley
+    // champ commun aux acteurs avec téléphone
+    tel: Number,
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
-
   const salt = await bcrypt.genSalt();
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-
 module.exports = mongoose.model("User", userSchema);
-
-  

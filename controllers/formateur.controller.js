@@ -1,53 +1,101 @@
 const Formateur = require("../models/formateur.model");
 
-module.exports.getAllFormateurs = async (req, res) => {
+module.exports.getAll = async (req, res) => {
   try {
-    const formateurs = await Formateur.find().select("-password");
-    res.status(200).json({ message: "Formateurs retrieved successfully", data: formateurs });
+    const formateurs = await Formateur.find()
+      .populate("userId", "name email")
+      .populate("centreId", "nomCentre");
+    res.status(200).json({ message: "Formateurs récupérés avec succès", data: formateurs });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports.getFormateurById = async (req, res) => {
+module.exports.getById = async (req, res) => {
   try {
-    const formateur = await Formateur.findById(req.params.id).select("-password");
-    if (!formateur) return res.status(404).json({ error: "Formateur not found" });
-    res.status(200).json({ message: "Formateur retrieved successfully", data: formateur });
+    const formateur = await Formateur.findById(req.params.id)
+      .populate("userId", "name email")
+      .populate("centreId", "nomCentre");
+    if (!formateur) throw new Error("Formateur non trouvé");
+    res.status(200).json({ message: "Formateur récupéré avec succès", data: formateur });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports.createFormateur = async (req, res) => {
+module.exports.create = async (req, res) => {
   try {
-    const { name, prenom, email, password, tel, age, location, photo } = req.body;
-    const newFormateur = await Formateur.create({
-      name, prenom, email, password, tel, age, location, photo,
-      role: "formateur",
-    });
-    res.status(201).json({ message: "Formateur created successfully", data: newFormateur });
+    const { userId, specialite, biographie, experience, centreId, dateRattachement } = req.body;
+    const formateur = new Formateur({ userId, specialite, biographie, experience, centreId, dateRattachement });
+    await formateur.save();
+    res.status(201).json({ message: "Formateur créé avec succès", data: formateur });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports.updateFormateur = async (req, res) => {
+module.exports.update = async (req, res) => {
   try {
-    const updated = await Formateur.findByIdAndUpdate(req.params.id, req.body, { new: true })
-      .select("-password");
-    if (!updated) return res.status(404).json({ error: "Formateur not found" });
-    res.status(200).json({ message: "Formateur updated successfully", data: updated });
+    const { specialite, biographie, experience } = req.body;
+    const formateur = await Formateur.findByIdAndUpdate(
+      req.params.id,
+      { specialite, biographie, experience },
+      { new: true }
+    );
+    if (!formateur) throw new Error("Formateur non trouvé");
+    res.status(200).json({ message: "Formateur mis à jour avec succès", data: formateur });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports.deleteFormateur = async (req, res) => {
+module.exports.remove = async (req, res) => {
   try {
-    const deleted = await Formateur.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ error: "Formateur not found" });
-    res.status(200).json({ message: "Formateur deleted successfully", data: deleted });
+    const formateur = await Formateur.findByIdAndDelete(req.params.id);
+    if (!formateur) throw new Error("Formateur non trouvé");
+    res.status(200).json({ message: "Formateur supprimé avec succès", data: formateur });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Rattacher un formateur à un centre
+module.exports.rattacherACentre = async (req, res) => {
+  try {
+    const { centreId } = req.body;
+    const formateur = await Formateur.findByIdAndUpdate(
+      req.params.id,
+      { centreId, dateRattachement: Date.now() },
+      { new: true }
+    );
+    if (!formateur) throw new Error("Formateur non trouvé");
+    res.status(200).json({ message: "Formateur rattaché au centre avec succès", data: formateur });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Détacher un formateur de son centre
+module.exports.detacherDuCentre = async (req, res) => {
+  try {
+    const formateur = await Formateur.findByIdAndUpdate(
+      req.params.id,
+      { centreId: null, dateRattachement: null },
+      { new: true }
+    );
+    if (!formateur) throw new Error("Formateur non trouvé");
+    res.status(200).json({ message: "Formateur détaché du centre avec succès", data: formateur });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// GET toutes les leçons d'un formateur
+module.exports.getLecons = async (req, res) => {
+  try {
+    const Lecon = require("../models/lecon.model");
+    const lecons = await Lecon.find({ formateurId: req.params.id }).populate("coursId", "titre");
+    res.status(200).json({ message: "Leçons récupérées avec succès", data: lecons });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

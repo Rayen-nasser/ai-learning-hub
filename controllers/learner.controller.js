@@ -1,53 +1,77 @@
-const Learner = require("../models/learner.model");
+const Apprenant = require("../models/apprenant.model");
 
-module.exports.getAllLearners = async (req, res) => {
+module.exports.getAll = async (req, res) => {
   try {
-    const learners = await Learner.find().select("-password");
-    res.status(200).json({ message: "Learners retrieved successfully", data: learners });
+    const apprenants = await Apprenant.find().populate("userId", "name email");
+    res.status(200).json({ message: "Apprenants récupérés avec succès", data: apprenants });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports.getLearnerById = async (req, res) => {
+module.exports.getById = async (req, res) => {
   try {
-    const learner = await Learner.findById(req.params.id).select("-password");
-    if (!learner) return res.status(404).json({ error: "Learner not found" });
-    res.status(200).json({ message: "Learner retrieved successfully", data: learner });
+    const apprenant = await Apprenant.findById(req.params.id).populate("userId", "name email");
+    if (!apprenant) throw new Error("Apprenant non trouvé");
+    res.status(200).json({ message: "Apprenant récupéré avec succès", data: apprenant });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports.createLearner = async (req, res) => {
+module.exports.create = async (req, res) => {
   try {
-    const { name, prenom, email, password, tel, age, location, photo } = req.body;
-    const newLearner = await Learner.create({
-      name, prenom, email, password, tel, age, location, photo,
-      role: "apprenant",
-    });
-    res.status(201).json({ message: "Learner created successfully", data: newLearner });
+    const { userId, niveauEtude, dateNaissance, telephone, adresse } = req.body;
+    const apprenant = new Apprenant({ userId, niveauEtude, dateNaissance, telephone, adresse });
+    await apprenant.save();
+    res.status(201).json({ message: "Apprenant créé avec succès", data: apprenant });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports.updateLearner = async (req, res) => {
+module.exports.update = async (req, res) => {
   try {
-    const updated = await Learner.findByIdAndUpdate(req.params.id, req.body, { new: true })
-      .select("-password");
-    if (!updated) return res.status(404).json({ error: "Learner not found" });
-    res.status(200).json({ message: "Learner updated successfully", data: updated });
+    const { niveauEtude, dateNaissance, telephone, adresse } = req.body;
+    const apprenant = await Apprenant.findByIdAndUpdate(
+      req.params.id,
+      { niveauEtude, dateNaissance, telephone, adresse },
+      { new: true }
+    );
+    if (!apprenant) throw new Error("Apprenant non trouvé");
+    res.status(200).json({ message: "Apprenant mis à jour avec succès", data: apprenant });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports.deleteLearner = async (req, res) => {
+module.exports.remove = async (req, res) => {
   try {
-    const deleted = await Learner.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ error: "Learner not found" });
-    res.status(200).json({ message: "Learner deleted successfully", data: deleted });
+    const apprenant = await Apprenant.findByIdAndDelete(req.params.id);
+    if (!apprenant) throw new Error("Apprenant non trouvé");
+    res.status(200).json({ message: "Apprenant supprimé avec succès", data: apprenant });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// GET toutes les inscriptions d'un apprenant
+module.exports.getInscriptions = async (req, res) => {
+  try {
+    const Inscription = require("../models/inscription.model");
+    const inscriptions = await Inscription.find({ apprenantId: req.params.id }).populate("coursId");
+    res.status(200).json({ message: "Inscriptions récupérées avec succès", data: inscriptions });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// GET tous les avis d'un apprenant
+module.exports.getAvis = async (req, res) => {
+  try {
+    const Avis = require("../models/avis.model");
+    const avis = await Avis.find({ apprenantId: req.params.id }).populate("coursId");
+    res.status(200).json({ message: "Avis récupérés avec succès", data: avis });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

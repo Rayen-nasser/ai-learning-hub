@@ -1,9 +1,27 @@
 const mongoose = require("mongoose");
-const User = require("./user.model");
 
-const adminSchema = new mongoose.Schema({
-  // champs spécifiques admin si besoin (optionnel)
-  // ex: permissions: [String]
-});
+const adminSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    niveau: {
+      type: String,
+      enum: ["superadmin", "admin", "moderateur"],
+      default: "admin",
+    },
+    permissions: {
+      type: [String],
+      default: ["read", "write", "delete"],
+    },
+    derniereConnexion: {
+      type: Date,
+      default: null,
+    },
+  },
+  { timestamps: true }
+);
 
-module.exports = User.discriminator("admin", adminSchema);
+module.exports = mongoose.model("Admin", adminSchema);
