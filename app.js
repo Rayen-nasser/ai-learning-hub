@@ -5,7 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const http = require('http');
 
-const { connectToMongoDB } = require('./config/db');
+const { connectToMongodb } = require('./config/db');
 require('dotenv').config();
 
 // ── Routes ──────────────────────────────────────────────
@@ -68,6 +68,6 @@ app.use(function (err, req, res, next) {
 // ── Démarrage du serveur ─────────────────────────────────
 const server = http.createServer(app);
 server.listen(process.env.PORT, () => {
-  connectToMongoDB();
+  connectToMongodb();
   console.log(`Server is running on http://localhost:${process.env.PORT}`);
 });
