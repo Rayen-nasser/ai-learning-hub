@@ -1,9 +1,110 @@
 const userModel = require("../models/user.model");
+const bcrypt = require("bcrypt");
+
+module.exports.register = async (req, res) => {
+  try {
+    const {
+      nom, prenom, email, password, telephone, role,
+      niveauEtude, dateNaissance, adresse,
+      specialite, experience, statut, centreId,
+      centreGereId,
+    } = req.body;
+
+    const existingUser = await userModel.findOne({ email });
+    if (existingUser) {
+      throw new Error("Email déjà utilisé");
+    }
+
+    const newUser = new userModel({
+      nom, prenom, email, password, telephone, role,
+      niveauEtude, dateNaissance, adresse,
+      specialite, experience, statut, centreId,
+      centreGereId,
+    });
+    await newUser.save();
+
+    req.session.user = {
+      _id: newUser._id,
+      nom: newUser.nom,
+      prenom: newUser.prenom,
+      email: newUser.email,
+      role: newUser.role,
+    };
+
+    res.status(201).json({ message: "User created successfully", data: newUser });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (user.block) {
+      throw new Error("Account blocked, contact administrator");
+    }
+
+    if (user.loginAttempts >= 5) {
+      await userModel.findByIdAndUpdate(user._id, { block: true });
+      throw new Error("Account blocked after too many attempts");
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      await userModel.findByIdAndUpdate(user._id, { $inc: { loginAttempts: 1 } });
+      throw new Error(`Wrong password. Remaining attempts: ${5 - user.loginAttempts - 1}`);
+    }
+
+    await userModel.findByIdAndUpdate(user._id, { loginAttempts: 0 });
+
+    req.session.user = {
+      _id: user._id,
+      nom: user.nom,
+      prenom: user.prenom,
+      email: user.email,
+      role: user.role,
+    };
+
+    res.status(200).json({ message: "Login successful", data: user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports.logout = async (req, res) => {
+  try {
+    req.session.destroy();
+    res.status(200).json({ message: "Logout successful" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports.getMyProfile = async (req, res) => {
+  try {
+    const userId = req.session.user._id;
+    const user = await userModel.findById(userId).select("-password");
+    if (!user) {
+      throw new Error("User not found");
+    }
+    res.status(200).json({ message: "User retrieved successfully", data: user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 module.exports.getAllUsers = async (req, res) => {
   try {
-    const users = await userModel.find();
-    if (users.length === 0) throw new Error("No users found");
+    const users = await userModel.find().select("-password");
+    if (users.length === 0) {
+      throw new Error("No users found");
+    }
     res.status(200).json({ message: "Users retrieved successfully", data: users });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -12,133 +113,11 @@ module.exports.getAllUsers = async (req, res) => {
 
 module.exports.getUserById = async (req, res) => {
   try {
-    const user = await userModel.findById(req.params.id);
-    if (!user) throw new Error("User not found");
+    const user = await userModel.findById(req.params.id).select("-password");
+    if (!user) {
+      throw new Error("User not found");
+    }
     res.status(200).json({ message: "User retrieved successfully", data: user });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-module.exports.createUser = async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
-    const newUser = new userModel({ name, email, password });
-    await newUser.save();
-    res.status(201).json({ message: "User created successfully", data: newUser });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-module.exports.createUserAdmin = async (req, res) => {
-  try {
-    const { name, prenom, email, password, tel, niveau, permissions } = req.body;
-
-    // 1. Créer le User avec le bon rôle
-    const newUser = new userModel({ name, prenom, email, password, tel, role: "admin" });
-    await newUser.save();
-
-    // 2. Créer automatiquement le profil Admin lié
-    const Admin = require("../models/admin.model");
-    const profil = new Admin({
-      userId: newUser._id,
-      niveau: niveau || "admin",
-      permissions: permissions || ["read", "write", "delete"],
-    });
-    await profil.save();
-
-    res.status(201).json({
-      message: "Admin créé avec succès",
-      data: { user: newUser, profil },
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-module.exports.createUserFormateur = async (req, res) => {
-  try {
-    const { name, prenom, email, password, tel, specialite, biographie, experience } = req.body;
-
-    // 1. Créer le User
-    const newUser = new userModel({ name, prenom, email, password, tel, role: "formateur" });
-    await newUser.save();
-
-    // 2. Créer automatiquement le profil Formateur lié
-    const Formateur = require("../models/formateur.model");
-    const profil = new Formateur({
-      userId: newUser._id,
-      specialite: specialite || "",
-      biographie: biographie || "",
-      experience: experience || "",
-    });
-    await profil.save();
-
-    res.status(201).json({
-      message: "Formateur créé avec succès",
-      data: { user: newUser, profil },
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-module.exports.createUserApprenant = async (req, res) => {
-  try {
-    const { name, prenom, email, password, tel, niveauEtude, dateNaissance, adresse } = req.body;
-
-    // 1. Créer le User
-    const newUser = new userModel({ name, prenom, email, password, tel, role: "apprenant" });
-    await newUser.save();
-
-    // 2. Créer automatiquement le profil Apprenant lié
-    const Apprenant = require("../models/apprenant.model");
-    const profil = new Apprenant({
-      userId: newUser._id,
-      niveauEtude: niveauEtude || "bac",
-      dateNaissance: dateNaissance || null,
-      telephone: tel,
-      adresse: adresse || "",
-    });
-    await profil.save();
-
-    res.status(201).json({
-      message: "Apprenant créé avec succès",
-      data: { user: newUser, profil },
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// ✅ NOUVEAU : création d'un DirecteurCentreFormation (User + profil)
-module.exports.createUserDirecteur = async (req, res) => {
-  try {
-    const { name, prenom, email, password, tel, nomCentre, adresse, siteWeb } = req.body;
-
-    // 1. Créer le User avec le bon rôle
-    const newUser = new userModel({
-      name, prenom, email, password, tel,
-      role: "directeurCentreFormation",
-    });
-    await newUser.save();
-
-    // 2. Créer automatiquement le profil DirecteurCentreFormation lié
-    const DirecteurCentreFormation = require("../models/directeurCentreFormation.model");
-    const profil = new DirecteurCentreFormation({
-      userId: newUser._id,
-      nomCentre,
-      adresse,
-      telephone: tel,
-      siteWeb,
-    });
-    await profil.save();
-
-    res.status(201).json({
-      message: "DirecteurCentreFormation créé avec succès",
-      data: { user: newUser, profil },
-    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -146,13 +125,15 @@ module.exports.createUserDirecteur = async (req, res) => {
 
 module.exports.updateUser = async (req, res) => {
   try {
-    const { name, prenom, age, location, photo } = req.body;
-    const updatedUser = await userModel.findByIdAndUpdate(
-      req.params.id,
-      { name, prenom, age, location, photo },
-      { new: true }
-    );
-    if (!updatedUser) throw new Error("User not found");
+    const userId = req.params.id;
+    const { password, ...rest } = req.body;
+    const updatedUser = await userModel.findByIdAndUpdate(userId, rest, {
+      new: true,
+      runValidators: true,
+    }).select("-password");
+    if (!updatedUser) {
+      throw new Error("User not found");
+    }
     res.status(200).json({ message: "User updated successfully", data: updatedUser });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -162,8 +143,94 @@ module.exports.updateUser = async (req, res) => {
 module.exports.deleteUser = async (req, res) => {
   try {
     const deletedUser = await userModel.findByIdAndDelete(req.params.id);
-    if (!deletedUser) throw new Error("User not found");
+    if (!deletedUser) {
+      throw new Error("User not found");
+    }
     res.status(200).json({ message: "User deleted successfully", data: deletedUser });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports.blockUser = async (req, res) => {
+  try {
+    const user = await userModel.findByIdAndUpdate(
+      req.params.id,
+      { block: true, loginAttempts: 0 },
+      { new: true }
+    ).select("-password");
+    if (!user) {
+      throw new Error("User not found");
+    }
+    res.status(200).json({ message: "User blocked successfully", data: user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports.unblockUser = async (req, res) => {
+  try {
+    const user = await userModel.findByIdAndUpdate(
+      req.params.id,
+      { block: false, loginAttempts: 0 },
+      { new: true }
+    ).select("-password");
+    if (!user) {
+      throw new Error("User not found");
+    }
+    res.status(200).json({ message: "User unblocked successfully", data: user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports.changePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const user = await userModel.findById(req.params.id);
+    if (!user) {
+      throw new Error("User not found");
+    }
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      throw new Error("Old password is incorrect");
+    }
+    user.password = newPassword;
+    await user.save();
+    res.status(200).json({ message: "Password updated successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports.uploadPhoto = async (req, res) => {
+  try {
+    if (!req.file) {
+      throw new Error("No image provided");
+    }
+    const user = await userModel.findByIdAndUpdate(
+      req.params.id,
+      { photodeprofil: req.file.filename },
+      { new: true }
+    ).select("-password");
+    if (!user) {
+      throw new Error("User not found");
+    }
+    res.status(200).json({ message: "Photo updated successfully", data: user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      throw new Error("Email not found");
+    }
+    // TODO: envoyer un email de réinitialisation
+    res.status(200).json({ message: "Reset password email sent" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

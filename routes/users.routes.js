@@ -2,21 +2,23 @@ var express = require('express');
 var router = express.Router();
 const userController = require('../controllers/user.controller');
 
-// ================= CREATE =================
-router.post('/',                        userController.createUser);
-router.post('/admin',                   userController.createUserAdmin);
-router.post('/formateur',               userController.createUserFormateur);
-router.post('/apprenant',               userController.createUserApprenant);
-router.post('/directeur',               userController.createUserDirecteur); // ✅ NOUVEAU
+// ───────── AUTH ─────────
+router.post('/register', userController.register);
+router.post('/login', userController.login);
+router.post('/logout', userController.logout);
+router.post('/forgotPassword', userController.forgotPassword);
+router.put('/changePassword/:id', userController.changePassword);
 
-// ================= READ =================
-router.get('/',                         userController.getAllUsers);
-router.get('/:id',                      userController.getUserById);
+// ───────── PROFILE ─────────
+router.get('/getMyProfile', userController.getMyProfile);
+// router.put('/uploadPhoto/:id', upload.single('photodeprofil'), userController.uploadPhoto);
 
-// ================= UPDATE =================
-router.put('/:id',                      userController.updateUser);
-
-// ================= DELETE =================
-router.delete('/:id',                   userController.deleteUser);
+// ───────── ADMIN ─────────
+router.get('/getAllUsers', userController.getAllUsers);
+router.get('/getUserById/:id', userController.getUserById);
+router.put('/updateUser/:id', userController.updateUser);
+router.delete('/deleteUser/:id', userController.deleteUser);
+router.put('/blockUser/:id', userController.blockUser);
+router.put('/unblockUser/:id', userController.unblockUser);
 
 module.exports = router;
