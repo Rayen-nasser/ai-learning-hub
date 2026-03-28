@@ -1,120 +1,68 @@
-const Paiement = require("../models/paiement.model");
+const paiementModel = require("../models/paiement.model");
 
-module.exports.getAll = async (req, res) => {
+module.exports.getAllPaiements = async (req, res) => {
   try {
-    const paiements = await Paiement.find().populate("inscriptionId");
-    res.status(200).json({ message: "Paiements récupérés avec succès", data: paiements });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-module.exports.getById = async (req, res) => {
-  try {
-    const paiement = await Paiement.findById(req.params.id).populate("inscriptionId");
-    if (!paiement) throw new Error("Paiement non trouvé");
-    res.status(200).json({ message: "Paiement récupéré avec succès", data: paiement });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// ── Créer un paiement ────────────────────────────────────
-module.exports.create = async (req, res) => {
-  try {
-    const { inscriptionId, montant, methode, notes } = req.body;
-
-    const paiement = new Paiement({
-      inscriptionId,
-      montant,
-      devise: "DNT",
-      methode,
-      notes,
-    });
-
-    await paiement.save();
-
-    res.status(201).json({
-      message: "Paiement créé avec succès",
-      data: paiement,
-      info: {
-        montantPaye: `${montant} DNT`,
-        methode,
-        reference: paiement.reference,
-      },
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// ── Valider un paiement ──────────────────────────────────
-module.exports.valider = async (req, res) => {
-  try {
-    const paiement = await Paiement.findByIdAndUpdate(
-      req.params.id,
-      { statut: "valide", datePaiement: Date.now() },
-      { new: true }
-    );
-    if (!paiement) throw new Error("Paiement non trouvé");
-    res.status(200).json({ message: "Paiement validé avec succès", data: paiement });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// ── Rembourser un paiement ───────────────────────────────
-module.exports.rembourser = async (req, res) => {
-  try {
-    const paiement = await Paiement.findById(req.params.id);
-    if (!paiement) throw new Error("Paiement non trouvé");
-    if (paiement.statut !== "valide") {
-      return res.status(400).json({ error: "Seul un paiement validé peut être remboursé" });
+    const paiements = await paiementModel.find()
+      .populate("inscriptionId")
+      .populate("apprenantId", "-password");
+    if (paiements.length === 0) {
+      throw new Error("No paiements found");
     }
-    paiement.statut = "rembourse";
-    paiement.dateRemboursement = Date.now();
-    await paiement.save();
-    res.status(200).json({ message: "Paiement remboursé avec succès", data: paiement });
+    res.status(200).json({ message: "Paiements retrieved successfully", data: paiements });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// ── Annuler un paiement ──────────────────────────────────
-module.exports.annuler = async (req, res) => {
+module.exports.getPaiementById = async (req, res) => {
   try {
-    const paiement = await Paiement.findByIdAndUpdate(
+    const paiement = await paiementModel.findById(req.params.id)
+      .populate("inscriptionId")
+      .populate("apprenantId", "-password");
+    if (!paiement) {
+      throw new Error("Paiement not found");
+    }
+    res.status(200).json({ message: "Paiement retrieved successfully", data: paiement });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports.createPaiement = async (req, res) => {
+  try {
+    const { inscriptionId, apprenantId, montant, methodePaiement } = req.body;
+    const newPaiement = new paiementModel({ inscriptionId, apprenantId, montant, methodePaiement });
+    await newPaiement.save();
+    res.status(201).json({ message: "Paiement created successfully", data: newPaiement });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports.confirmerPaiement = async (req, res) => {
+  try {
+    const paiement = await paiementModel.findByIdAndUpdate(
       req.params.id,
-      { statut: "annule" },
+      { statut: "confirmé" },
       { new: true }
     );
-    if (!paiement) throw new Error("Paiement non trouvé");
-    res.status(200).json({ message: "Paiement annulé avec succès", data: paiement });
+    if (!paiement) {
+      throw new Error("Paiement not found");
+    }
+    res.status(200).json({ message: "Paiement confirmed successfully", data: paiement });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// ── Supprimer ────────────────────────────────────────────
-module.exports.remove = async (req, res) => {
+module.exports.deletePaiement = async (req, res) => {
   try {
-    const paiement = await Paiement.findByIdAndDelete(req.params.id);
-    if (!paiement) throw new Error("Paiement non trouvé");
-    res.status(200).json({ message: "Paiement supprimé avec succès", data: paiement });
+    const deletedPaiement = await paiementModel.findByIdAndDelete(req.params.id);
+    if (!deletedPaiement) {
+      throw new Error("Paiement not found");
+    }
+    res.status(200).json({ message: "Paiement deleted successfully", data: deletedPaiement });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-};
-
-// ── Méthodes disponibles ─────────────────────────────────
-module.exports.getMethodes = async (req, res) => {
-  res.status(200).json({
-    message: "Méthodes de paiement disponibles en Tunisie",
-    devise: "DNT 🇹🇳",
-    methodes: [
-      { code: "carte_bancaire_locale", label: "Carte bancaire locale (CIB / VISA locale)" },
-      { code: "virement_bancaire",     label: "Virement bancaire tunisien" },
-      { code: "postepay",              label: "La Poste Tunisienne" },
-    ],
-  });
 };

@@ -1,83 +1,83 @@
-const Inscription = require("../models/inscription.model");
+const inscriptionModel = require("../models/inscription.model");
 
-module.exports.getAll = async (req, res) => {
+module.exports.getAllInscriptions = async (req, res) => {
   try {
-    const inscriptions = await Inscription.find()
-      .populate("apprenantId")
-      .populate("coursId", "titre prix");
-    res.status(200).json({ message: "Inscriptions récupérées avec succès", data: inscriptions });
+    const inscriptions = await inscriptionModel.find()
+      .populate("apprenantId", "-password")
+      .populate("formationId");
+    if (inscriptions.length === 0) {
+      throw new Error("No inscriptions found");
+    }
+    res.status(200).json({ message: "Inscriptions retrieved successfully", data: inscriptions });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports.getById = async (req, res) => {
+module.exports.getInscriptionById = async (req, res) => {
   try {
-    const inscription = await Inscription.findById(req.params.id)
-      .populate("apprenantId")
-      .populate("coursId", "titre prix");
-    if (!inscription) throw new Error("Inscription non trouvée");
-    res.status(200).json({ message: "Inscription récupérée avec succès", data: inscription });
+    const inscription = await inscriptionModel.findById(req.params.id)
+      .populate("apprenantId", "-password")
+      .populate("formationId");
+    if (!inscription) {
+      throw new Error("Inscription not found");
+    }
+    res.status(200).json({ message: "Inscription retrieved successfully", data: inscription });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports.create = async (req, res) => {
+module.exports.createInscription = async (req, res) => {
   try {
-    const { apprenantId, coursId } = req.body;
-    const inscription = new Inscription({ apprenantId, coursId });
-    await inscription.save();
-    res.status(201).json({ message: "Inscription créée avec succès", data: inscription });
+    const { apprenantId, formationId } = req.body;
+    const newInscription = new inscriptionModel({ apprenantId, formationId });
+    await newInscription.save();
+    res.status(201).json({ message: "Inscription created successfully", data: newInscription });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports.confirmer = async (req, res) => {
+module.exports.validerInscription = async (req, res) => {
   try {
-    const inscription = await Inscription.findByIdAndUpdate(
+    const inscription = await inscriptionModel.findByIdAndUpdate(
       req.params.id,
-      { statut: "confirme" },
+      { statue: "acceptée", dateAcceptation: Date.now() },
       { new: true }
     );
-    if (!inscription) throw new Error("Inscription non trouvée");
-    res.status(200).json({ message: "Inscription confirmée avec succès", data: inscription });
+    if (!inscription) {
+      throw new Error("Inscription not found");
+    }
+    res.status(200).json({ message: "Inscription validated successfully", data: inscription });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports.annuler = async (req, res) => {
+module.exports.annulerInscription = async (req, res) => {
   try {
-    const inscription = await Inscription.findByIdAndUpdate(
+    const inscription = await inscriptionModel.findByIdAndUpdate(
       req.params.id,
-      { statut: "annule" },
+      { statue: "refusée" },
       { new: true }
     );
-    if (!inscription) throw new Error("Inscription non trouvée");
-    res.status(200).json({ message: "Inscription annulée avec succès", data: inscription });
+    if (!inscription) {
+      throw new Error("Inscription not found");
+    }
+    res.status(200).json({ message: "Inscription cancelled successfully", data: inscription });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports.remove = async (req, res) => {
+module.exports.deleteInscription = async (req, res) => {
   try {
-    const inscription = await Inscription.findByIdAndDelete(req.params.id);
-    if (!inscription) throw new Error("Inscription non trouvée");
-    res.status(200).json({ message: "Inscription supprimée avec succès", data: inscription });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// GET le paiement lié à une inscription
-module.exports.getPaiement = async (req, res) => {
-  try {
-    const Paiement = require("../models/paiement.model");
-    const paiement = await Paiement.findOne({ inscriptionId: req.params.id });
-    res.status(200).json({ message: "Paiement récupéré avec succès", data: paiement });
+    const deletedInscription = await inscriptionModel.findByIdAndDelete(req.params.id);
+    if (!deletedInscription) {
+      throw new Error("Inscription not found");
+    }
+    res.status(200).json({ message: "Inscription deleted successfully", data: deletedInscription });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
