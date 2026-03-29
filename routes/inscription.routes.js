@@ -1,13 +1,19 @@
 var express = require('express');
 var router = express.Router();
-const ctrl = require('../controllers/inscription.controller');
+const inscriptionController = require('../controllers/inscription.controller');
 
-router.get('/', ctrl.getAll);
-router.get('/:id', ctrl.getById);
-router.post('/', ctrl.create);
-router.delete('/:id', ctrl.remove);
-router.put('/:id/confirmer', ctrl.confirmer);
-router.put('/:id/annuler', ctrl.annuler);
-router.get('/:id/paiement', ctrl.getPaiement);
+// ───────── READ ─────────
+router.get('/getAllInscriptions', inscriptionController.getAllInscriptions);
+router.get('/getInscriptionById/:id', inscriptionController.getInscriptionById);
+
+// ───────── CREATE ─────────
+router.post('/createInscription', inscriptionController.createInscription);
+
+// ───────── VALIDER / ANNULER ─────────
+router.put('/validerInscription/:id', inscriptionController.validerInscription);
+router.put('/annulerInscription/:id', inscriptionController.annulerInscription);
+
+// ───────── DELETE ─────────
+router.delete('/deleteInscription/:id', inscriptionController.deleteInscription);
 
 module.exports = router;

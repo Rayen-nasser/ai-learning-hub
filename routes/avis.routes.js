@@ -1,13 +1,14 @@
 var express = require('express');
 var router = express.Router();
-const ctrl = require('../controllers/avis.controller');
+const avisController = require('../controllers/avis.controller');
 
-router.get('/', ctrl.getAll);
-router.get('/:id', ctrl.getById);
-router.post('/', ctrl.create);
-router.put('/:id', ctrl.update);
-router.delete('/:id', ctrl.remove);
-router.put('/:id/valider', ctrl.valider);
-router.put('/:id/rejeter', ctrl.rejeter);
+// ───────── READ ─────────
+router.get('/getAllAvis', avisController.getAllAvis);
+router.get('/getAvisById/:id', avisController.getAvisById);
+
+// ───────── CREATE / UPDATE / DELETE ─────────
+router.post('/createAvis', avisController.createAvis);
+router.put('/updateAvis/:id', avisController.updateAvis);
+router.delete('/deleteAvis/:id', avisController.deleteAvis);
 
 module.exports = router;
