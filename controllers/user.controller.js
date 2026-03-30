@@ -23,14 +23,6 @@ module.exports.register = async (req, res) => {
     });
     await newUser.save();
 
-    req.session.user = {
-      _id: newUser._id,
-      nom: newUser.nom,
-      prenom: newUser.prenom,
-      email: newUser.email,
-      role: newUser.role,
-    };
-
     res.status(201).json({ message: "User created successfully", data: newUser });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -63,14 +55,6 @@ module.exports.login = async (req, res) => {
 
     await userModel.findByIdAndUpdate(user._id, { loginAttempts: 0 });
 
-    req.session.user = {
-      _id: user._id,
-      nom: user.nom,
-      prenom: user.prenom,
-      email: user.email,
-      role: user.role,
-    };
-
     res.status(200).json({ message: "Login successful", data: user });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -79,7 +63,6 @@ module.exports.login = async (req, res) => {
 
 module.exports.logout = async (req, res) => {
   try {
-    req.session.destroy();
     res.status(200).json({ message: "Logout successful" });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -88,8 +71,7 @@ module.exports.logout = async (req, res) => {
 
 module.exports.getMyProfile = async (req, res) => {
   try {
-    const userId = req.session.user._id;
-    const user = await userModel.findById(userId).select("-password");
+    const user = await userModel.findById(req.params.id).select("-password");
     if (!user) {
       throw new Error("User not found");
     }
