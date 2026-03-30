@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema(
       ],
     },
     telephone: String,
-    photodeprofil: String,
+    user_image: String,// champs image
     role: {
       type: String,
       enum: ["user", "admin", "formateur", "responsableCF"],

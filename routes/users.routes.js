@@ -1,24 +1,30 @@
-var express = require('express');
-var router = express.Router();
-const userController = require('../controllers/user.controller');
+const express = require("express");
+const router = express.Router();
+const userController = require("../controllers/user.controller"); // Make sure this path is correct
+const upload = require('../middlewares/uploadfile'); // Middleware pour gérer les uploads de fichiers
+const logMiddleware = require('../middlewares/LogMiddleware');
 
-// ───────── AUTH ─────────
-router.post('/register', userController.register);
-router.post('/login', userController.login);
-router.post('/logout', userController.logout);
-router.post('/forgotPassword', userController.forgotPassword);
-router.put('/changePassword/:id', userController.changePassword);
+// ───── REGISTER ─────
+router.post("/register", userController.createUser);
 
-// ───────── PROFILE ─────────
-router.get('/getMyProfile', userController.getMyProfile);
-// router.put('/uploadPhoto/:id', upload.single('photodeprofil'), userController.uploadPhoto);
+// ───── CREATE SPECIFIC USERS ─────
+router.post("/create-admin", userController.createAdmin);
+router.post("/create-trainer", userController.createTrainer);
+router.post("/create-center-manager", userController.createCenterManager);
+router.post('/CreateUser', userController.createUser);
+router.post('/CreateUserWithImage', upload.single('user_image'), userController.createUserWithImage);
 
-// ───────── ADMIN ─────────
-router.get('/getAllUsers', userController.getAllUsers);
-router.get('/getUserById/:id', userController.getUserById);
-router.put('/updateUser/:id', userController.updateUser);
-router.delete('/deleteUser/:id', userController.deleteUser);
-router.put('/blockUser/:id', userController.blockUser);
-router.put('/unblockUser/:id', userController.unblockUser);
+// ───── GET USERS ─────
+router.get("/getAllUsers",logMiddleware, userController .getAllUsers);
+router.get("/:id", logMiddleware, userController.getUserById);
+
+// ───── UPDATE & DELETE ─────
+router.put("/:id", userController.updateUser);
+router.delete("/:id", userController.deleteUser);
+
+// ───── AUTH ─────
+router.post("/login",logMiddleware, userController.login);
+router.post("/logout", userController.logout);
+router.post("/forgot-password", userController.forgotPassword);
 
 module.exports = router;
