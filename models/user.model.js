@@ -20,17 +20,17 @@ const userSchema = new mongoose.Schema(
         "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, and one number",
       ],
     },
-    telephone: String,
-    user_image: String,// champs image
     role: {
       type: String,
-      enum: ["user", "admin", "formateur", "responsableCF"],
-      default: "user",
+      enum: ["apprenant", "formateur", "responsableCF", "admin"],
+      default: "apprenant",
     },
+    telephone: String,
+    user_image: String,
     block: { type: Boolean, default: false },
     loginAttempts: { type: Number, default: 0 },
 
-    // ───── Champs Apprenant (role: user) ─────
+    // ───── Champs Apprenant ─────
     niveauEtude: {
       type: String,
       enum: ["primaire", "secondaire", "bac", "licence", "master", "doctorat"],
@@ -38,17 +38,17 @@ const userSchema = new mongoose.Schema(
     dateNaissance: { type: Date },
     adresse: { type: String },
 
-    // ───── Champs Formateur (role: formateur) ─────
+    // ───── Champs Formateur ─────
     specialite: String,
     experience: Number,
     statut: { type: String, enum: ["actif", "inactif"] },
     centreId: { type: mongoose.Schema.Types.ObjectId, ref: "CentreFormation" },
 
-    // ───── Champs ResponsableCF (role: responsableCF) ─────
+    // ───── Champs ResponsableCF ─────
     centreGereId: { type: mongoose.Schema.Types.ObjectId, ref: "CentreFormation" },
 
     // ───── Champs Admin ─────
-    // géré uniquement via le role, pas de champs supplémentaires
+    // géré uniquement via le role
   },
   { timestamps: true }
 );
@@ -59,22 +59,41 @@ userSchema.pre("save", async function () {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-module.exports = mongoose.model("User", userSchema);
-
-
-
-
-
-/*
 userSchema.statics.login = async function (email, password) {
-  const user = await this.findOne({email}) 
-  if (user){
-    const auth = await bcrypt.compare(password, user.password)
-    if (auth) {
-      return user
+  try {
+    const user = await this.findOne({ email });
+    if (!user) {
+      throw new Error("Incorrect email");
     }
-    throw new Error("invalid password")
+
+    if (user.block === true) {
+      throw new Error("User is blocked");
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      const updatedUser = await this.findByIdAndUpdate(
+        user._id,
+        { $inc: { loginAttempts: 1 } },
+        { new: true }
+      );
+      if (updatedUser.loginAttempts >= 5) {
+        await this.findByIdAndUpdate(user._id, { block: true });
+        throw new Error("User is blocked due to too many failed login attempts");
+      }
+      throw new Error("Incorrect password");
+    }
+
+    const updatedUser = await this.findByIdAndUpdate(
+      user._id,
+      { loginAttempts: 0 },
+      { new: true }
+    );
+
+    return updatedUser;
+  } catch (err) {
+    throw err;
   }
-  throw new Error("incorrect email")
-}  
-*/
+};
+
+module.exports = mongoose.model("User", userSchema);
