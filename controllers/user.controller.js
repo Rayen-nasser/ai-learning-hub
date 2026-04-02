@@ -156,12 +156,14 @@ module.exports.logout = async (req, res) => {
   }
 };
 
+
 // ───── FORGOT PASSWORD ─────
-module.exports.forgotPassword = async (req, res) => {
+ /*module.exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
     res.status(200).json({ message: "Forgot password endpoint" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-};
+}
+/**
