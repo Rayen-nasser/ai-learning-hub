@@ -3,7 +3,6 @@ const path = require('path');
 const fs = require('fs');
 
 const ALLOWED_MIME_TYPES = [
-  // Documents
   'application/pdf',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -12,23 +11,20 @@ const ALLOWED_MIME_TYPES = [
   'application/vnd.ms-powerpoint',
   'application/vnd.openxmlformats-officedocument.presentationml.presentation',
   'text/plain',
-  // Images
   'image/jpeg',
   'image/png',
   'image/gif',
   'image/webp',
   'image/svg+xml',
-  // Videos
   'video/mp4',
   'video/webm',
   'video/ogg',
 ];
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 const createUploadMiddleware = (folder = 'uploads') => {
   const uploadPath = path.join('public', folder);
-  const folderName = folder;
   
   if (!fs.existsSync(uploadPath)) {
     fs.mkdirSync(uploadPath, { recursive: true });
@@ -44,8 +40,6 @@ const createUploadMiddleware = (folder = 'uploads') => {
       const timestamp = Date.now();
       const baseName = originalName.replace(/[^a-zA-Z0-9.]/g, '_').replace(fileExtension, '');
       const fileName = `${timestamp}_${baseName}${fileExtension}`;
-
-      req.file.folder = folderName;
       cb(null, fileName);
     }
   });
@@ -54,21 +48,35 @@ const createUploadMiddleware = (folder = 'uploads') => {
     if (ALLOWED_MIME_TYPES.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error(`File type ${file.mimetype} not allowed. Allowed types: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, JPG, PNG, GIF, WEBP, SVG, MP4, WEBM, OGG`), false);
+      cb(new Error(`File type ${file.mimetype} not allowed.`), false);
     }
   };
 
-  return multer({
+  const multerInstance = multer({
     storage: storage,
-    limits: {
-      fileSize: MAX_FILE_SIZE,
-    },
+    limits: { fileSize: MAX_FILE_SIZE },
     fileFilter: fileFilter,
   });
+
+  return {
+    single: (fieldName) => {
+      const middleware = multerInstance.single(fieldName);
+      return (req, res, cb) => {
+        middleware(req, res, (err) => {
+          if (err) return cb(err);
+          if (req.file) {
+            req.file.folder = folder;
+          }
+          cb();
+        });
+      };
+    },
+    array: multerInstance.array,
+  };
 };
 
-const uploadSingle = createUploadMiddleware('uploads').single('file');
-const uploadMultiple = createUploadMiddleware('uploads').array('files', 10);
+const uploadSingle = (fieldName, folder = 'uploads') => createUploadMiddleware(folder).single(fieldName);
+const uploadMultiple = createUploadMiddleware('uploads').array;
 const uploadfile = createUploadMiddleware('images');
 
 module.exports = uploadfile;
