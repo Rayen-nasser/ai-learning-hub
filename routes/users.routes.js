@@ -93,6 +93,18 @@ const { requireAuth } = require('../middlewares/authMiddleware');
  *     responses:
  *       200:
  *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 token:
+ *                   type: string
+ *                   description: JWT token for authentication
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
  *       401:
  *         description: Invalid credentials
  */
