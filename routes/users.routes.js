@@ -189,6 +189,80 @@ const { requireAuth } = require('../middlewares/authMiddleware');
  *         description: User deleted
  */
 
+/**
+ * @swagger
+ * /users/forgot-password:
+ *   post:
+ *     summary: Request password reset
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Reset token generated
+ */
+
+/**
+ * @swagger
+ * /users/reset-password:
+ *   post:
+ *     summary: Reset password with token
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - token
+ *               - newPassword
+ *             properties:
+ *               token:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Password reset successful
+ */
+
+/**
+ * @swagger
+ * /users/change-password:
+ *   post:
+ *     summary: Change password (authenticated)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - currentPassword
+ *               - newPassword
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Password changed successfully
+ */
+
 // ───── CREATE USERS ─────
 router.post("/register", userController.createUser);
 router.post("/registerWithImage", upload.single('user_image'), userController.createUserWithImage);
@@ -201,6 +275,8 @@ router.get("/getMyProfile", requireAuth, userController.getMyProfile);
 router.post("/login", logMiddleware, userController.login);
 router.post("/logout", requireAuth, userController.logout);
 router.post("/forgot-password", userController.forgotPassword);
+router.post("/reset-password", userController.resetPassword);
+router.post("/change-password", requireAuth, userController.changePassword);
 
 // ───── ID ROUTE (doit être en dernier) ─────
 router.get("/:id", requireAuth, logMiddleware, userController.getUserById);

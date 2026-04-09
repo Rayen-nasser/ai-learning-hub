@@ -29,6 +29,8 @@ const userSchema = new mongoose.Schema(
     user_image: String,
     block: { type: Boolean, default: false },
     loginAttempts: { type: Number, default: 0 },
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
 
     // ───── Champs Apprenant ─────
     niveauEtude: {
