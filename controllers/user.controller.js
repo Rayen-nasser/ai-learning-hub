@@ -4,6 +4,10 @@ const jwt = require("jsonwebtoken");
 const maxage = 3 * 24 * 60 * 60;
 const secretKey = process.env.JWT_SECRET;
 
+const getBaseUrl = () => {
+  return process.env.BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
+};
+
 const createToken = (userId) => {
   return jwt.sign({ id: userId }, secretKey, { expiresIn: process.env.JWT_EXPIRES_IN || maxage });
 };
@@ -12,6 +16,17 @@ const sanitizeUser = (user) => {
   const obj = user.toObject ? user.toObject() : { ...user };
   delete obj.password;
   delete obj.loginAttempts;
+  
+  if (obj.user_image) {
+    if (obj.user_image.startsWith('http')) {
+      obj.user_image = obj.user_image;
+    } else if (obj.user_image.startsWith('/')) {
+      obj.user_image = `${getBaseUrl()}${obj.user_image}`;
+    } else {
+      obj.user_image = `${getBaseUrl()}/images/${obj.user_image}`;
+    }
+  }
+  
   return obj;
 };
 
