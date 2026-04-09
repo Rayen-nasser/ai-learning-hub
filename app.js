@@ -11,14 +11,21 @@ const swaggerUi = require('swagger-ui-express');
 const { connectToMongoDB } = require('./config/db');
 require('dotenv').config();
 
+var app = express();
+
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:3001',
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
 };
-
 app.use(cors(corsOptions));
+
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
 
 // ── Routes ──────────────────────────────────────────────
 var usersRouter           = require('./routes/users.routes');
@@ -31,14 +38,6 @@ var paiementRouter        = require('./routes/paiement.routes');
 var avisRouter            = require('./routes/avis.routes');
 var favoriRouter          = require('./routes/favori.route');
 var categorieRouter       = require('./routes/categorie.route');
-
-var app = express();
-
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
 
 // ── Enregistrement des routes ────────────────────────────
 app.use('/users',        usersRouter);
