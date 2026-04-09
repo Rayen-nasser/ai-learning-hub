@@ -156,14 +156,18 @@ module.exports.logout = async (req, res) => {
   }
 };
 
-
-// ───── FORGOT PASSWORD ─────
- /*module.exports.forgotPassword = async (req, res) => {
+// _____forgetPassword_____
+module.exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
-    res.status(200).json({ message: "Forgot password endpoint" });
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      throw new Error("User not found");
+    }
+    const resetToken = createToken(user._id);
+    res.cookie("jwt", resetToken, { httpOnly: true, maxAge: maxage * 1000 });
+    res.status(200).json({ message: "Password reset link sent successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
-/**
+};

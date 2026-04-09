@@ -4,6 +4,8 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const http = require('http');
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 
 const { connectToMongoDB } = require('./config/db');
 require('dotenv').config();
@@ -39,6 +41,36 @@ app.use('/paiements',    paiementRouter);
 app.use('/avis',         avisRouter);
 app.use('/favoris',      favoriRouter);
 app.use('/categories',   categorieRouter);
+
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Backend API',
+      version: '1.0.0',
+      description: 'API documentation for your backend',
+    },
+    servers: [
+      {
+        url: `http://localhost:${process.env.PORT || 3000}`,
+        description: 'Development server',
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
+  },
+  apis: ['./routes/*.js'],
+};
+
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // ── catch 404 and forward to error handler ──────────────────────────────────
 app.use(function(req, res, next) {
