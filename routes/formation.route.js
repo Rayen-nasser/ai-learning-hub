@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const formationController = require('../controllers/formation.controller');
+const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
 
 /**
  * @swagger
@@ -65,6 +66,8 @@ const formationController = require('../controllers/formation.controller');
  *   post:
  *     summary: Create a new formation
  *     tags: [Formations]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -74,6 +77,10 @@ const formationController = require('../controllers/formation.controller');
  *     responses:
  *       201:
  *         description: Formation created
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - requires ResponsableCF or Admin role
  */
 
 /**
@@ -82,6 +89,8 @@ const formationController = require('../controllers/formation.controller');
  *   put:
  *     summary: Update a formation
  *     tags: [Formations]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -97,6 +106,10 @@ const formationController = require('../controllers/formation.controller');
  *     responses:
  *       200:
  *         description: Formation updated
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - requires owner or Admin role
  */
 
 /**
@@ -105,6 +118,8 @@ const formationController = require('../controllers/formation.controller');
  *   delete:
  *     summary: Delete a formation
  *     tags: [Formations]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -114,15 +129,24 @@ const formationController = require('../controllers/formation.controller');
  *     responses:
  *       200:
  *         description: Formation deleted
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin only
  */
 
-// ───────── READ (tous les roles) ─────────
+// ───────── PUBLIC ROUTES ─────────
 router.get('/getAllFormations', formationController.getAllFormations);
 router.get('/getFormationById/:id', formationController.getFormationById);
 
-// ───────── CREATE / UPDATE / DELETE ─────────
-router.post('/createFormation', formationController.createFormation);
-router.put('/updateFormation/:id', formationController.updateFormation);
-router.delete('/deleteFormation/:id', formationController.deleteFormation);
+// ───────── PROTECTED ROUTES ─────────
+// Create: ResponsableCF or Admin
+router.post('/createFormation', requireAuth, requireRole('responsableCF', 'admin'), formationController.createFormation);
+
+// Update: Owner or Admin
+router.put('/updateFormation/:id', requireAuth, formationController.updateFormation);
+
+// Delete: Admin only
+router.delete('/deleteFormation/:id', requireAuth, requireRole('admin'), formationController.deleteFormation);
 
 module.exports = router;

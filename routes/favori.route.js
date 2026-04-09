@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const favoriController = require('../controllers/favori.controller');
+const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
 
 /**
  * @swagger
@@ -27,9 +28,15 @@ const favoriController = require('../controllers/favori.controller');
  *   get:
  *     summary: Get all favorites
  *     tags: [Favoris]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of favorites
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin only
  */
 
 /**
@@ -38,6 +45,8 @@ const favoriController = require('../controllers/favori.controller');
  *   get:
  *     summary: Get favorites by learner
  *     tags: [Favoris]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: apprenantId
@@ -48,6 +57,10 @@ const favoriController = require('../controllers/favori.controller');
  *     responses:
  *       200:
  *         description: Learner's favorites
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Self or Admin only
  */
 
 /**
@@ -56,6 +69,8 @@ const favoriController = require('../controllers/favori.controller');
  *   post:
  *     summary: Create a new favorite
  *     tags: [Favoris]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -63,12 +78,9 @@ const favoriController = require('../controllers/favori.controller');
  *           schema:
  *             type: object
  *             required:
- *               - apprenantId
  *               - cibleId
  *               - typeCible
  *             properties:
- *               apprenantId:
- *                 type: string
  *               cibleId:
  *                 type: string
  *               typeCible:
@@ -77,6 +89,8 @@ const favoriController = require('../controllers/favori.controller');
  *     responses:
  *       201:
  *         description: Favorite created
+ *       401:
+ *         description: Unauthorized
  */
 
 /**
@@ -85,6 +99,8 @@ const favoriController = require('../controllers/favori.controller');
  *   delete:
  *     summary: Delete a favorite
  *     tags: [Favoris]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -94,14 +110,23 @@ const favoriController = require('../controllers/favori.controller');
  *     responses:
  *       200:
  *         description: Favorite deleted
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Self or Admin only
  */
 
-// ───────── READ ─────────
-router.get('/getAllFavoris', favoriController.getAllFavoris);
-router.get('/getFavorisByApprenant/:apprenantId', favoriController.getFavorisByApprenant);
+// ───────── PROTECTED ROUTES ─────────
+// GetAll: Admin only
+router.get('/getAllFavoris', requireAuth, requireRole('admin'), favoriController.getAllFavoris);
 
-// ───────── CREATE / DELETE ─────────
-router.post('/createFavori', favoriController.createFavori);
-router.delete('/deleteFavori/:id', favoriController.deleteFavori);
+// GetByApprenant: Self or Admin
+router.get('/getFavorisByApprenant/:apprenantId', requireAuth, favoriController.getFavorisByApprenant);
+
+// Create: Authenticated user (self)
+router.post('/createFavori', requireAuth, favoriController.createFavori);
+
+// Delete: Self or Admin
+router.delete('/deleteFavori/:id', requireAuth, favoriController.deleteFavori);
 
 module.exports = router;

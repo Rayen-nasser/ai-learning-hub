@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const categorieController = require('../controllers/categorie.controller');
+const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
 
 /**
  * @swagger
@@ -56,6 +57,8 @@ const categorieController = require('../controllers/categorie.controller');
  *   post:
  *     summary: Create a new category
  *     tags: [Categories]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -65,6 +68,10 @@ const categorieController = require('../controllers/categorie.controller');
  *     responses:
  *       201:
  *         description: Category created
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin only
  */
 
 /**
@@ -73,6 +80,8 @@ const categorieController = require('../controllers/categorie.controller');
  *   put:
  *     summary: Update a category
  *     tags: [Categories]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -88,6 +97,10 @@ const categorieController = require('../controllers/categorie.controller');
  *     responses:
  *       200:
  *         description: Category updated
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin only
  */
 
 /**
@@ -96,6 +109,8 @@ const categorieController = require('../controllers/categorie.controller');
  *   delete:
  *     summary: Delete a category
  *     tags: [Categories]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -105,15 +120,19 @@ const categorieController = require('../controllers/categorie.controller');
  *     responses:
  *       200:
  *         description: Category deleted
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin only
  */
 
-// ───────── READ (tous les roles) ─────────
+// ───────── PUBLIC ROUTES ─────────
 router.get('/getAllCategories', categorieController.getAllCategories);
 router.get('/getCategorieById/:id', categorieController.getCategorieById);
 
-// ───────── CREATE / UPDATE / DELETE (admin uniquement) ─────────
-router.post('/createCategorie', categorieController.createCategorie);
-router.put('/updateCategorie/:id', categorieController.updateCategorie);
-router.delete('/deleteCategorie/:id', categorieController.deleteCategorie);
+// ───────── PROTECTED ROUTES (Admin only) ─────────
+router.post('/createCategorie', requireAuth, requireRole('admin'), categorieController.createCategorie);
+router.put('/updateCategorie/:id', requireAuth, requireRole('admin'), categorieController.updateCategorie);
+router.delete('/deleteCategorie/:id', requireAuth, requireRole('admin'), categorieController.deleteCategorie);
 
 module.exports = router;

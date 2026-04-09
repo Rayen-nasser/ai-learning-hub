@@ -45,6 +45,8 @@ module.exports.createLecon = async (req, res) => {
       }
     }
 
+    const finalFormateurId = formateurId || req.user._id;
+
     if (formateurId) {
       const formateur = await userModel.findById(formateurId);
       if (!formateur) {
@@ -58,7 +60,7 @@ module.exports.createLecon = async (req, res) => {
       contenu,
       duree,
       formationId,
-      formateurId,
+      formateurId: finalFormateurId,
       estAccessible: estAccessible || false,
     });
     await newLecon.save();
@@ -73,6 +75,18 @@ module.exports.createLecon = async (req, res) => {
 
 module.exports.updateLecon = async (req, res) => {
   try {
+    const lecon = await leconModel.findById(req.params.id);
+    if (!lecon) {
+      return res.status(404).json({ message: "Lesson not found" });
+    }
+
+    const isOwner = lecon.formateurId && lecon.formateurId.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({ message: "Access denied. You can only update your own lessons." });
+    }
+
     const { titre, description, contenu, duree, estAccessible } = req.body;
 
     const updates = {};
@@ -92,9 +106,6 @@ module.exports.updateLecon = async (req, res) => {
       { new: true, runValidators: true }
     ).populate("formationId").populate("formateurId", "-password");
 
-    if (!updatedLecon) {
-      return res.status(404).json({ message: "Lesson not found" });
-    }
     res.status(200).json({ message: "Lesson updated successfully", data: updatedLecon });
   } catch (error) {
     res.status(500).json({ error: error.message });

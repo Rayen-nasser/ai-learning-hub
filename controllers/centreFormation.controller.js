@@ -33,6 +33,8 @@ module.exports.createCentre = async (req, res) => {
       return res.status(400).json({ message: "Centre name is required" });
     }
 
+    const finalResponsableId = responsableId || req.user._id;
+
     if (responsableId) {
       const responsable = await userModel.findById(responsableId);
       if (!responsable) {
@@ -45,7 +47,7 @@ module.exports.createCentre = async (req, res) => {
       adresse,
       description,
       telephone,
-      responsableId,
+      responsableId: finalResponsableId,
       logo,
     });
     await newCentre.save();
@@ -59,6 +61,18 @@ module.exports.createCentre = async (req, res) => {
 
 module.exports.updateCentre = async (req, res) => {
   try {
+    const centre = await centreFormationModel.findById(req.params.id);
+    if (!centre) {
+      return res.status(404).json({ message: "Centre not found" });
+    }
+
+    const isOwner = centre.responsableId && centre.responsableId.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({ message: "Access denied. You can only update your own centres." });
+    }
+
     const { nom, adresse, description, telephone, logo } = req.body;
 
     const updates = {};
@@ -78,9 +92,6 @@ module.exports.updateCentre = async (req, res) => {
       { new: true, runValidators: true }
     ).populate("responsableId", "-password");
 
-    if (!updatedCentre) {
-      return res.status(404).json({ message: "Centre not found" });
-    }
     res.status(200).json({ message: "Centre updated successfully", data: updatedCentre });
   } catch (error) {
     res.status(500).json({ error: error.message });

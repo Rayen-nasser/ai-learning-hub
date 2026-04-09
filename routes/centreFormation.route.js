@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const centreFormationController = require('../controllers/centreFormation.controller');
+const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
 
 /**
  * @swagger
@@ -62,6 +63,8 @@ const centreFormationController = require('../controllers/centreFormation.contro
  *   post:
  *     summary: Create a new formation centre
  *     tags: [Centres]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -71,6 +74,10 @@ const centreFormationController = require('../controllers/centreFormation.contro
  *     responses:
  *       201:
  *         description: Centre created
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - requires ResponsableCF or Admin role
  */
 
 /**
@@ -79,6 +86,8 @@ const centreFormationController = require('../controllers/centreFormation.contro
  *   put:
  *     summary: Update a formation centre
  *     tags: [Centres]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -94,6 +103,10 @@ const centreFormationController = require('../controllers/centreFormation.contro
  *     responses:
  *       200:
  *         description: Centre updated
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - requires owner or Admin role
  */
 
 /**
@@ -102,6 +115,8 @@ const centreFormationController = require('../controllers/centreFormation.contro
  *   delete:
  *     summary: Delete a formation centre
  *     tags: [Centres]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -111,20 +126,24 @@ const centreFormationController = require('../controllers/centreFormation.contro
  *     responses:
  *       200:
  *         description: Centre deleted
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin only
  */
 
-// ───────── READ (tous les roles) ─────────
+// ───────── PUBLIC ROUTES ─────────
 router.get('/getAllCentres', centreFormationController.getAllCentres);
 router.get('/getCentreById/:id', centreFormationController.getCentreById);
 
-// ───────── CREATE / UPDATE (responsableCF uniquement) ─────────
-router.post('/createCentre', centreFormationController.createCentre);
-router.put('/updateCentre/:id', centreFormationController.updateCentre);
+// ───────── PROTECTED ROUTES ─────────
+// Create: ResponsableCF or Admin
+router.post('/createCentre', requireAuth, requireRole('responsableCF', 'admin'), centreFormationController.createCentre);
 
-// ───────── DELETE (admin uniquement) ─────────
-router.delete('/deleteCentre/:id', centreFormationController.deleteCentre);
+// Update: Owner or Admin
+router.put('/updateCentre/:id', requireAuth, centreFormationController.updateCentre);
 
-// ───────── LOGO (responsableCF uniquement - upload désactivé pour le moment) ─────────
-// router.put('/uploadLogo/:id', upload.single('logo'), centreFormationController.uploadLogo);
+// Delete: Admin only
+router.delete('/deleteCentre/:id', requireAuth, requireRole('admin'), centreFormationController.deleteCentre);
 
 module.exports = router;

@@ -31,10 +31,11 @@ module.exports.getAvisById = async (req, res) => {
 
 module.exports.createAvis = async (req, res) => {
   try {
-    const { apprenantId, formationId, note, commentaire } = req.body;
+    const { formationId, note, commentaire } = req.body;
+    const apprenantId = req.user._id;
 
-    if (!apprenantId || !formationId) {
-      return res.status(400).json({ message: "apprenantId and formationId are required" });
+    if (!formationId) {
+      return res.status(400).json({ message: "formationId is required" });
     }
 
     if (note === undefined || note === null) {
@@ -68,6 +69,18 @@ module.exports.createAvis = async (req, res) => {
 
 module.exports.updateAvis = async (req, res) => {
   try {
+    const avis = await avisModel.findById(req.params.id);
+    if (!avis) {
+      return res.status(404).json({ message: "Review not found" });
+    }
+
+    const isOwner = avis.apprenantId.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({ message: "Access denied. You can only update your own reviews." });
+    }
+
     const { note, commentaire } = req.body;
 
     const updates = {};
@@ -89,9 +102,6 @@ module.exports.updateAvis = async (req, res) => {
       { new: true, runValidators: true }
     ).populate("apprenantId", "-password").populate("formationId");
 
-    if (!updatedAvis) {
-      return res.status(404).json({ message: "Review not found" });
-    }
     res.status(200).json({ message: "Review updated successfully", data: updatedAvis });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -100,10 +110,19 @@ module.exports.updateAvis = async (req, res) => {
 
 module.exports.deleteAvis = async (req, res) => {
   try {
-    const deletedAvis = await avisModel.findByIdAndDelete(req.params.id);
-    if (!deletedAvis) {
+    const avis = await avisModel.findById(req.params.id);
+    if (!avis) {
       return res.status(404).json({ message: "Review not found" });
     }
+
+    const isOwner = avis.apprenantId.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({ message: "Access denied. You can only delete your own reviews." });
+    }
+
+    await avisModel.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: "Review deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });

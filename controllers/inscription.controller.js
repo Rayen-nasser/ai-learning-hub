@@ -22,6 +22,14 @@ module.exports.getInscriptionById = async (req, res) => {
     if (!inscription) {
       return res.status(404).json({ message: "Inscription not found" });
     }
+
+    const isOwner = inscription.apprenantId._id.toString() === req.user._id.toString();
+    const isAdminOrResponsable = ['admin', 'responsableCF'].includes(req.user.role);
+
+    if (!isOwner && !isAdminOrResponsable) {
+      return res.status(403).json({ message: "Access denied. You can only view your own inscriptions." });
+    }
+
     res.status(200).json({ message: "Inscription retrieved successfully", data: inscription });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -30,10 +38,11 @@ module.exports.getInscriptionById = async (req, res) => {
 
 module.exports.createInscription = async (req, res) => {
   try {
-    const { apprenantId, formationId } = req.body;
+    const { formationId } = req.body;
+    const apprenantId = req.user._id;
 
-    if (!apprenantId || !formationId) {
-      return res.status(400).json({ message: "apprenantId and formationId are required" });
+    if (!formationId) {
+      return res.status(400).json({ message: "formationId is required" });
     }
 
     const existingInscription = await inscriptionModel.findOne({ apprenantId, formationId });

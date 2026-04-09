@@ -16,6 +16,13 @@ module.exports.getAllFavoris = async (req, res) => {
 
 module.exports.getFavorisByApprenant = async (req, res) => {
   try {
+    const isOwner = req.params.apprenantId === req.user._id.toString();
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({ message: "Access denied. You can only view your own favorites." });
+    }
+
     const favoris = await favoriModel.find({ apprenantId: req.params.apprenantId })
       .populate("apprenantId", "-password")
       .populate("cibleId");
@@ -30,10 +37,11 @@ module.exports.getFavorisByApprenant = async (req, res) => {
 
 module.exports.createFavori = async (req, res) => {
   try {
-    const { apprenantId, cibleId, typeCible } = req.body;
+    const { cibleId, typeCible } = req.body;
+    const apprenantId = req.user._id;
 
-    if (!apprenantId || !cibleId || !typeCible) {
-      return res.status(400).json({ message: "apprenantId, cibleId, and typeCible are required" });
+    if (!cibleId || !typeCible) {
+      return res.status(400).json({ message: "cibleId and typeCible are required" });
     }
 
     const validTypes = ["formation", "lecon", "centreFormation"];
@@ -59,10 +67,19 @@ module.exports.createFavori = async (req, res) => {
 
 module.exports.deleteFavori = async (req, res) => {
   try {
-    const deletedFavori = await favoriModel.findByIdAndDelete(req.params.id);
-    if (!deletedFavori) {
+    const favori = await favoriModel.findById(req.params.id);
+    if (!favori) {
       return res.status(404).json({ message: "Favori not found" });
     }
+
+    const isOwner = favori.apprenantId.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({ message: "Access denied. You can only delete your own favorites." });
+    }
+
+    await favoriModel.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: "Favori deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });

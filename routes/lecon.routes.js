@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const leconController = require('../controllers/lecon.controller');
+const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
 
 /**
  * @swagger
@@ -12,18 +13,24 @@ const leconController = require('../controllers/lecon.controller');
  *         titre:
  *           type: string
  *           description: Lesson title
+ *         description:
+ *           type: string
+ *           description: Lesson description
  *         contenu:
  *           type: string
  *           description: Lesson content
- *         formationId:
- *           type: string
- *           description: Formation ID
- *         ordre:
- *           type: number
- *           description: Lesson order
  *         duree:
  *           type: string
  *           description: Duration
+ *         formationId:
+ *           type: string
+ *           description: Formation ID
+ *         formateurId:
+ *           type: string
+ *           description: Instructor ID
+ *         estAccessible:
+ *           type: boolean
+ *           description: Is accessible
  */
 
 /**
@@ -62,6 +69,8 @@ const leconController = require('../controllers/lecon.controller');
  *   post:
  *     summary: Create a new lesson
  *     tags: [Lecons]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -71,6 +80,10 @@ const leconController = require('../controllers/lecon.controller');
  *     responses:
  *       201:
  *         description: Lesson created
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - requires Formateur or Admin role
  */
 
 /**
@@ -79,6 +92,8 @@ const leconController = require('../controllers/lecon.controller');
  *   put:
  *     summary: Update a lesson
  *     tags: [Lecons]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -94,6 +109,10 @@ const leconController = require('../controllers/lecon.controller');
  *     responses:
  *       200:
  *         description: Lesson updated
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - requires owner or Admin role
  */
 
 /**
@@ -102,6 +121,8 @@ const leconController = require('../controllers/lecon.controller');
  *   delete:
  *     summary: Delete a lesson
  *     tags: [Lecons]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -111,15 +132,24 @@ const leconController = require('../controllers/lecon.controller');
  *     responses:
  *       200:
  *         description: Lesson deleted
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin only
  */
 
-// ───────── READ (tous les roles) ─────────
+// ───────── PUBLIC ROUTES ─────────
 router.get('/getAllLecons', leconController.getAllLecons);
 router.get('/getLeconById/:id', leconController.getLeconById);
 
-// ───────── CREATE / UPDATE / DELETE ─────────
-router.post('/createLecon', leconController.createLecon);
-router.put('/updateLecon/:id', leconController.updateLecon);
-router.delete('/deleteLecon/:id', leconController.deleteLecon);
+// ───────── PROTECTED ROUTES ─────────
+// Create: Formateur or Admin
+router.post('/createLecon', requireAuth, requireRole('formateur', 'admin'), leconController.createLecon);
+
+// Update: Owner or Admin
+router.put('/updateLecon/:id', requireAuth, leconController.updateLecon);
+
+// Delete: Admin only
+router.delete('/deleteLecon/:id', requireAuth, requireRole('admin'), leconController.deleteLecon);
 
 module.exports = router;

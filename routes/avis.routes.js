@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const avisController = require('../controllers/avis.controller');
+const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
 
 /**
  * @swagger
@@ -65,6 +66,8 @@ const avisController = require('../controllers/avis.controller');
  *   post:
  *     summary: Create a new review
  *     tags: [Avis]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -72,12 +75,9 @@ const avisController = require('../controllers/avis.controller');
  *           schema:
  *             type: object
  *             required:
- *               - apprenantId
  *               - formationId
  *               - note
  *             properties:
- *               apprenantId:
- *                 type: string
  *               formationId:
  *                 type: string
  *               note:
@@ -90,6 +90,8 @@ const avisController = require('../controllers/avis.controller');
  *     responses:
  *       201:
  *         description: Review created
+ *       401:
+ *         description: Unauthorized
  */
 
 /**
@@ -98,6 +100,8 @@ const avisController = require('../controllers/avis.controller');
  *   put:
  *     summary: Update a review
  *     tags: [Avis]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -113,6 +117,10 @@ const avisController = require('../controllers/avis.controller');
  *     responses:
  *       200:
  *         description: Review updated
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Self or Admin only
  */
 
 /**
@@ -121,6 +129,8 @@ const avisController = require('../controllers/avis.controller');
  *   delete:
  *     summary: Delete a review
  *     tags: [Avis]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -130,15 +140,24 @@ const avisController = require('../controllers/avis.controller');
  *     responses:
  *       200:
  *         description: Review deleted
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Self or Admin only
  */
 
-// ───────── READ ─────────
+// ───────── PUBLIC ROUTES ─────────
 router.get('/getAllAvis', avisController.getAllAvis);
 router.get('/getAvisById/:id', avisController.getAvisById);
 
-// ───────── CREATE / UPDATE / DELETE ─────────
-router.post('/createAvis', avisController.createAvis);
-router.put('/updateAvis/:id', avisController.updateAvis);
-router.delete('/deleteAvis/:id', avisController.deleteAvis);
+// ───────── PROTECTED ROUTES ─────────
+// Create: Authenticated user
+router.post('/createAvis', requireAuth, avisController.createAvis);
+
+// Update: Self or Admin
+router.put('/updateAvis/:id', requireAuth, avisController.updateAvis);
+
+// Delete: Self or Admin
+router.delete('/deleteAvis/:id', requireAuth, avisController.deleteAvis);
 
 module.exports = router;

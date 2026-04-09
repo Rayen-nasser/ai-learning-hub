@@ -1,6 +1,5 @@
 const paiementModel = require("../models/paiement.model");
 const inscriptionModel = require("../models/inscription.model");
-const userModel = require("../models/user.model");
 
 module.exports.getAllPaiements = async (req, res) => {
   try {
@@ -24,6 +23,14 @@ module.exports.getPaiementById = async (req, res) => {
     if (!paiement) {
       return res.status(404).json({ message: "Payment not found" });
     }
+
+    const isOwner = paiement.apprenantId && paiement.apprenantId._id.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({ message: "Access denied. You can only view your own payments." });
+    }
+
     res.status(200).json({ message: "Payment retrieved successfully", data: paiement });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -32,7 +39,8 @@ module.exports.getPaiementById = async (req, res) => {
 
 module.exports.createPaiement = async (req, res) => {
   try {
-    const { inscriptionId, apprenantId, montant, methodePaiement } = req.body;
+    const { inscriptionId, montant, methodePaiement } = req.body;
+    const apprenantId = req.user._id;
 
     if (!inscriptionId || !montant) {
       return res.status(400).json({ message: "inscriptionId and montant are required" });
@@ -51,6 +59,10 @@ module.exports.createPaiement = async (req, res) => {
       return res.status(400).json({ message: "Inscription must be accepted before payment" });
     }
 
+    if (inscription.apprenantId.toString() !== apprenantId.toString()) {
+      return res.status(403).json({ message: "You can only pay for your own inscriptions" });
+    }
+
     const existingPaiement = await paiementModel.findOne({ inscriptionId });
     if (existingPaiement && existingPaiement.statut === "confirmé") {
       return res.status(400).json({ message: "Payment already made for this inscription" });
@@ -58,7 +70,7 @@ module.exports.createPaiement = async (req, res) => {
 
     const newPaiement = new paiementModel({
       inscriptionId,
-      apprenantId: apprenantId || inscription.apprenantId,
+      apprenantId,
       montant,
       methodePaiement: methodePaiement || "carte",
     });

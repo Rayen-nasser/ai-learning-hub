@@ -72,6 +72,19 @@ module.exports.createFormation = async (req, res) => {
 
 module.exports.updateFormation = async (req, res) => {
   try {
+    const formation = await formationModel.findById(req.params.id).populate("centreId");
+    if (!formation) {
+      return res.status(404).json({ message: "Formation not found" });
+    }
+
+    const isOwner = formation.centreId && formation.centreId.responsableId &&
+      formation.centreId.responsableId.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({ message: "Access denied. You can only update formations of your own centres." });
+    }
+
     const { titre, description, prix, duree } = req.body;
 
     const updates = {};
@@ -90,9 +103,6 @@ module.exports.updateFormation = async (req, res) => {
       { new: true, runValidators: true }
     ).populate("centreId").populate("categorieId");
 
-    if (!updatedFormation) {
-      return res.status(404).json({ message: "Formation not found" });
-    }
     res.status(200).json({ message: "Formation updated successfully", data: updatedFormation });
   } catch (error) {
     res.status(500).json({ error: error.message });
