@@ -11,7 +11,6 @@ const { connectToMongoDB } = require('./config/db');
 require('dotenv').config();
 
 // ── Routes ──────────────────────────────────────────────
-var indexRouter           = require('./routes/index');
 var usersRouter           = require('./routes/users.routes');
 var centreFormationRouter = require('./routes/centreFormation.route');
 var formationRouter       = require('./routes/formation.route');
@@ -32,7 +31,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ── Enregistrement des routes ────────────────────────────
-app.use('/index',        indexRouter);
 app.use('/users',        usersRouter);
 app.use('/centres',      centreFormationRouter);
 app.use('/formations',   formationRouter);
