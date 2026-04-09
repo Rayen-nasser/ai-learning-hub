@@ -2,8 +2,8 @@ const mongoose = require("mongoose");
 
 const paiementSchema = new mongoose.Schema(
   {
-    inscriptionId: { type: mongoose.Schema.Types.ObjectId, ref: "Inscription" },
-    apprenantId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    inscriptionId: { type: mongoose.Schema.Types.ObjectId, ref: "Inscription", required: true },
+    apprenantId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     montant: { type: Number, required: true },
     statut: {
       type: String,
@@ -14,7 +14,6 @@ const paiementSchema = new mongoose.Schema(
       type: String,
       enum: ["carte", "virement", "especes"],
     },
-    datePaiement: { type: Date, default: Date.now },
   },
   { timestamps: true }
 );

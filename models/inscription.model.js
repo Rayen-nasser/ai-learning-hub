@@ -9,7 +9,6 @@ const inscriptionSchema = new mongoose.Schema(
       enum: ["en attente", "acceptée", "refusée"],
       default: "en attente",
     },
-    dateInscription: { type: Date, default: Date.now },
     dateAcceptation: { type: Date },
   },
   { timestamps: true }
