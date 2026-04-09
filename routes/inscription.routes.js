@@ -17,7 +17,7 @@ const inscriptionController = require('../controllers/inscription.controller');
  *           description: Formation ID
  *         statut:
  *           type: string
- *           enum: [en_attente, validee, annulee]
+ *           enum: [en attente, acceptée, refusée]
  *           description: Registration status
  *         dateInscription:
  *           type: string

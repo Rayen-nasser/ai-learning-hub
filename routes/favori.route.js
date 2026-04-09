@@ -12,13 +12,13 @@ const favoriController = require('../controllers/favori.controller');
  *         apprenantId:
  *           type: string
  *           description: Learner ID
- *         formationId:
+ *         cibleId:
  *           type: string
- *           description: Formation ID
- *         dateAjout:
+ *           description: Target ID (formation, lecon, or centreFormation)
+ *         typeCible:
  *           type: string
- *           format: date
- *           description: Date added
+ *           enum: [formation, lecon, centreFormation]
+ *           description: Type of target
  */
 
 /**
@@ -64,12 +64,16 @@ const favoriController = require('../controllers/favori.controller');
  *             type: object
  *             required:
  *               - apprenantId
- *               - formationId
+ *               - cibleId
+ *               - typeCible
  *             properties:
  *               apprenantId:
  *                 type: string
- *               formationId:
+ *               cibleId:
  *                 type: string
+ *               typeCible:
+ *                 type: string
+ *                 enum: [formation, lecon, centreFormation]
  *     responses:
  *       201:
  *         description: Favorite created

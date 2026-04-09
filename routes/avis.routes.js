@@ -84,6 +84,7 @@ const avisController = require('../controllers/avis.controller');
  *                 type: number
  *                 minimum: 1
  *                 maximum: 5
+ *                 description: Rating (1-5, required)
  *               commentaire:
  *                 type: string
  *     responses:
