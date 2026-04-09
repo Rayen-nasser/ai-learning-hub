@@ -66,5 +66,10 @@ const createUploadMiddleware = (folder = 'uploads') => {
 
 const uploadSingle = createUploadMiddleware('uploads').single('file');
 const uploadMultiple = createUploadMiddleware('uploads').array('files', 10);
+const uploadfile = createUploadMiddleware('images');
 
-module.exports = { createUploadMiddleware, uploadSingle, uploadMultiple };
+module.exports = uploadfile;
+module.exports.uploadSingle = uploadSingle;
+module.exports.uploadMultiple = uploadMultiple;
+module.exports.createUploadMiddleware = createUploadMiddleware;
+module.exports.upload = uploadfile;
