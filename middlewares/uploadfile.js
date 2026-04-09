@@ -28,6 +28,7 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 const createUploadMiddleware = (folder = 'uploads') => {
   const uploadPath = path.join('public', folder);
+  const folderName = folder;
   
   if (!fs.existsSync(uploadPath)) {
     fs.mkdirSync(uploadPath, { recursive: true });
@@ -41,8 +42,10 @@ const createUploadMiddleware = (folder = 'uploads') => {
       const originalName = file.originalname;
       const fileExtension = path.extname(originalName);
       const timestamp = Date.now();
-      let fileName = `${timestamp}_${originalName.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+      const baseName = originalName.replace(/[^a-zA-Z0-9.]/g, '_').replace(fileExtension, '');
+      const fileName = `${timestamp}_${baseName}${fileExtension}`;
 
+      req.file.folder = folderName;
       cb(null, fileName);
     }
   });

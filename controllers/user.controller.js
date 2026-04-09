@@ -159,7 +159,7 @@ module.exports.updateUser = async (req, res) => {
     }
 
     if (req.file) {
-      updates.user_image = req.file.filename;
+      updates.user_image = `${req.file.folder}/${req.file.filename}`;
     }
 
     if (Object.keys(updates).length === 0) {

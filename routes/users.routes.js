@@ -292,7 +292,7 @@ router.post("/change-password", requireAuth, userController.changePassword);
 
 // ───── ID ROUTE (doit être en dernier) ─────
 router.get("/:id", requireAuth, logMiddleware, userController.getUserById);
-router.put("/:id", requireAuth, userController.updateUser);
+router.put("/:id", requireAuth, upload.single("user_image"), userController.updateUser);
 router.delete("/:id", requireAuth, userController.deleteUser);
 
 module.exports = router;

@@ -52,7 +52,7 @@ module.exports.createContent = async (req, res) => {
     let url, fileName, filePath, fileSize, mimeType;
 
     if (req.file) {
-      url = `/uploads/${req.file.filename}`;
+      url = `/${req.file.folder}/${req.file.filename}`;
       fileName = req.file.originalname;
       filePath = req.file.path;
       fileSize = req.file.size;
@@ -107,7 +107,7 @@ module.exports.updateContent = async (req, res) => {
     if (questions !== undefined) updates.questions = questions;
 
     if (req.file) {
-      updates.url = `/uploads/${req.file.filename}`;
+      updates.url = `/${req.file.folder}/${req.file.filename}`;
       updates.fileName = req.file.originalname;
       updates.filePath = req.file.path;
       updates.fileSize = req.file.size;
