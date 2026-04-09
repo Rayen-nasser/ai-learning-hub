@@ -35,7 +35,7 @@ const userSchema = new mongoose.Schema(
     // ───── Champs Apprenant ─────
     niveauEtude: {
       type: String,
-      enum: ["primaire", "secondaire", "bac", "licence", "master", "doctorat"],
+      enum: [null, "", "primaire", "secondaire", "bac", "licence", "master", "doctorat"],
     },
     dateNaissance: { type: Date },
     adresse: { type: String },
@@ -43,7 +43,7 @@ const userSchema = new mongoose.Schema(
     // ───── Champs Formateur ─────
     specialite: String,
     experience: Number,
-    statut: { type: String, enum: ["actif", "inactif"] },
+    statut: { type: String, enum: [null, "", "actif", "inactif"] },
     centreId: { type: mongoose.Schema.Types.ObjectId, ref: "CentreFormation" },
 
     // ───── Champs ResponsableCF ─────
