@@ -37,11 +37,16 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  * @swagger
  * /lecons/getAllLecons:
  *   get:
- *     summary: Get all lessons
+ *     summary: Get all lessons (filtered by access)
  *     tags: [Lecons]
+ *     security:
+ *       - bearerAuth: []
+ *     description: Returns lessons the user can access (instructor of lesson or enrolled in formation)
  *     responses:
  *       200:
- *         description: List of lessons
+ *         description: List of accessible lessons
+ *       401:
+ *         description: Unauthorized
  */
 
 /**
@@ -50,6 +55,8 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *   get:
  *     summary: Get lesson by ID
  *     tags: [Lecons]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -59,6 +66,10 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *     responses:
  *       200:
  *         description: Lesson details
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Instructor or enrolled learner only
  *       404:
  *         description: Lesson not found
  */
@@ -138,11 +149,13 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *         description: Forbidden - Admin only
  */
 
-// ───────── PUBLIC ROUTES ─────────
-router.get('/getAllLecons', leconController.getAllLecons);
-router.get('/getLeconById/:id', leconController.getLeconById);
-
 // ───────── PROTECTED ROUTES ─────────
+// GetAll: Authenticated (filtered by access)
+router.get('/getAllLecons', requireAuth, leconController.getAllLecons);
+
+// GetById: Instructor or enrolled learner
+router.get('/getLeconById/:id', requireAuth, leconController.getLeconById);
+
 // Create: Formateur or Admin
 router.post('/createLecon', requireAuth, requireRole('formateur', 'admin'), leconController.createLecon);
 
