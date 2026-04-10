@@ -4,12 +4,25 @@ const formationModel = require("../models/formation.model");
 module.exports.getAllAvis = async (req, res) => {
   try {
     const avis = await avisModel.find()
-      .populate("apprenantId", "-password")
-      .populate("formationId");
+      .populate("apprenantId", "_id nom prenom")
+      .populate("formationId", "_id");
+
     if (avis.length === 0) {
       return res.status(404).json({ message: "No reviews found" });
     }
-    res.status(200).json({ message: "Reviews retrieved successfully", data: avis });
+
+    const formattedAvis = avis.map(a => ({
+      _id: a._id,
+      note: a.note,
+      commentaire: a.commentaire,
+      createdAt: a.createdAt,
+      apprenantId: a.apprenantId?._id,
+      apprenantNom: a.apprenantId?.nom,
+      apprenantPrenom: a.apprenantId?.prenom,
+      formationId: a.formationId?._id,
+    }));
+
+    res.status(200).json({ message: "Reviews retrieved successfully", data: formattedAvis });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -18,10 +31,21 @@ module.exports.getAllAvis = async (req, res) => {
 module.exports.getAvisByFormation = async (req, res) => {
   try {
     const avis = await avisModel.find({ formationId: req.params.formationId })
-      .populate("apprenantId", "-password")
-      .populate("formationId");
-    // We can just return an empty array if none, or 404
-    res.status(200).json({ message: "Reviews retrieved successfully", data: avis });
+      .populate("apprenantId", "_id nom prenom")
+      .populate("formationId", "_id");
+
+    const formattedAvis = avis.map(a => ({
+      _id: a._id,
+      note: a.note,
+      commentaire: a.commentaire,
+      createdAt: a.createdAt,
+      apprenantId: a.apprenantId?._id,
+      apprenantNom: a.apprenantId?.nom,
+      apprenantPrenom: a.apprenantId?.prenom,
+      formationId: a.formationId?._id,
+    }));
+
+    res.status(200).json({ message: "Reviews retrieved successfully", data: formattedAvis });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -31,12 +55,25 @@ module.exports.getAvisByFormation = async (req, res) => {
 module.exports.getAvisById = async (req, res) => {
   try {
     const avis = await avisModel.findById(req.params.id)
-      .populate("apprenantId", "-password")
-      .populate("formationId");
+      .populate("apprenantId", "_id nom prenom")
+      .populate("formationId", "_id");
+
     if (!avis) {
       return res.status(404).json({ message: "Review not found" });
     }
-    res.status(200).json({ message: "Review retrieved successfully", data: avis });
+
+    const formattedAvis = {
+      _id: avis._id,
+      note: avis.note,
+      commentaire: avis.commentaire,
+      createdAt: avis.createdAt,
+      apprenantId: avis.apprenantId?._id,
+      apprenantNom: avis.apprenantId?.nom,
+      apprenantPrenom: avis.apprenantId?.prenom,
+      formationId: avis.formationId?._id,
+    };
+
+    res.status(200).json({ message: "Review retrieved successfully", data: formattedAvis });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -72,9 +109,21 @@ module.exports.createAvis = async (req, res) => {
     const newAvis = new avisModel({ apprenantId, formationId, note, commentaire });
     await newAvis.save();
     const populatedAvis = await avisModel.findById(newAvis._id)
-      .populate("apprenantId", "-password")
-      .populate("formationId");
-    res.status(201).json({ message: "Review created successfully", data: populatedAvis });
+      .populate("apprenantId", "_id nom prenom")
+      .populate("formationId", "_id");
+
+    const formattedAvis = {
+      _id: populatedAvis._id,
+      note: populatedAvis.note,
+      commentaire: populatedAvis.commentaire,
+      createdAt: populatedAvis.createdAt,
+      apprenantId: populatedAvis.apprenantId?._id,
+      apprenantNom: populatedAvis.apprenantId?.nom,
+      apprenantPrenom: populatedAvis.apprenantId?.prenom,
+      formationId: populatedAvis.formationId?._id,
+    };
+
+    res.status(201).json({ message: "Review created successfully", data: formattedAvis });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -113,9 +162,20 @@ module.exports.updateAvis = async (req, res) => {
       req.params.id,
       updates,
       { new: true, runValidators: true }
-    ).populate("apprenantId", "-password").populate("formationId");
+    ).populate("apprenantId", "_id nom prenom").populate("formationId", "_id");
 
-    res.status(200).json({ message: "Review updated successfully", data: updatedAvis });
+    const formattedAvis = {
+      _id: updatedAvis._id,
+      note: updatedAvis.note,
+      commentaire: updatedAvis.commentaire,
+      createdAt: updatedAvis.createdAt,
+      apprenantId: updatedAvis.apprenantId?._id,
+      apprenantNom: updatedAvis.apprenantId?.nom,
+      apprenantPrenom: updatedAvis.apprenantId?.prenom,
+      formationId: updatedAvis.formationId?._id,
+    };
+
+    res.status(200).json({ message: "Review updated successfully", data: formattedAvis });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
