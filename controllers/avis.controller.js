@@ -15,6 +15,19 @@ module.exports.getAllAvis = async (req, res) => {
   }
 };
 
+module.exports.getAvisByFormation = async (req, res) => {
+  try {
+    const avis = await avisModel.find({ formationId: req.params.formationId })
+      .populate("apprenantId", "-password")
+      .populate("formationId");
+    // We can just return an empty array if none, or 404
+    res.status(200).json({ message: "Reviews retrieved successfully", data: avis });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 module.exports.getAvisById = async (req, res) => {
   try {
     const avis = await avisModel.findById(req.params.id)

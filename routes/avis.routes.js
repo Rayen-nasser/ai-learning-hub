@@ -43,6 +43,24 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
 
 /**
  * @swagger
+ * /avis/formation/{formationId}:
+ *   get:
+ *     summary: Get reviews by formation ID
+ *     tags: [Avis]
+ *     parameters:
+ *       - in: path
+ *         name: formationId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Formation ID
+ *     responses:
+ *       200:
+ *         description: List of reviews for the formation
+ */
+
+/**
+ * @swagger
  * /avis/getAvisById/{id}:
  *   get:
  *     summary: Get review by ID
@@ -149,6 +167,7 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
 // ───────── PUBLIC ROUTES ─────────
 router.get('/getAllAvis', avisController.getAllAvis);
 router.get('/getAvisById/:id', avisController.getAvisById);
+router.get('/formation/:formationId', avisController.getAvisByFormation);
 
 // ───────── PROTECTED ROUTES ─────────
 // Create: Authenticated user
