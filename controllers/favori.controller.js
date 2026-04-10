@@ -3,12 +3,28 @@ const favoriModel = require("../models/favori.model");
 module.exports.getAllFavoris = async (req, res) => {
   try {
     const favoris = await favoriModel.find()
-      .populate("apprenantId", "-password")
-      .populate("cibleId");
+      .populate("apprenantId", "_id nom prenom user_image")
+      .populate("cibleId", "titre nom");
+
     if (favoris.length === 0) {
       return res.status(404).json({ message: "No favoris found" });
     }
-    res.status(200).json({ message: "Favoris retrieved successfully", data: favoris });
+
+    const formattedFavoris = favoris.map(f => ({
+      _id: f._id,
+      typeCible: f.typeCible,
+      createdAt: f.createdAt,
+      apprenantId: f.apprenantId ? {
+        _id: f.apprenantId._id,
+        nom: f.apprenantId.nom,
+        prenom: f.apprenantId.prenom,
+        user_image: f.apprenantId.user_image,
+      } : null,
+      cibleId: f.cibleId?._id,
+      cibleTitre: f.cibleId?.titre || f.cibleId?.nom,
+    }));
+
+    res.status(200).json({ message: "Favoris retrieved successfully", data: formattedFavoris });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -24,12 +40,28 @@ module.exports.getFavorisByApprenant = async (req, res) => {
     }
 
     const favoris = await favoriModel.find({ apprenantId: req.params.apprenantId })
-      .populate("apprenantId", "-password")
-      .populate("cibleId");
+      .populate("apprenantId", "_id nom prenom user_image")
+      .populate("cibleId", "titre nom");
+
     if (favoris.length === 0) {
       return res.status(404).json({ message: "No favoris found for this learner" });
     }
-    res.status(200).json({ message: "Favoris retrieved successfully", data: favoris });
+
+    const formattedFavoris = favoris.map(f => ({
+      _id: f._id,
+      typeCible: f.typeCible,
+      createdAt: f.createdAt,
+      apprenantId: f.apprenantId ? {
+        _id: f.apprenantId._id,
+        nom: f.apprenantId.nom,
+        prenom: f.apprenantId.prenom,
+        user_image: f.apprenantId.user_image,
+      } : null,
+      cibleId: f.cibleId?._id,
+      cibleTitre: f.cibleId?.titre || f.cibleId?.nom,
+    }));
+
+    res.status(200).json({ message: "Favoris retrieved successfully", data: formattedFavoris });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -57,9 +89,24 @@ module.exports.createFavori = async (req, res) => {
     const newFavori = new favoriModel({ apprenantId, cibleId, typeCible });
     await newFavori.save();
     const populatedFavori = await favoriModel.findById(newFavori._id)
-      .populate("apprenantId", "-password")
-      .populate("cibleId");
-    res.status(201).json({ message: "Favori created successfully", data: populatedFavori });
+      .populate("apprenantId", "_id nom prenom user_image")
+      .populate("cibleId", "titre nom");
+
+    const formattedFavori = {
+      _id: populatedFavori._id,
+      typeCible: populatedFavori.typeCible,
+      createdAt: populatedFavori.createdAt,
+      apprenantId: populatedFavori.apprenantId ? {
+        _id: populatedFavori.apprenantId._id,
+        nom: populatedFavori.apprenantId.nom,
+        prenom: populatedFavori.apprenantId.prenom,
+        user_image: populatedFavori.apprenantId.user_image,
+      } : null,
+      cibleId: populatedFavori.cibleId?._id,
+      cibleTitre: populatedFavori.cibleId?.titre || populatedFavori.cibleId?.nom,
+    };
+
+    res.status(201).json({ message: "Favori created successfully", data: formattedFavori });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
