@@ -196,7 +196,7 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
 
 // ───────── PUBLIC ROUTES ─────────
 router.get('/getAllFormations', formationController.getAllFormations);
-router.get('/getFormationById/:id', formationController.getFormationById);
+router.get('/:id', formationController.getFormationById);
 
 // ───────── PROTECTED ROUTES ─────────
 // Create: ResponsableCF or Admin

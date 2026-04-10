@@ -2,6 +2,62 @@ const leconModel = require("../models/lecon.model");
 const inscriptionModel = require("../models/inscription.model");
 const formationModel = require("../models/formation.model");
 const userModel = require("../models/user.model");
+const leconContentModel = require("../models/leconContent.model");
+
+const sanitizeLeconContent = (contents, hasAccess) => {
+  return contents.map(content => {
+    const sanitized = {
+      _id: content._id,
+      leconId: content.leconId,
+      type: content.type,
+      title: content.title,
+      description: content.description,
+      order: content.order,
+      hasAccess: hasAccess,
+    };
+
+    if (hasAccess) {
+      sanitized.url = content.url;
+      sanitized.sourceType = content.sourceType;
+      sanitized.fileName = content.fileName;
+      sanitized.fileSize = content.fileSize;
+      sanitized.mimeType = content.mimeType;
+      sanitized.linkTitle = content.linkTitle;
+      sanitized.linkUrl = content.linkUrl;
+      sanitized.linkDescription = content.linkDescription;
+      sanitized.passingGrade = content.passingGrade;
+      sanitized.questions = content.questions;
+    }
+
+    return sanitized;
+  });
+};
+
+const checkLeconAccess = async (lecon, user) => {
+  const isFormateur = lecon.formateurId && 
+    (lecon.formateurId._id || lecon.formateurId).toString() === user._id.toString();
+  const isAdmin = user.role === 'admin';
+  const isAccessible = lecon.estAccessible === true;
+
+  let isEnrolled = false;
+  if (lecon.formationId && user.role === 'apprenant') {
+    const formationId = lecon.formationId._id || lecon.formationId;
+    const inscription = await inscriptionModel.findOne({
+      apprenantId: user._id,
+      formationId: formationId,
+      statut: "acceptée"
+    });
+    isEnrolled = !!inscription;
+  }
+
+  return {
+    hasAccess: isFormateur || isAdmin || isAccessible || isEnrolled,
+    isFormateur,
+    isAdmin,
+    isAccessible,
+    isEnrolled
+  };
+};
 
 module.exports.getAllLecons = async (req, res) => {
   try {
@@ -34,7 +90,18 @@ module.exports.getAllLecons = async (req, res) => {
     if (lecons.length === 0) {
       return res.status(404).json({ message: "No lessons found" });
     }
-    res.status(200).json({ message: "Lessons retrieved successfully", data: lecons });
+
+    const enrichedLecons = await Promise.all(lecons.map(async (lecon) => {
+      const leconObj = lecon.toObject ? lecon.toObject() : lecon;
+      const access = await checkLeconAccess(lecon, user);
+      
+      const contents = await leconContentModel.find({ leconId: lecon._id }).sort({ order: 1 });
+      leconObj.contents = sanitizeLeconContent(contents, access.hasAccess);
+      
+      return leconObj;
+    }));
+
+    res.status(200).json({ message: "Lessons retrieved successfully", data: enrichedLecons });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -51,28 +118,23 @@ module.exports.getLeconById = async (req, res) => {
     }
 
     const user = req.user;
+    const access = await checkLeconAccess(lecon, user);
 
-    const isFormateur = lecon.formateurId && lecon.formateurId._id.toString() === user._id.toString();
-    const isAdmin = user.role === 'admin';
-    const isAccessible = lecon.estAccessible === true;
+    const leconObj = lecon.toObject ? lecon.toObject() : lecon;
 
-    let isEnrolled = false;
-    if (lecon.formationId) {
-      const inscription = await inscriptionModel.findOne({
-        apprenantId: user._id,
-        formationId: lecon.formationId._id,
-        statut: "acceptée"
-      });
-      isEnrolled = !!inscription;
+    if (!access.hasAccess) {
+      delete leconObj.contenu;
     }
 
-    if (!isFormateur && !isAdmin && !isAccessible && !isEnrolled) {
-      return res.status(403).json({ 
-        message: "Access denied. You must be the instructor, enrolled in the formation, or the lesson must be accessible." 
-      });
+    const contents = await leconContentModel.find({ leconId: lecon._id }).sort({ order: 1 });
+    leconObj.contents = sanitizeLeconContent(contents, access.hasAccess);
+
+    if (!access.hasAccess) {
+      leconObj.hasAccess = false;
+      leconObj.accessMessage = "Enroll in this formation to access the full content";
     }
 
-    res.status(200).json({ message: "Lesson retrieved successfully", data: lecon });
+    res.status(200).json({ message: "Lesson retrieved successfully", data: leconObj });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -166,6 +228,9 @@ module.exports.deleteLecon = async (req, res) => {
     if (!deletedLecon) {
       return res.status(404).json({ message: "Lesson not found" });
     }
+
+    await leconContentModel.deleteMany({ leconId: req.params.id });
+
     res.status(200).json({ message: "Lesson deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
