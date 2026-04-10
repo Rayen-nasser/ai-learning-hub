@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const formationController = require('../controllers/formation.controller');
 const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
+const { uploadSingle } = require('../middlewares/uploadfile');
 
 /**
  * @swagger
@@ -200,10 +201,10 @@ router.get('/:id', formationController.getFormationById);
 
 // ───────── PROTECTED ROUTES ─────────
 // Create: ResponsableCF or Admin
-router.post('/createFormation', requireAuth, requireRole('responsableCF', 'admin'), formationController.createFormation);
+router.post('/createFormation', requireAuth, requireRole('responsableCF', 'admin'), uploadSingle('image', 'images'), formationController.createFormation);
 
 // Update: Owner or Admin
-router.put('/updateFormation/:id', requireAuth, formationController.updateFormation);
+router.put('/updateFormation/:id', requireAuth, uploadSingle('image', 'images'), formationController.updateFormation);
 
 // Delete: Admin only
 router.delete('/deleteFormation/:id', requireAuth, requireRole('admin'), formationController.deleteFormation);

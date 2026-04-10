@@ -2,6 +2,26 @@ const formationModel = require("../models/formation.model");
 const centreFormationModel = require("../models/centreFormation.model");
 const categorieModel = require("../models/categorie.model");
 
+const getBaseUrl = () => {
+  return process.env.BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
+};
+
+const sanitizeFormation = (f) => {
+  const obj = f.toObject ? f.toObject() : { ...f };
+  if (obj.image) {
+    let path = obj.image;
+    if (!path.startsWith('http') && !path.startsWith('/')) {
+      path = '/' + path;
+    }
+    if (path.startsWith('http')) {
+      obj.image = path;
+    } else {
+      obj.image = `${getBaseUrl()}${path}`;
+    }
+  }
+  return obj;
+};
+
 module.exports.getAllFormations = async (req, res) => {
   try {
     const { titre, description, prixMin, prixMax, categorieId, centreId, dureeMin, dureeMax, search } = req.query;
@@ -40,7 +60,8 @@ module.exports.getAllFormations = async (req, res) => {
     if (formations.length === 0) {
       return res.status(404).json({ message: "No formations found" });
     }
-    res.status(200).json({ message: "Formations retrieved successfully", data: formations, total: formations.length });
+    const sanitizedFormations = formations.map(sanitizeFormation);
+    res.status(200).json({ message: "Formations retrieved successfully", data: sanitizedFormations, total: sanitizedFormations.length });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -54,7 +75,7 @@ module.exports.getFormationById = async (req, res) => {
     if (!formation) {
       return res.status(404).json({ message: "Formation not found" });
     }
-    res.status(200).json({ message: "Formation retrieved successfully", data: formation });
+    res.status(200).json({ message: "Formation retrieved successfully", data: sanitizeFormation(formation) });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -82,6 +103,8 @@ module.exports.createFormation = async (req, res) => {
       }
     }
 
+    const image = req.file ? `${req.file.folder}/${req.file.filename}` : undefined;
+
     const newFormation = new formationModel({
       titre,
       description,
@@ -89,12 +112,13 @@ module.exports.createFormation = async (req, res) => {
       duree,
       centreId,
       categorieId,
+      image,
     });
     await newFormation.save();
     const populatedFormation = await formationModel.findById(newFormation._id)
       .populate("centreId")
       .populate("categorieId");
-    res.status(201).json({ message: "Formation created successfully", data: populatedFormation });
+    res.status(201).json({ message: "Formation created successfully", data: sanitizeFormation(populatedFormation) });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -123,6 +147,10 @@ module.exports.updateFormation = async (req, res) => {
     if (prix !== undefined) updates.prix = prix;
     if (duree !== undefined) updates.duree = duree;
 
+    if (req.file) {
+      updates.image = `${req.file.folder}/${req.file.filename}`;
+    }
+
     if (Object.keys(updates).length === 0) {
       return res.status(400).json({ message: "No fields to update" });
     }
@@ -133,7 +161,7 @@ module.exports.updateFormation = async (req, res) => {
       { new: true, runValidators: true }
     ).populate("centreId").populate("categorieId");
 
-    res.status(200).json({ message: "Formation updated successfully", data: updatedFormation });
+    res.status(200).json({ message: "Formation updated successfully", data: sanitizeFormation(updatedFormation) });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

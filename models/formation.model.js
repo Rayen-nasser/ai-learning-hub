@@ -8,6 +8,7 @@ const formationSchema = new mongoose.Schema(
     centreId: { type: mongoose.Schema.Types.ObjectId, ref: "CentreFormation" },
     categorieId: { type: mongoose.Schema.Types.ObjectId, ref: "Categorie" },
     duree: { type: Number },
+    image: { type: String },
   },
   { timestamps: true }
 );
