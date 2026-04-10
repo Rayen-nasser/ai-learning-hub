@@ -30,6 +30,9 @@ router.get('/', requireAuth, requireRole('admin'), favoriController.getAllFavori
 // GET /favoris/me - Get my favorites (logged-in user)
 router.get('/me', requireAuth, favoriController.getMyFavorites);
 
+// GET /favoris/apprenant/:apprenantId - Get favorites by apprenant (admin only)
+router.get('/apprenant/:apprenantId', requireAuth, requireRole('admin'), favoriController.getFavorisByApprenant);
+
 // POST /favoris - Create favorite
 router.post('/', requireAuth, favoriController.createFavori);
 

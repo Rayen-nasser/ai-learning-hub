@@ -71,6 +71,23 @@ module.exports.getMyFavorites = async (req, res) => {
   }
 };
 
+module.exports.getFavorisByApprenant = async (req, res) => {
+  try {
+    const favoris = await favoriModel.find({ apprenantId: req.params.apprenantId })
+      .populate("apprenantId", "_id nom prenom user_image");
+
+    const formattedFavoris = [];
+    for (const f of favoris) {
+      const cibleTitre = await getCibleTitre(f.typeCible, f.cibleId);
+      formattedFavoris.push(formatFavori(f, cibleTitre));
+    }
+
+    res.status(200).json({ message: "Apprenant favoris retrieved successfully", data: formattedFavoris });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports.getFavoriById = async (req, res) => {
   try {
     const favori = await favoriModel.findById(req.params.id)
