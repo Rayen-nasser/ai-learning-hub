@@ -1,6 +1,6 @@
 const favoriModel = require("../models/favori.model");
 
-const formatFavori = (f) => ({
+const formatFavori = (f, cibleTitre = null) => ({
   _id: f._id,
   typeCible: f.typeCible,
   createdAt: f.createdAt,
@@ -11,8 +11,27 @@ const formatFavori = (f) => ({
     user_image: f.apprenantId.user_image,
   } : null,
   cibleId: f.cibleId?._id || f.cibleId,
-  cibleTitre: f.cibleTitre,
+  cibleTitre,
 });
+
+const getCibleTitre = async (typeCible, cibleId) => {
+  if (!typeCible || !cibleId) return null;
+  try {
+    if (typeCible === "formation") {
+      const formation = await require("../models/formation.model").findById(cibleId).select("titre");
+      return formation?.titre;
+    } else if (typeCible === "lecon") {
+      const lecon = await require("../models/lecon.model").findById(cibleId).select("titre");
+      return lecon?.titre;
+    } else if (typeCible === "centreFormation") {
+      const centre = await require("../models/centreFormation.model").findById(cibleId).select("nom");
+      return centre?.nom;
+    }
+  } catch (err) {
+    return null;
+  }
+  return null;
+};
 
 module.exports.getAllFavoris = async (req, res) => {
   try {
@@ -21,18 +40,8 @@ module.exports.getAllFavoris = async (req, res) => {
 
     const formattedFavoris = [];
     for (const f of favoris) {
-      let cibleTitre = null;
-      if (f.typeCible === "formation") {
-        const formation = await require("../models/formation.model").findById(f.cibleId).select("titre");
-        cibleTitre = formation?.titre;
-      } else if (f.typeCible === "lecon") {
-        const lecon = await require("../models/lecon.model").findById(f.cibleId).select("titre");
-        cibleTitre = lecon?.titre;
-      } else if (f.typeCible === "centreFormation") {
-        const centre = await require("../models/centreFormation.model").findById(f.cibleId).select("nom");
-        cibleTitre = centre?.nom;
-      }
-      formattedFavoris.push({ ...formatFavori(f), cibleTitre });
+      const cibleTitre = await getCibleTitre(f.typeCible, f.cibleId);
+      formattedFavoris.push(formatFavori(f, cibleTitre));
     }
 
     if (formattedFavoris.length === 0) {
@@ -45,39 +54,41 @@ module.exports.getAllFavoris = async (req, res) => {
   }
 };
 
-module.exports.getFavorisByApprenant = async (req, res) => {
+module.exports.getMyFavorites = async (req, res) => {
   try {
-    const isOwner = req.params.apprenantId === req.user._id.toString();
-    const isAdmin = req.user.role === 'admin';
-
-    if (!isOwner && !isAdmin) {
-      return res.status(403).json({ message: "Access denied. You can only view your own favorites." });
-    }
-
-    const favoris = await favoriModel.find({ apprenantId: req.params.apprenantId })
+    const favoris = await favoriModel.find({ apprenantId: req.user._id })
       .populate("apprenantId", "_id nom prenom user_image");
 
     const formattedFavoris = [];
     for (const f of favoris) {
-      let cibleTitre = null;
-      if (f.typeCible === "formation") {
-        const formation = await require("../models/formation.model").findById(f.cibleId).select("titre");
-        cibleTitre = formation?.titre;
-      } else if (f.typeCible === "lecon") {
-        const lecon = await require("../models/lecon.model").findById(f.cibleId).select("titre");
-        cibleTitre = lecon?.titre;
-      } else if (f.typeCible === "centreFormation") {
-        const centre = await require("../models/centreFormation.model").findById(f.cibleId).select("nom");
-        cibleTitre = centre?.nom;
-      }
-      formattedFavoris.push({ ...formatFavori(f), cibleTitre });
+      const cibleTitre = await getCibleTitre(f.typeCible, f.cibleId);
+      formattedFavoris.push(formatFavori(f, cibleTitre));
     }
 
-    if (formattedFavoris.length === 0) {
-      return res.status(404).json({ message: "No favoris found for this learner" });
+    res.status(200).json({ message: "My favoris retrieved successfully", data: formattedFavoris });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports.getFavoriById = async (req, res) => {
+  try {
+    const favori = await favoriModel.findById(req.params.id)
+      .populate("apprenantId", "_id nom prenom user_image");
+
+    if (!favori) {
+      return res.status(404).json({ message: "Favori not found" });
     }
 
-    res.status(200).json({ message: "Favoris retrieved successfully", data: formattedFavoris });
+    const isOwner = favori.apprenantId?._id.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({ message: "Access denied." });
+    }
+
+    const cibleTitre = await getCibleTitre(favori.typeCible, favori.cibleId);
+    res.status(200).json({ message: "Favori retrieved successfully", data: formatFavori(favori, cibleTitre) });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -108,21 +119,11 @@ module.exports.createFavori = async (req, res) => {
     const populatedFavori = await favoriModel.findById(newFavori._id)
       .populate("apprenantId", "_id nom prenom user_image");
 
-    let cibleTitre = null;
-    if (typeCible === "formation") {
-      const formation = await require("../models/formation.model").findById(cibleId).select("titre");
-      cibleTitre = formation?.titre;
-    } else if (typeCible === "lecon") {
-      const lecon = await require("../models/lecon.model").findById(cibleId).select("titre");
-      cibleTitre = lecon?.titre;
-    } else if (typeCible === "centreFormation") {
-      const centre = await require("../models/centreFormation.model").findById(cibleId).select("nom");
-      cibleTitre = centre?.nom;
-    }
+    const cibleTitre = await getCibleTitre(typeCible, cibleId);
 
     res.status(201).json({
       message: "Favori created successfully",
-      data: { ...formatFavori(populatedFavori), cibleTitre },
+      data: formatFavori(populatedFavori, cibleTitre),
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -140,7 +141,7 @@ module.exports.deleteFavori = async (req, res) => {
     const isAdmin = req.user.role === 'admin';
 
     if (!isOwner && !isAdmin) {
-      return res.status(403).json({ message: "Access denied. You can only delete your own favorites." });
+      return res.status(403).json({ message: "Access denied." });
     }
 
     await favoriModel.findByIdAndDelete(req.params.id);

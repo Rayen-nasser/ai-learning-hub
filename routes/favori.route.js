@@ -22,111 +22,21 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *           description: Type of target
  */
 
-/**
- * @swagger
- * /favoris/getAllFavoris:
- *   get:
- *     summary: Get all favorites
- *     tags: [Favoris]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: List of favorites
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - Admin only
- */
+// ───────── ROUTES ─────────
 
-/**
- * @swagger
- * /favoris/getFavorisByApprenant/{apprenantId}:
- *   get:
- *     summary: Get favorites by learner
- *     tags: [Favoris]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: apprenantId
- *         required: true
- *         schema:
- *           type: string
- *         description: Learner ID
- *     responses:
- *       200:
- *         description: Learner's favorites
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - Self or Admin only
- */
+// GET /favoris - Get all favorites (admin only)
+router.get('/', requireAuth, requireRole('admin'), favoriController.getAllFavoris);
 
-/**
- * @swagger
- * /favoris/createFavori:
- *   post:
- *     summary: Create a new favorite
- *     tags: [Favoris]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - cibleId
- *               - typeCible
- *             properties:
- *               cibleId:
- *                 type: string
- *               typeCible:
- *                 type: string
- *                 enum: [formation, lecon, centreFormation]
- *     responses:
- *       201:
- *         description: Favorite created
- *       401:
- *         description: Unauthorized
- */
+// GET /favoris/me - Get my favorites (logged-in user)
+router.get('/me', requireAuth, favoriController.getMyFavorites);
 
-/**
- * @swagger
- * /favoris/deleteFavori/{id}:
- *   delete:
- *     summary: Delete a favorite
- *     tags: [Favoris]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Favorite deleted
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - Self or Admin only
- */
+// POST /favoris - Create favorite
+router.post('/', requireAuth, favoriController.createFavori);
 
-// ───────── PROTECTED ROUTES ─────────
-// GetAll: Admin only
-router.get('/getAllFavoris', requireAuth, requireRole('admin'), favoriController.getAllFavoris);
+// GET /favoris/:id - Get favorite by ID
+router.get('/:id', requireAuth, favoriController.getFavoriById);
 
-// GetByApprenant: Self or Admin
-router.get('/getFavorisByApprenant/:apprenantId', requireAuth, favoriController.getFavorisByApprenant);
-
-// Create: Authenticated user (self)
-router.post('/createFavori', requireAuth, favoriController.createFavori);
-
-// Delete: Self or Admin
-router.delete('/deleteFavori/:id', requireAuth, favoriController.deleteFavori);
+// DELETE /favoris/:id - Delete favorite
+router.delete('/:id', requireAuth, favoriController.deleteFavori);
 
 module.exports = router;
