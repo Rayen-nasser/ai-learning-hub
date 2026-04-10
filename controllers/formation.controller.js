@@ -4,13 +4,43 @@ const categorieModel = require("../models/categorie.model");
 
 module.exports.getAllFormations = async (req, res) => {
   try {
-    const formations = await formationModel.find()
+    const { titre, description, prixMin, prixMax, categorieId, centreId, dureeMin, dureeMax, search } = req.query;
+    
+    let query = {};
+
+    if (search) {
+      query.$or = [
+        { titre: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
+      ];
+    } else {
+      if (titre) query.titre = { $regex: titre, $options: 'i' };
+      if (description) query.description = { $regex: description, $options: 'i' };
+    }
+
+    if (prixMin || prixMax) {
+      query.prix = {};
+      if (prixMin) query.prix.$gte = Number(prixMin);
+      if (prixMax) query.prix.$lte = Number(prixMax);
+    }
+
+    if (categorieId) query.categorieId = categorieId;
+    if (centreId) query.centreId = centreId;
+
+    if (dureeMin || dureeMax) {
+      query.duree = {};
+      if (dureeMin) query.duree.$gte = Number(dureeMin);
+      if (dureeMax) query.duree.$lte = Number(dureeMax);
+    }
+
+    const formations = await formationModel.find(query)
       .populate("centreId")
       .populate("categorieId");
+
     if (formations.length === 0) {
       return res.status(404).json({ message: "No formations found" });
     }
-    res.status(200).json({ message: "Formations retrieved successfully", data: formations });
+    res.status(200).json({ message: "Formations retrieved successfully", data: formations, total: formations.length });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

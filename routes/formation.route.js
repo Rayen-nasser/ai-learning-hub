@@ -34,11 +34,70 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  * @swagger
  * /formations/getAllFormations:
  *   get:
- *     summary: Get all formations
+ *     summary: Get all formations with optional filters
  *     tags: [Formations]
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search in titre and description
+ *       - in: query
+ *         name: titre
+ *         schema:
+ *           type: string
+ *         description: Filter by titre (partial match)
+ *       - in: query
+ *         name: description
+ *         schema:
+ *           type: string
+ *         description: Filter by description (partial match)
+ *       - in: query
+ *         name: prixMin
+ *         schema:
+ *           type: number
+ *         description: Minimum price
+ *       - in: query
+ *         name: prixMax
+ *         schema:
+ *           type: number
+ *         description: Maximum price
+ *       - in: query
+ *         name: categorieId
+ *         schema:
+ *           type: string
+ *         description: Filter by category ID
+ *       - in: query
+ *         name: centreId
+ *         schema:
+ *           type: string
+ *         description: Filter by centre ID
+ *       - in: query
+ *         name: dureeMin
+ *         schema:
+ *           type: number
+ *         description: Minimum duration (hours)
+ *       - in: query
+ *         name: dureeMax
+ *         schema:
+ *           type: number
+ *         description: Maximum duration (hours)
  *     responses:
  *       200:
  *         description: List of formations
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Formation'
+ *                 total:
+ *                   type: number
  */
 
 /**
