@@ -16,12 +16,9 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *         description:
  *           type: string
  *           description: Lesson description
- *         contenu:
- *           type: string
- *           description: Lesson content
  *         duree:
- *           type: string
- *           description: Duration
+ *           type: number
+ *           description: Duration in minutes
  *         formationId:
  *           type: string
  *           description: Formation ID
@@ -30,28 +27,55 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *           description: Instructor ID
  *         estAccessible:
  *           type: boolean
- *           description: Is accessible
+ *           description: Is publicly accessible
+ *         order:
+ *           type: number
+ *           description: Display order
+ *         hasAccess:
+ *           type: boolean
+ *           description: Whether current user has access
+ *         contentCount:
+ *           type: number
+ *           description: Number of contents in this lesson
  */
 
 /**
  * @swagger
- * /lecons/getAllLecons:
+ * /lecons:
  *   get:
- *     summary: Get all lessons (filtered by access)
+ *     summary: Get all lessons
  *     tags: [Lecons]
  *     security:
  *       - bearerAuth: []
- *     description: Returns lessons the user can access (instructor of lesson or enrolled in formation)
+ *     parameters:
+ *       - in: query
+ *         name: formationId
+ *         schema:
+ *           type: string
+ *         description: Filter by formation ID
  *     responses:
  *       200:
- *         description: List of accessible lessons
+ *         description: List of lessons
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Lecon'
+ *                 total:
+ *                   type: number
  *       401:
  *         description: Unauthorized
  */
 
 /**
  * @swagger
- * /lecons/getLeconById/{id}:
+ * /lecons/{id}:
  *   get:
  *     summary: Get lesson by ID
  *     tags: [Lecons]
@@ -69,14 +93,14 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *       401:
  *         description: Unauthorized
  *       403:
- *         description: Forbidden - Instructor or enrolled learner only
+ *         description: Access denied
  *       404:
  *         description: Lesson not found
  */
 
 /**
  * @swagger
- * /lecons/createLecon:
+ * /lecons:
  *   post:
  *     summary: Create a new lesson
  *     tags: [Lecons]
@@ -87,19 +111,36 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Lecon'
+ *             type: object
+ *             required:
+ *               - titre
+ *             properties:
+ *               titre:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               duree:
+ *                 type: number
+ *               formationId:
+ *                 type: string
+ *               estAccessible:
+ *                 type: boolean
+ *               order:
+ *                 type: number
  *     responses:
  *       201:
  *         description: Lesson created
+ *       400:
+ *         description: Bad request
  *       401:
  *         description: Unauthorized
  *       403:
- *         description: Forbidden - requires Formateur or Admin role
+ *         description: Forbidden - requires Formateur or Admin
  */
 
 /**
  * @swagger
- * /lecons/updateLecon/{id}:
+ * /lecons/{id}:
  *   put:
  *     summary: Update a lesson
  *     tags: [Lecons]
@@ -116,21 +157,34 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Lecon'
+ *             type: object
+ *             properties:
+ *               titre:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               duree:
+ *                 type: number
+ *               estAccessible:
+ *                 type: boolean
+ *               order:
+ *                 type: number
  *     responses:
  *       200:
  *         description: Lesson updated
  *       401:
  *         description: Unauthorized
  *       403:
- *         description: Forbidden - requires owner or Admin role
+ *         description: Access denied
+ *       404:
+ *         description: Lesson not found
  */
 
 /**
  * @swagger
- * /lecons/deleteLecon/{id}:
+ * /lecons/{id}:
  *   delete:
- *     summary: Delete a lesson
+ *     summary: Delete a lesson and its contents
  *     tags: [Lecons]
  *     security:
  *       - bearerAuth: []
@@ -146,23 +200,25 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *       401:
  *         description: Unauthorized
  *       403:
- *         description: Forbidden - Admin only
+ *         description: Access denied
+ *       404:
+ *         description: Lesson not found
  */
 
 // ───────── PROTECTED ROUTES ─────────
-// GetAll: Authenticated (filtered by access)
-router.get('/getAllLecons', requireAuth, leconController.getAllLecons);
+// Get all lessons (with optional formationId filter)
+router.get('/', requireAuth, leconController.getLecons);
 
-// GetById: Instructor or enrolled learner
-router.get('/getLeconById/:id', requireAuth, leconController.getLeconById);
+// Get lesson by ID
+router.get('/:id', requireAuth, leconController.getLeconById);
 
-// Create: Formateur or Admin
-router.post('/createLecon', requireAuth, requireRole('formateur', 'admin'), leconController.createLecon);
+// Create lesson
+router.post('/', requireAuth, requireRole('formateur', 'admin'), leconController.createLecon);
 
-// Update: Owner or Admin
-router.put('/updateLecon/:id', requireAuth, leconController.updateLecon);
+// Update lesson
+router.put('/:id', requireAuth, leconController.updateLecon);
 
-// Delete: Admin only
-router.delete('/deleteLecon/:id', requireAuth, requireRole('admin'), leconController.deleteLecon);
+// Delete lesson
+router.delete('/:id', requireAuth, leconController.deleteLecon);
 
 module.exports = router;
