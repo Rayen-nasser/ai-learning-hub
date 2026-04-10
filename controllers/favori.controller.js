@@ -1,28 +1,43 @@
 const favoriModel = require("../models/favori.model");
 
+const formatFavori = (f) => ({
+  _id: f._id,
+  typeCible: f.typeCible,
+  createdAt: f.createdAt,
+  apprenantId: f.apprenantId ? {
+    _id: f.apprenantId._id,
+    nom: f.apprenantId.nom,
+    prenom: f.apprenantId.prenom,
+    user_image: f.apprenantId.user_image,
+  } : null,
+  cibleId: f.cibleId?._id || f.cibleId,
+  cibleTitre: f.cibleTitre,
+});
+
 module.exports.getAllFavoris = async (req, res) => {
   try {
     const favoris = await favoriModel.find()
-      .populate("apprenantId", "_id nom prenom user_image")
-      .populate("cibleId", "titre nom");
+      .populate("apprenantId", "_id nom prenom user_image");
 
-    if (favoris.length === 0) {
-      return res.status(404).json({ message: "No favoris found" });
+    const formattedFavoris = [];
+    for (const f of favoris) {
+      let cibleTitre = null;
+      if (f.typeCible === "formation") {
+        const formation = await require("../models/formation.model").findById(f.cibleId).select("titre");
+        cibleTitre = formation?.titre;
+      } else if (f.typeCible === "lecon") {
+        const lecon = await require("../models/lecon.model").findById(f.cibleId).select("titre");
+        cibleTitre = lecon?.titre;
+      } else if (f.typeCible === "centreFormation") {
+        const centre = await require("../models/centreFormation.model").findById(f.cibleId).select("nom");
+        cibleTitre = centre?.nom;
+      }
+      formattedFavoris.push({ ...formatFavori(f), cibleTitre });
     }
 
-    const formattedFavoris = favoris.map(f => ({
-      _id: f._id,
-      typeCible: f.typeCible,
-      createdAt: f.createdAt,
-      apprenantId: f.apprenantId ? {
-        _id: f.apprenantId._id,
-        nom: f.apprenantId.nom,
-        prenom: f.apprenantId.prenom,
-        user_image: f.apprenantId.user_image,
-      } : null,
-      cibleId: f.cibleId?._id,
-      cibleTitre: f.cibleId?.titre || f.cibleId?.nom,
-    }));
+    if (formattedFavoris.length === 0) {
+      return res.status(404).json({ message: "No favoris found" });
+    }
 
     res.status(200).json({ message: "Favoris retrieved successfully", data: formattedFavoris });
   } catch (error) {
@@ -40,26 +55,27 @@ module.exports.getFavorisByApprenant = async (req, res) => {
     }
 
     const favoris = await favoriModel.find({ apprenantId: req.params.apprenantId })
-      .populate("apprenantId", "_id nom prenom user_image")
-      .populate("cibleId", "titre nom");
+      .populate("apprenantId", "_id nom prenom user_image");
 
-    if (favoris.length === 0) {
-      return res.status(404).json({ message: "No favoris found for this learner" });
+    const formattedFavoris = [];
+    for (const f of favoris) {
+      let cibleTitre = null;
+      if (f.typeCible === "formation") {
+        const formation = await require("../models/formation.model").findById(f.cibleId).select("titre");
+        cibleTitre = formation?.titre;
+      } else if (f.typeCible === "lecon") {
+        const lecon = await require("../models/lecon.model").findById(f.cibleId).select("titre");
+        cibleTitre = lecon?.titre;
+      } else if (f.typeCible === "centreFormation") {
+        const centre = await require("../models/centreFormation.model").findById(f.cibleId).select("nom");
+        cibleTitre = centre?.nom;
+      }
+      formattedFavoris.push({ ...formatFavori(f), cibleTitre });
     }
 
-    const formattedFavoris = favoris.map(f => ({
-      _id: f._id,
-      typeCible: f.typeCible,
-      createdAt: f.createdAt,
-      apprenantId: f.apprenantId ? {
-        _id: f.apprenantId._id,
-        nom: f.apprenantId.nom,
-        prenom: f.apprenantId.prenom,
-        user_image: f.apprenantId.user_image,
-      } : null,
-      cibleId: f.cibleId?._id,
-      cibleTitre: f.cibleId?.titre || f.cibleId?.nom,
-    }));
+    if (formattedFavoris.length === 0) {
+      return res.status(404).json({ message: "No favoris found for this learner" });
+    }
 
     res.status(200).json({ message: "Favoris retrieved successfully", data: formattedFavoris });
   } catch (error) {
@@ -88,25 +104,26 @@ module.exports.createFavori = async (req, res) => {
 
     const newFavori = new favoriModel({ apprenantId, cibleId, typeCible });
     await newFavori.save();
+
     const populatedFavori = await favoriModel.findById(newFavori._id)
-      .populate("apprenantId", "_id nom prenom user_image")
-      .populate("cibleId", "titre nom");
+      .populate("apprenantId", "_id nom prenom user_image");
 
-    const formattedFavori = {
-      _id: populatedFavori._id,
-      typeCible: populatedFavori.typeCible,
-      createdAt: populatedFavori.createdAt,
-      apprenantId: populatedFavori.apprenantId ? {
-        _id: populatedFavori.apprenantId._id,
-        nom: populatedFavori.apprenantId.nom,
-        prenom: populatedFavori.apprenantId.prenom,
-        user_image: populatedFavori.apprenantId.user_image,
-      } : null,
-      cibleId: populatedFavori.cibleId?._id,
-      cibleTitre: populatedFavori.cibleId?.titre || populatedFavori.cibleId?.nom,
-    };
+    let cibleTitre = null;
+    if (typeCible === "formation") {
+      const formation = await require("../models/formation.model").findById(cibleId).select("titre");
+      cibleTitre = formation?.titre;
+    } else if (typeCible === "lecon") {
+      const lecon = await require("../models/lecon.model").findById(cibleId).select("titre");
+      cibleTitre = lecon?.titre;
+    } else if (typeCible === "centreFormation") {
+      const centre = await require("../models/centreFormation.model").findById(cibleId).select("nom");
+      cibleTitre = centre?.nom;
+    }
 
-    res.status(201).json({ message: "Favori created successfully", data: formattedFavori });
+    res.status(201).json({
+      message: "Favori created successfully",
+      data: { ...formatFavori(populatedFavori), cibleTitre },
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
