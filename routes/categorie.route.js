@@ -23,7 +23,7 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
 
 /**
  * @swagger
- * /categories/getAllCategories:
+ * /categories:
  *   get:
  *     summary: Get all categories
  *     tags: [Categories]
@@ -31,10 +31,11 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *       200:
  *         description: List of categories
  */
+router.get('/', categorieController.getAllCategories);
 
 /**
  * @swagger
- * /categories/getCategorieById/{id}:
+ * /categories/{id}:
  *   get:
  *     summary: Get category by ID
  *     tags: [Categories]
@@ -50,10 +51,11 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *       404:
  *         description: Category not found
  */
+router.get('/:id', categorieController.getCategorieById);
 
 /**
  * @swagger
- * /categories/createCategorie:
+ * /categories:
  *   post:
  *     summary: Create a new category
  *     tags: [Categories]
@@ -73,10 +75,11 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *       403:
  *         description: Forbidden - Admin only
  */
+router.post('/', requireAuth, requireRole('admin'), categorieController.createCategorie);
 
 /**
  * @swagger
- * /categories/updateCategorie/{id}:
+ * /categories/{id}:
  *   put:
  *     summary: Update a category
  *     tags: [Categories]
@@ -102,10 +105,11 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *       403:
  *         description: Forbidden - Admin only
  */
+router.put('/:id', requireAuth, requireRole('admin'), categorieController.updateCategorie);
 
 /**
  * @swagger
- * /categories/deleteCategorie/{id}:
+ * /categories/{id}:
  *   delete:
  *     summary: Delete a category
  *     tags: [Categories]
@@ -125,14 +129,6 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *       403:
  *         description: Forbidden - Admin only
  */
-
-// ───────── PUBLIC ROUTES ─────────
-router.get('/getAllCategories', categorieController.getAllCategories);
-router.get('/getCategorieById/:id', categorieController.getCategorieById);
-
-// ───────── PROTECTED ROUTES (Admin only) ─────────
-router.post('/createCategorie', requireAuth, requireRole('admin'), categorieController.createCategorie);
-router.put('/updateCategorie/:id', requireAuth, requireRole('admin'), categorieController.updateCategorie);
-router.delete('/deleteCategorie/:id', requireAuth, requireRole('admin'), categorieController.deleteCategorie);
+router.delete('/:id', requireAuth, requireRole('admin'), categorieController.deleteCategorie);
 
 module.exports = router;

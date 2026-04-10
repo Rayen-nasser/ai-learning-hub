@@ -21,8 +21,11 @@ const { uploadSingle } = require('../middlewares/uploadfile');
  *           type: number
  *           description: Formation price
  *         duree:
+ *           type: number
+ *           description: Duration in hours
+ *         image:
  *           type: string
- *           description: Duration
+ *           description: Formation image URL
  *         categorieId:
  *           type: string
  *           description: Category ID
@@ -33,9 +36,9 @@ const { uploadSingle } = require('../middlewares/uploadfile');
 
 /**
  * @swagger
- * /formations/getAllFormations:
+ * /formations:
  *   get:
- *     summary: Get all formations with optional filters
+ *     summary: Get all formations
  *     tags: [Formations]
  *     parameters:
  *       - in: query
@@ -44,15 +47,15 @@ const { uploadSingle } = require('../middlewares/uploadfile');
  *           type: string
  *         description: Search in titre and description
  *       - in: query
- *         name: titre
+ *         name: centreId
  *         schema:
  *           type: string
- *         description: Filter by titre (partial match)
+ *         description: Filter by centre ID
  *       - in: query
- *         name: description
+ *         name: categorieId
  *         schema:
  *           type: string
- *         description: Filter by description (partial match)
+ *         description: Filter by category ID
  *       - in: query
  *         name: prixMin
  *         schema:
@@ -63,16 +66,6 @@ const { uploadSingle } = require('../middlewares/uploadfile');
  *         schema:
  *           type: number
  *         description: Maximum price
- *       - in: query
- *         name: categorieId
- *         schema:
- *           type: string
- *         description: Filter by category ID
- *       - in: query
- *         name: centreId
- *         schema:
- *           type: string
- *         description: Filter by centre ID
  *       - in: query
  *         name: dureeMin
  *         schema:
@@ -86,24 +79,12 @@ const { uploadSingle } = require('../middlewares/uploadfile');
  *     responses:
  *       200:
  *         description: List of formations
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 data:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Formation'
- *                 total:
- *                   type: number
  */
+router.get('/', formationController.getAllFormations);
 
 /**
  * @swagger
- * /formations/getFormationById/{id}:
+ * /formations/{id}:
  *   get:
  *     summary: Get formation by ID
  *     tags: [Formations]
@@ -119,10 +100,11 @@ const { uploadSingle } = require('../middlewares/uploadfile');
  *       404:
  *         description: Formation not found
  */
+router.get('/:id', formationController.getFormationById);
 
 /**
  * @swagger
- * /formations/createFormation:
+ * /formations:
  *   post:
  *     summary: Create a new formation
  *     tags: [Formations]
@@ -131,9 +113,25 @@ const { uploadSingle } = require('../middlewares/uploadfile');
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
- *             $ref: '#/components/schemas/Formation'
+ *             type: object
+ *             properties:
+ *               titre:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               prix:
+ *                 type: number
+ *               duree:
+ *                 type: number
+ *               centreId:
+ *                 type: string
+ *               categorieId:
+ *                 type: string
+ *               image:
+ *                 type: string
+ *                 format: binary
  *     responses:
  *       201:
  *         description: Formation created
@@ -142,10 +140,11 @@ const { uploadSingle } = require('../middlewares/uploadfile');
  *       403:
  *         description: Forbidden - requires ResponsableCF or Admin role
  */
+router.post('/', requireAuth, requireRole('responsableCF', 'admin'), uploadSingle('image', 'images'), formationController.createFormation);
 
 /**
  * @swagger
- * /formations/updateFormation/{id}:
+ * /formations/{id}:
  *   put:
  *     summary: Update a formation
  *     tags: [Formations]
@@ -160,9 +159,21 @@ const { uploadSingle } = require('../middlewares/uploadfile');
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
- *             $ref: '#/components/schemas/Formation'
+ *             type: object
+ *             properties:
+ *               titre:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               prix:
+ *                 type: number
+ *               duree:
+ *                 type: number
+ *               image:
+ *                 type: string
+ *                 format: binary
  *     responses:
  *       200:
  *         description: Formation updated
@@ -171,10 +182,11 @@ const { uploadSingle } = require('../middlewares/uploadfile');
  *       403:
  *         description: Forbidden - requires owner or Admin role
  */
+router.put('/:id', requireAuth, uploadSingle('image', 'images'), formationController.updateFormation);
 
 /**
  * @swagger
- * /formations/deleteFormation/{id}:
+ * /formations/{id}:
  *   delete:
  *     summary: Delete a formation
  *     tags: [Formations]
@@ -194,19 +206,6 @@ const { uploadSingle } = require('../middlewares/uploadfile');
  *       403:
  *         description: Forbidden - Admin only
  */
-
-// ───────── PUBLIC ROUTES ─────────
-router.get('/getAllFormations', formationController.getAllFormations);
-router.get('/:id', formationController.getFormationById);
-
-// ───────── PROTECTED ROUTES ─────────
-// Create: ResponsableCF or Admin
-router.post('/createFormation', requireAuth, requireRole('responsableCF', 'admin'), uploadSingle('image', 'images'), formationController.createFormation);
-
-// Update: Owner or Admin
-router.put('/updateFormation/:id', requireAuth, uploadSingle('image', 'images'), formationController.updateFormation);
-
-// Delete: Admin only
-router.delete('/deleteFormation/:id', requireAuth, requireRole('admin'), formationController.deleteFormation);
+router.delete('/:id', requireAuth, requireRole('admin'), formationController.deleteFormation);
 
 module.exports = router;

@@ -16,12 +16,15 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *         adresse:
  *           type: string
  *           description: Centre address
+ *         description:
+ *           type: string
+ *           description: Centre description
  *         telephone:
  *           type: string
  *           description: Contact phone
- *         email:
+ *         logo:
  *           type: string
- *           description: Contact email
+ *           description: Centre logo URL
  *         responsableId:
  *           type: string
  *           description: Responsible user ID
@@ -29,18 +32,19 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
 
 /**
  * @swagger
- * /centres/getAllCentres:
+ * /centres:
  *   get:
- *     summary: Get all formation centers
+ *     summary: Get all formation centres
  *     tags: [Centres]
  *     responses:
  *       200:
  *         description: List of centres
  */
+router.get('/', centreFormationController.getAllCentres);
 
 /**
  * @swagger
- * /centres/getCentreById/{id}:
+ * /centres/{id}:
  *   get:
  *     summary: Get centre by ID
  *     tags: [Centres]
@@ -56,10 +60,11 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *       404:
  *         description: Centre not found
  */
+router.get('/:id', centreFormationController.getCentreById);
 
 /**
  * @swagger
- * /centres/createCentre:
+ * /centres:
  *   post:
  *     summary: Create a new formation centre
  *     tags: [Centres]
@@ -70,7 +75,20 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/CentreFormation'
+ *             type: object
+ *             properties:
+ *               nom:
+ *                 type: string
+ *               adresse:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               telephone:
+ *                 type: string
+ *               logo:
+ *                 type: string
+ *               responsableId:
+ *                 type: string
  *     responses:
  *       201:
  *         description: Centre created
@@ -79,10 +97,11 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *       403:
  *         description: Forbidden - requires ResponsableCF or Admin role
  */
+router.post('/', requireAuth, requireRole('responsableCF', 'admin'), centreFormationController.createCentre);
 
 /**
  * @swagger
- * /centres/updateCentre/{id}:
+ * /centres/{id}:
  *   put:
  *     summary: Update a formation centre
  *     tags: [Centres]
@@ -108,10 +127,11 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *       403:
  *         description: Forbidden - requires owner or Admin role
  */
+router.put('/:id', requireAuth, centreFormationController.updateCentre);
 
 /**
  * @swagger
- * /centres/deleteCentre/{id}:
+ * /centres/{id}:
  *   delete:
  *     summary: Delete a formation centre
  *     tags: [Centres]
@@ -131,19 +151,6 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *       403:
  *         description: Forbidden - Admin only
  */
-
-// ───────── PUBLIC ROUTES ─────────
-router.get('/getAllCentres', centreFormationController.getAllCentres);
-router.get('/getCentreById/:id', centreFormationController.getCentreById);
-
-// ───────── PROTECTED ROUTES ─────────
-// Create: ResponsableCF or Admin
-router.post('/createCentre', requireAuth, requireRole('responsableCF', 'admin'), centreFormationController.createCentre);
-
-// Update: Owner or Admin
-router.put('/updateCentre/:id', requireAuth, centreFormationController.updateCentre);
-
-// Delete: Admin only
-router.delete('/deleteCentre/:id', requireAuth, requireRole('admin'), centreFormationController.deleteCentre);
+router.delete('/:id', requireAuth, requireRole('admin'), centreFormationController.deleteCentre);
 
 module.exports = router;
