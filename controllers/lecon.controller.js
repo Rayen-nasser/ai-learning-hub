@@ -50,8 +50,8 @@ module.exports.getLecons = async (req, res) => {
     }
 
     const lecons = await leconModel.find(query)
-      .populate("formationId")
-      .populate("formateurId", "-password")
+      .populate("formationId", "titre description prix duree")
+      .populate("formateurId", "nom prenom")
       .sort({ order: 1, createdAt: 1 });
 
     if (lecons.length === 0) {
@@ -64,7 +64,14 @@ module.exports.getLecons = async (req, res) => {
       const contentCount = await leconContentModel.countDocuments({ leconId: lecon._id });
 
       return {
-        ...leconObj,
+        _id: leconObj._id,
+        titre: leconObj.titre,
+        description: leconObj.description,
+        duree: leconObj.duree,
+        order: leconObj.order,
+        estAccessible: leconObj.estAccessible,
+        formation: leconObj.formationId,
+        formateur: leconObj.formateurId,
         hasAccess: access.hasAccess,
         contentCount,
       };
@@ -83,8 +90,8 @@ module.exports.getLecons = async (req, res) => {
 module.exports.getLeconById = async (req, res) => {
   try {
     const lecon = await leconModel.findById(req.params.id)
-      .populate("formationId")
-      .populate("formateurId", "-password");
+      .populate("formationId", "titre description prix duree")
+      .populate("formateurId", "nom prenom");
 
     if (!lecon) {
       return res.status(404).json({ message: "Lesson not found" });
@@ -100,7 +107,18 @@ module.exports.getLeconById = async (req, res) => {
       });
     }
 
-    res.status(200).json({ message: "Lesson retrieved successfully", data: leconObj });
+    res.status(200).json({ 
+      message: "Lesson retrieved successfully", 
+      data: {
+        _id: leconObj._id,
+        titre: leconObj.titre,
+        description: leconObj.description,
+        duree: leconObj.duree,
+        order: leconObj.order,
+        formation: leconObj.formationId,
+        formateur: leconObj.formateurId,
+      }
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -141,10 +159,18 @@ module.exports.createLecon = async (req, res) => {
 
     await newLecon.save();
     const populatedLecon = await leconModel.findById(newLecon._id)
-      .populate("formationId")
-      .populate("formateurId", "-password");
+      .populate("formationId", "titre description prix duree")
+      .populate("formateurId", "nom prenom");
 
-    res.status(201).json({ message: "Lesson created successfully", data: populatedLecon });
+    res.status(201).json({ message: "Lesson created successfully", data: {
+      _id: populatedLecon._id,
+      titre: populatedLecon.titre,
+      description: populatedLecon.description,
+      duree: populatedLecon.duree,
+      order: populatedLecon.order,
+      formation: populatedLecon.formationId,
+      formateur: populatedLecon.formateurId,
+    }});
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -182,9 +208,17 @@ module.exports.updateLecon = async (req, res) => {
       req.params.id,
       updates,
       { new: true, runValidators: true }
-    ).populate("formationId").populate("formateurId", "-password");
+    ).populate("formationId", "titre description prix duree").populate("formateurId", "nom prenom");
 
-    res.status(200).json({ message: "Lesson updated successfully", data: updatedLecon });
+    res.status(200).json({ message: "Lesson updated successfully", data: {
+      _id: updatedLecon._id,
+      titre: updatedLecon.titre,
+      description: updatedLecon.description,
+      duree: updatedLecon.duree,
+      order: updatedLecon.order,
+      formation: updatedLecon.formationId,
+      formateur: updatedLecon.formateurId,
+    }});
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
