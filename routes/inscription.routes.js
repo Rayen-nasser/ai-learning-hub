@@ -20,168 +20,29 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *           type: string
  *           enum: [en attente, acceptée, refusée]
  *           description: Registration status
- *         dateInscription:
- *           type: string
- *           format: date
- *           description: Registration date
  */
 
-/**
- * @swagger
- * /inscriptions/getAllInscriptions:
- *   get:
- *     summary: Get all inscriptions
- *     tags: [Inscriptions]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: List of inscriptions
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - Admin or ResponsableCF only
- */
+// ───────── ROUTES ─────────
 
-/**
- * @swagger
- * /inscriptions/getInscriptionById/{id}:
- *   get:
- *     summary: Get inscription by ID
- *     tags: [Inscriptions]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Inscription details
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - Self or Admin only
- *       404:
- *         description: Inscription not found
- */
+// GET /inscriptions - Get all inscriptions (admin/responsable only)
+router.get('/', requireAuth, requireRole('admin', 'responsableCF'), inscriptionController.getAllInscriptions);
 
-/**
- * @swagger
- * /inscriptions/createInscription:
- *   post:
- *     summary: Create a new inscription (enroll in formation)
- *     tags: [Inscriptions]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - formationId
- *             properties:
- *               formationId:
- *                 type: string
- *     responses:
- *       201:
- *         description: Inscription created
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - Apprenant role only
- */
+// GET /inscriptions/me - Get my inscriptions (logged-in user)
+router.get('/me', requireAuth, inscriptionController.getMyInscriptions);
 
-/**
- * @swagger
- * /inscriptions/validerInscription/{id}:
- *   put:
- *     summary: Validate an inscription
- *     tags: [Inscriptions]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Inscription validated
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - Admin or ResponsableCF only
- */
+// POST /inscriptions - Create inscription (enroll in formation)
+router.post('/', requireAuth, inscriptionController.createInscription);
 
-/**
- * @swagger
- * /inscriptions/annulerInscription/{id}:
- *   put:
- *     summary: Cancel an inscription
- *     tags: [Inscriptions]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Inscription cancelled
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - Admin or ResponsableCF only
- */
+// GET /inscriptions/:id - Get inscription by ID
+router.get('/:id', requireAuth, inscriptionController.getInscriptionById);
 
-/**
- * @swagger
- * /inscriptions/deleteInscription/{id}:
- *   delete:
- *     summary: Delete an inscription
- *     tags: [Inscriptions]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Inscription deleted
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - Admin only
- */
+// PUT /inscriptions/:id/accept - Accept inscription
+router.put('/:id/accept', requireAuth, requireRole('admin', 'responsableCF'), inscriptionController.acceptInscription);
 
-// ───────── PROTECTED ROUTES ─────────
-// GetAll: Admin or ResponsableCF
-router.get('/getAllInscriptions', requireAuth, requireRole('admin', 'responsableCF'), inscriptionController.getAllInscriptions);
+// PUT /inscriptions/:id/reject - Reject inscription
+router.put('/:id/reject', requireAuth, requireRole('admin', 'responsableCF'), inscriptionController.rejectInscription);
 
-// GetById: Self or Admin or ResponsableCF
-router.get('/getInscriptionById/:id', requireAuth, inscriptionController.getInscriptionById);
-
-// Create: Authenticated user (apprenant enrolls)
-router.post('/createInscription', requireAuth, inscriptionController.createInscription);
-
-// Valider: Admin or ResponsableCF
-router.put('/validerInscription/:id', requireAuth, requireRole('admin', 'responsableCF'), inscriptionController.validerInscription);
-
-// Annuler: Admin or ResponsableCF
-router.put('/annulerInscription/:id', requireAuth, requireRole('admin', 'responsableCF'), inscriptionController.annulerInscription);
-
-// Delete: Admin only
-router.delete('/deleteInscription/:id', requireAuth, requireRole('admin'), inscriptionController.deleteInscription);
+// DELETE /inscriptions/:id - Delete inscription
+router.delete('/:id', requireAuth, requireRole('admin'), inscriptionController.deleteInscription);
 
 module.exports = router;

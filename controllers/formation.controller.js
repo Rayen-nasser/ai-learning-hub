@@ -13,11 +13,7 @@ const sanitizeFormation = (f) => {
     if (!path.startsWith('http') && !path.startsWith('/')) {
       path = '/' + path;
     }
-    if (path.startsWith('http')) {
-      obj.image = path;
-    } else {
-      obj.image = `${getBaseUrl()}${path}`;
-    }
+    obj.image = path.startsWith('http') ? path : `${getBaseUrl()}${path}`;
   }
   return obj;
 };
@@ -25,7 +21,7 @@ const sanitizeFormation = (f) => {
 module.exports.getAllFormations = async (req, res) => {
   try {
     const { titre, description, prixMin, prixMax, categorieId, centreId, dureeMin, dureeMax, search } = req.query;
-    
+
     let query = {};
 
     if (search) {
@@ -34,7 +30,7 @@ module.exports.getAllFormations = async (req, res) => {
         { description: { $regex: search, $options: 'i' } }
       ];
     } else {
-      if (titre) query.titre = { $regex: titre, $options: 'i' };
+      if (titre)       query.titre       = { $regex: titre, $options: 'i' };
       if (description) query.description = { $regex: description, $options: 'i' };
     }
 
@@ -45,7 +41,7 @@ module.exports.getAllFormations = async (req, res) => {
     }
 
     if (categorieId) query.categorieId = categorieId;
-    if (centreId) query.centreId = centreId;
+    if (centreId)    query.centreId    = centreId;
 
     if (dureeMin || dureeMax) {
       query.duree = {};
@@ -53,15 +49,18 @@ module.exports.getAllFormations = async (req, res) => {
       if (dureeMax) query.duree.$lte = Number(dureeMax);
     }
 
-    const formations = await formationModel.find(query)
+    const formations = await formationModel
+      .find(query)
       .populate("centreId")
       .populate("categorieId");
 
-    if (formations.length === 0) {
-      return res.status(404).json({ message: "No formations found" });
-    }
+    // ✅ FIXED: always return 200 — let the frontend handle empty arrays
     const sanitizedFormations = formations.map(sanitizeFormation);
-    res.status(200).json({ message: "Formations retrieved successfully", data: sanitizedFormations, total: sanitizedFormations.length });
+    res.status(200).json({
+      message: "Formations retrieved successfully",
+      data: sanitizedFormations,
+      total: sanitizedFormations.length,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -69,7 +68,8 @@ module.exports.getAllFormations = async (req, res) => {
 
 module.exports.getFormationById = async (req, res) => {
   try {
-    const formation = await formationModel.findById(req.params.id)
+    const formation = await formationModel
+      .findById(req.params.id)
       .populate("centreId")
       .populate("categorieId");
     if (!formation) {
@@ -91,34 +91,25 @@ module.exports.createFormation = async (req, res) => {
 
     if (centreId) {
       const centre = await centreFormationModel.findById(centreId);
-      if (!centre) {
-        return res.status(400).json({ message: "Centre not found" });
-      }
+      if (!centre) return res.status(400).json({ message: "Centre not found" });
     }
 
     if (categorieId) {
       const categorie = await categorieModel.findById(categorieId);
-      if (!categorie) {
-        return res.status(400).json({ message: "Category not found" });
-      }
+      if (!categorie) return res.status(400).json({ message: "Category not found" });
     }
 
     const image = req.file ? `${req.file.folder}/${req.file.filename}` : undefined;
 
-    const newFormation = new formationModel({
-      titre,
-      description,
-      prix,
-      duree,
-      centreId,
-      categorieId,
-      image,
-    });
+    const newFormation = new formationModel({ titre, description, prix, duree, centreId, categorieId, image });
     await newFormation.save();
-    const populatedFormation = await formationModel.findById(newFormation._id)
+
+    const populated = await formationModel
+      .findById(newFormation._id)
       .populate("centreId")
       .populate("categorieId");
-    res.status(201).json({ message: "Formation created successfully", data: sanitizeFormation(populatedFormation) });
+
+    res.status(201).json({ message: "Formation created successfully", data: sanitizeFormation(populated) });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -131,8 +122,7 @@ module.exports.updateFormation = async (req, res) => {
       return res.status(404).json({ message: "Formation not found" });
     }
 
-    const isOwner = formation.centreId && formation.centreId.responsableId &&
-      formation.centreId.responsableId.toString() === req.user._id.toString();
+    const isOwner = formation.centreId?.responsableId?.toString() === req.user._id.toString();
     const isAdmin = req.user.role === 'admin';
 
     if (!isOwner && !isAdmin) {
@@ -140,28 +130,23 @@ module.exports.updateFormation = async (req, res) => {
     }
 
     const { titre, description, prix, duree } = req.body;
-
     const updates = {};
-    if (titre) updates.titre = titre;
+    if (titre)                 updates.titre       = titre;
     if (description !== undefined) updates.description = description;
-    if (prix !== undefined) updates.prix = prix;
-    if (duree !== undefined) updates.duree = duree;
-
-    if (req.file) {
-      updates.image = `${req.file.folder}/${req.file.filename}`;
-    }
+    if (prix        !== undefined) updates.prix        = prix;
+    if (duree       !== undefined) updates.duree       = duree;
+    if (req.file) updates.image = `${req.file.folder}/${req.file.filename}`;
 
     if (Object.keys(updates).length === 0) {
       return res.status(400).json({ message: "No fields to update" });
     }
 
-    const updatedFormation = await formationModel.findByIdAndUpdate(
-      req.params.id,
-      updates,
-      { new: true, runValidators: true }
-    ).populate("centreId").populate("categorieId");
+    const updated = await formationModel
+      .findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true })
+      .populate("centreId")
+      .populate("categorieId");
 
-    res.status(200).json({ message: "Formation updated successfully", data: sanitizeFormation(updatedFormation) });
+    res.status(200).json({ message: "Formation updated successfully", data: sanitizeFormation(updated) });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -169,10 +154,8 @@ module.exports.updateFormation = async (req, res) => {
 
 module.exports.deleteFormation = async (req, res) => {
   try {
-    const deletedFormation = await formationModel.findByIdAndDelete(req.params.id);
-    if (!deletedFormation) {
-      return res.status(404).json({ message: "Formation not found" });
-    }
+    const deleted = await formationModel.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: "Formation not found" });
     res.status(200).json({ message: "Formation deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
