@@ -18,12 +18,14 @@ const sanitizeUser = (user) => {
   delete obj.loginAttempts;
   
   if (obj.user_image) {
-    if (obj.user_image.startsWith('http')) {
-      obj.user_image = obj.user_image;
-    } else if (obj.user_image.startsWith('/')) {
-      obj.user_image = `${getBaseUrl()}${obj.user_image}`;
+    let path = obj.user_image;
+    if (!path.startsWith('http') && !path.startsWith('/')) {
+      path = '/' + path;
+    }
+    if (path.startsWith('http')) {
+      obj.user_image = path;
     } else {
-      obj.user_image = `${getBaseUrl()}/images/${obj.user_image}`;
+      obj.user_image = `${getBaseUrl()}${path}`;
     }
   }
   
