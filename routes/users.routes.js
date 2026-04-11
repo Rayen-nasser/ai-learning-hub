@@ -11,9 +11,12 @@ const { requireAuth } = require('../middlewares/authMiddleware');
  *     User:
  *       type: object
  *       properties:
- *         name:
+ *         nom:
  *           type: string
- *           description: User's full name
+ *           description: User's last name
+ *         prenom:
+ *           type: string
+ *           description: User's first name
  *         email:
  *           type: string
  *           description: User's email address
@@ -22,48 +25,335 @@ const { requireAuth } = require('../middlewares/authMiddleware');
  *           description: User's password
  *         role:
  *           type: string
- *           enum: [user, admin, formateur, apprenant, responsableCF]
+ *           enum: [apprenant, formateur, responsableCF, admin]
  *           description: User role
+ *         telephone:
+ *           type: string
+ *           description: Phone number
+ *         user_image:
+ *           type: string
+ *           description: Profile image URL
  */
 
 // ───────── PUBLIC ROUTES ─────────
 
-// POST /users/register - Register new user
+/**
+ * @swagger
+ * /users/register:
+ *   post:
+ *     summary: Register a new user
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nom
+ *               - prenom
+ *               - email
+ *               - password
+ *             properties:
+ *               nom:
+ *                 type: string
+ *               prenom:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               telephone:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *       400:
+ *         description: Bad request
+ */
 router.post("/register", userController.createUser);
 
-// POST /users/register-with-image - Register with image
+/**
+ * @swagger
+ * /users/register-with-image:
+ *   post:
+ *     summary: Register a new user with profile image
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nom
+ *               - prenom
+ *               - email
+ *               - password
+ *             properties:
+ *               nom:
+ *                 type: string
+ *               prenom:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               telephone:
+ *                 type: string
+ *               user_image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *       400:
+ *         description: Bad request
+ */
 router.post("/register-with-image", upload.single('user_image'), userController.createUserWithImage);
 
-// POST /users/login - User login
+/**
+ * @swagger
+ * /users/login:
+ *   post:
+ *     summary: User login
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *       401:
+ *         description: Invalid credentials
+ */
 router.post("/login", userController.login);
 
-// POST /users/forgot-password - Request password reset
+/**
+ * @swagger
+ * /users/forgot-password:
+ *   post:
+ *     summary: Request password reset
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Reset token generated
+ */
 router.post("/forgot-password", userController.forgotPassword);
 
-// POST /users/reset-password - Reset password with token
+/**
+ * @swagger
+ * /users/reset-password:
+ *   post:
+ *     summary: Reset password with token
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - token
+ *               - newPassword
+ *             properties:
+ *               token:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Password reset successful
+ */
 router.post("/reset-password", userController.resetPassword);
 
 // ───────── PROTECTED ROUTES ─────────
 
-// POST /users/logout - User logout
+/**
+ * @swagger
+ * /users/logout:
+ *   post:
+ *     summary: User logout
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Logged out successfully
+ *       401:
+ *         description: Unauthorized
+ */
 router.post("/logout", requireAuth, userController.logout);
 
-// POST /users/change-password - Change password
+/**
+ * @swagger
+ * /users/change-password:
+ *   post:
+ *     summary: Change password (authenticated)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - currentPassword
+ *               - newPassword
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Password changed successfully
+ *       401:
+ *         description: Unauthorized
+ */
 router.post("/change-password", requireAuth, userController.changePassword);
 
-// GET /users - Get all users (admin only)
+/**
+ * @swagger
+ * /users:
+ *   get:
+ *     summary: Get all users
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of users
+ *       401:
+ *         description: Unauthorized
+ */
 router.get("/", requireAuth, userController.getAllUsers);
 
-// GET /users/me - Get my profile
+/**
+ * @swagger
+ * /users/me:
+ *   get:
+ *     summary: Get my profile
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: My profile details
+ *       401:
+ *         description: Unauthorized
+ */
 router.get("/me", requireAuth, userController.getMyProfile);
 
-// GET /users/:id - Get user by ID
+/**
+ * @swagger
+ * /users/{id}:
+ *   get:
+ *     summary: Get user by ID
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User details
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ */
 router.get("/:id", requireAuth, userController.getUserById);
 
-// PUT /users/:id - Update user
+/**
+ * @swagger
+ * /users/{id}:
+ *   put:
+ *     summary: Update user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nom:
+ *                 type: string
+ *               prenom:
+ *                 type: string
+ *               telephone:
+ *                 type: string
+ *               user_image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: User updated
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ */
 router.put("/:id", requireAuth, upload.single("user_image"), userController.updateUser);
 
-// DELETE /users/:id - Delete user
+/**
+ * @swagger
+ * /users/{id}:
+ *   delete:
+ *     summary: Delete user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User deleted
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ */
 router.delete("/:id", requireAuth, userController.deleteUser);
 
 module.exports = router;
