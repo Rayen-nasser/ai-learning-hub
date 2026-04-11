@@ -44,10 +44,10 @@ const userSchema = new mongoose.Schema(
     specialite: String,
     experience: Number,
     statut: { type: String, enum: [null, "", "actif", "inactif"] },
-    centreId: { type: mongoose.Schema.Types.ObjectId, ref: "CentreFormation" },
+    centreIds: [{ type: mongoose.Schema.Types.ObjectId, ref: "CentreFormation" }],
 
     // ───── Champs ResponsableCF ─────
-    centreGereId: { type: mongoose.Schema.Types.ObjectId, ref: "CentreFormation" },
+    // Centers managed by this responsableCF are queried via CentreFormation.responsableId
 
     // ───── Champs Admin ─────
     // géré uniquement via le role

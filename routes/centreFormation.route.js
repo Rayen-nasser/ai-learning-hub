@@ -44,6 +44,40 @@ router.get('/', centreFormationController.getAllCentres);
 
 /**
  * @swagger
+ * /centres/my-centres:
+ *   get:
+ *     summary: Get all centres managed by the logged-in responsableCF
+ *     tags: [Centres]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of managed centres
+ */
+router.get('/my-centres', requireAuth, requireRole('responsableCF', 'admin'), centreFormationController.getMyCentres);
+
+/**
+ * @swagger
+ * /centres/formateur/{userId}:
+ *   get:
+ *     summary: Get all centres where a formateur teaches
+ *     tags: [Centres]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of centres
+ */
+router.get('/formateur/:userId', requireAuth, centreFormationController.getFormateurCentres);
+
+/**
+ * @swagger
  * /centres/{id}:
  *   get:
  *     summary: Get centre by ID

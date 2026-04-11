@@ -12,6 +12,10 @@ const createToken = (userId) => {
   return jwt.sign({ id: userId }, secretKey, { expiresIn: process.env.JWT_EXPIRES_IN || maxage });
 };
 
+const POPULATE_CONFIG = [
+  { path: "centreIds", model: "CentreFormation" }
+];
+
 const sanitizeUser = (user) => {
   const obj = user.toObject ? user.toObject() : { ...user };
   delete obj.password;
@@ -36,12 +40,13 @@ const ALLOWED_UPDATE_FIELDS = [
   "nom", "prenom", "telephone", "user_image",
   "niveauEtude", "dateNaissance", "adresse",
   "specialite", "experience", "statut",
+  "centreIds",
 ];
 
 // ───── GET ALL USERS ─────
 module.exports.getAllUsers = async (req, res) => {
   try {
-    const users = await userModel.find();
+    const users = await userModel.find().populate(POPULATE_CONFIG);
     if (users.length === 0) {
       return res.status(404).json({ message: "No users found" });
     }
@@ -69,7 +74,7 @@ module.exports.getMyProfile = async (req, res) => {
 module.exports.getUserById = async (req, res) => {
   try {
     const userId = req.params.id;
-    const user = await userModel.findById(userId);
+    const user = await userModel.findById(userId).populate(POPULATE_CONFIG);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -83,11 +88,18 @@ module.exports.getUserById = async (req, res) => {
 module.exports.createUser = async (req, res) => {
   try {
     const {
-      firstName, lastName, email, password, phone,
+      firstName, nom,
+      lastName, prenom,
+      email, password,
+      phone, telephone,
       role,
-      educationLevel, birthDate, address,
-      specialty, experience, status, centreId,
-      managedCentreId,
+      educationLevel, niveauEtude,
+      birthDate, dateNaissance,
+      address, adresse,
+      specialty, specialite,
+      experience,
+      status, statut,
+      centreIds,
     } = req.body;
 
     const existingUser = await userModel.findOne({ email });
@@ -96,23 +108,28 @@ module.exports.createUser = async (req, res) => {
     }
 
     const newUser = new userModel({
-      nom: firstName,
-      prenom: lastName,
+      nom: nom || firstName,
+      prenom: prenom || lastName,
       email,
       password,
-      telephone: phone,
+      telephone: telephone || phone,
       role: role || "apprenant",
-      niveauEtude: educationLevel,
-      dateNaissance: birthDate,
-      adresse: address,
-      specialite: specialty,
+      niveauEtude: niveauEtude || educationLevel,
+      dateNaissance: dateNaissance || birthDate,
+      adresse: adresse || address,
+      specialite: specialite || specialty,
       experience,
-      statut: status,
-      centreId,
-      centreGereId: managedCentreId,
+      statut: statut || status,
+      centreIds: Array.isArray(centreIds) ? centreIds : (centreIds ? [centreIds] : []),
     });
     await newUser.save();
-    res.status(201).json({ message: "User created successfully", data: sanitizeUser(newUser) });
+    const populatedUser = await userModel.findById(newUser._id).populate(POPULATE_CONFIG);
+    const token = createToken(newUser._id);
+    res.status(201).json({ 
+      message: "User created successfully", 
+      token,
+      data: sanitizeUser(populatedUser) 
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -122,11 +139,18 @@ module.exports.createUser = async (req, res) => {
 module.exports.createUserWithImage = async (req, res) => {
   try {
     const {
-      firstName, lastName, email, password, phone,
+      firstName, nom,
+      lastName, prenom,
+      email, password,
+      phone, telephone,
       role,
-      educationLevel, birthDate, address,
-      specialty, experience, status, centreId,
-      managedCentreId,
+      educationLevel, niveauEtude,
+      birthDate, dateNaissance,
+      address, adresse,
+      specialty, specialite,
+      experience,
+      status, statut,
+      centreIds,
     } = req.body;
 
     const existingUser = await userModel.findOne({ email });
@@ -135,24 +159,29 @@ module.exports.createUserWithImage = async (req, res) => {
     }
 
     const newUser = new userModel({
-      nom: firstName,
-      prenom: lastName,
+      nom: nom || firstName,
+      prenom: prenom || lastName,
       email,
       password,
-      telephone: phone,
+      telephone: telephone || phone,
       role: role || "apprenant",
       user_image: req.file ? req.file.filename : undefined,
-      niveauEtude: educationLevel,
-      dateNaissance: birthDate,
-      adresse: address,
-      specialite: specialty,
+      niveauEtude: niveauEtude || educationLevel,
+      dateNaissance: dateNaissance || birthDate,
+      adresse: adresse || address,
+      specialite: specialite || specialty,
       experience,
-      statut: status,
-      centreId,
-      centreGereId: managedCentreId,
+      statut: statut || status,
+      centreIds: Array.isArray(centreIds) ? centreIds : (centreIds ? [centreIds] : []),
     });
     await newUser.save();
-    res.status(201).json({ message: "User created successfully", data: sanitizeUser(newUser) });
+    const populatedUser = await userModel.findById(newUser._id).populate(POPULATE_CONFIG);
+    const token = createToken(newUser._id);
+    res.status(201).json({ 
+      message: "User created successfully", 
+      token,
+      data: sanitizeUser(populatedUser) 
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -182,12 +211,11 @@ module.exports.updateUser = async (req, res) => {
     if (Object.keys(updates).length === 0) {
       return res.status(400).json({ message: "No valid fields to update" });
     }
-
     const updatedUser = await userModel.findByIdAndUpdate(
       userId,
       updates,
       { new: true },
-    );
+    ).populate(POPULATE_CONFIG);
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -216,12 +244,13 @@ module.exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await userModel.login(email, password);
+    const populatedUser = await userModel.findById(user._id).populate(POPULATE_CONFIG);
     const token = createToken(user._id);
     res.cookie("jwt", token, { httpOnly: true, maxAge: maxage * 1000 });
     res.status(200).json({ 
       message: "Login successful", 
       token,
-      data: sanitizeUser(user) 
+      data: sanitizeUser(populatedUser) 
     });
   } catch (error) {
     res.status(401).json({ error: error.message });

@@ -13,6 +13,32 @@ module.exports.getAllCentres = async (req, res) => {
   }
 };
 
+// ───── GET MY CENTRES (responsableCF) ─────
+module.exports.getMyCentres = async (req, res) => {
+  try {
+    const centres = await centreFormationModel
+      .find({ responsableId: req.user._id })
+      .populate("responsableId", "-password");
+    res.status(200).json({ message: "My centres retrieved successfully", data: centres });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// ───── GET FORMATEUR CENTRES ─────
+module.exports.getFormateurCentres = async (req, res) => {
+  try {
+    const userId = req.params.userId || req.user._id;
+    const user = await userModel.findById(userId).populate({ path: "centreIds", model: "CentreFormation", populate: { path: "responsableId", select: "-password" } });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json({ message: "Formateur centres retrieved successfully", data: user.centreIds || [] });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports.getCentreById = async (req, res) => {
   try {
     const centre = await centreFormationModel.findById(req.params.id).populate("responsableId", "-password");
@@ -35,11 +61,12 @@ module.exports.createCentre = async (req, res) => {
 
     const finalResponsableId = responsableId || req.user._id;
 
-    if (responsableId) {
-      const responsable = await userModel.findById(responsableId);
-      if (!responsable) {
-        return res.status(400).json({ message: "Responsable not found" });
-      }
+    const responsable = await userModel.findById(finalResponsableId);
+    if (!responsable) {
+      return res.status(400).json({ message: "Responsable not found" });
+    }
+    if (!['responsableCF', 'admin'].includes(responsable.role)) {
+      return res.status(400).json({ message: "Responsable must have role responsableCF or admin" });
     }
 
     const newCentre = new centreFormationModel({

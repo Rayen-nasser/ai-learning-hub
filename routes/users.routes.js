@@ -22,7 +22,7 @@ const { requireAuth } = require('../middlewares/authMiddleware');
  *           description: User's password
  *         role:
  *           type: string
- *           enum: [user, admin]
+ *           enum: [user, admin, formateur, apprenant, responsableCF]
  *           description: User role
  */
 

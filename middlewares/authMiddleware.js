@@ -22,7 +22,9 @@ const requireAuth = async (req, res, next) => {
       if (decodedToken.type === "password-reset") {
         return res.status(401).json({ error: "Unauthorized: Invalid token type" });
       }
-      const user = await userModel.findById(decodedToken.id).select("-password -loginAttempts");
+      const user = await userModel.findById(decodedToken.id)
+        .select("-password -loginAttempts")
+        .populate({ path: "centreIds", model: "CentreFormation" });
       if (!user) {
         return res.status(401).json({ error: "Unauthorized: User not found" });
       }
