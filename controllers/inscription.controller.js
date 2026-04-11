@@ -1,4 +1,5 @@
 const inscriptionModel = require("../models/inscription.model");
+const formationModel = require("../models/formation.model");
 
 const formatInscription = (i) => ({
   _id: i._id,
@@ -79,58 +80,31 @@ module.exports.createInscription = async (req, res) => {
       return res.status(400).json({ message: "You are already enrolled in this formation" });
     }
 
-    const newInscription = new inscriptionModel({ apprenantId, formationId });
+    const formation = await formationModel.findById(formationId);
+    if (!formation) {
+      return res.status(404).json({ message: "Formation not found" });
+    }
+
+    const statut = formation.prix === 0 ? "acceptée" : "en_attente";
+
+    const newInscription = new inscriptionModel({ 
+      apprenantId, 
+      formationId,
+      statut,
+      dateAcceptation: statut === "acceptée" ? Date.now() : null,
+    });
     await newInscription.save();
 
     const populatedInscription = await inscriptionModel.findById(newInscription._id)
       .populate("apprenantId", "nom prenom")
       .populate("formationId", "titre");
 
-    res.status(201).json({ message: "Inscription created successfully", data: formatInscription(populatedInscription) });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-module.exports.acceptInscription = async (req, res) => {
-  try {
-    const inscription = await inscriptionModel.findById(req.params.id);
-    if (!inscription) {
-      return res.status(404).json({ message: "Inscription not found" });
-    }
-    if (inscription.statut === "acceptée") {
-      return res.status(400).json({ message: "Inscription is already accepted" });
-    }
-
-    const updatedInscription = await inscriptionModel.findByIdAndUpdate(
-      req.params.id,
-      { statut: "acceptée", dateAcceptation: Date.now() },
-      { new: true }
-    ).populate("apprenantId", "nom prenom").populate("formationId", "titre");
-
-    res.status(200).json({ message: "Inscription accepted successfully", data: formatInscription(updatedInscription) });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-module.exports.rejectInscription = async (req, res) => {
-  try {
-    const inscription = await inscriptionModel.findById(req.params.id);
-    if (!inscription) {
-      return res.status(404).json({ message: "Inscription not found" });
-    }
-    if (inscription.statut === "refusée") {
-      return res.status(400).json({ message: "Inscription is already rejected" });
-    }
-
-    const updatedInscription = await inscriptionModel.findByIdAndUpdate(
-      req.params.id,
-      { statut: "refusée" },
-      { new: true }
-    ).populate("apprenantId", "nom prenom").populate("formationId", "titre");
-
-    res.status(200).json({ message: "Inscription rejected successfully", data: formatInscription(updatedInscription) });
+    res.status(201).json({ 
+      message: statut === "acceptée" 
+        ? "Enrolled successfully. You now have access to this formation." 
+        : "Enrollment pending. Please complete payment to gain access.",
+      data: formatInscription(populatedInscription),
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

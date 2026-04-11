@@ -3,172 +3,27 @@ var router = express.Router();
 const paiementController = require('../controllers/paiement.controller');
 const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
 
-/**
- * @swagger
- * components:
- *   schemas:
- *     Paiement:
- *       type: object
- *       properties:
- *         inscriptionId:
- *           type: string
- *           description: Inscription ID
- *         apprenantId:
- *           type: string
- *           description: Learner ID
- *         montant:
- *           type: number
- *           description: Payment amount
- *         methodePaiement:
- *           type: string
- *           enum: [carte, virement, especes]
- *           description: Payment method
- *         statut:
- *           type: string
- *           enum: [en attente, confirmé, refusé]
- *           description: Payment status
- *         datePaiement:
- *           type: string
- *           format: date
- *           description: Payment date
- */
+// ───────── ROUTES ─────────
 
-/**
- * @swagger
- * /paiements/getAllPaiements:
- *   get:
- *     summary: Get all payments
- *     tags: [Paiements]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: List of payments
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - Admin or ResponsableCF only
- */
+// GET /paiements - Get all payments (responsableCF only)
+router.get('/', requireAuth, requireRole('responsableCF'), paiementController.getAllPaiements);
 
-/**
- * @swagger
- * /paiements/getPaiementById/{id}:
- *   get:
- *     summary: Get payment by ID
- *     tags: [Paiements]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Payment details
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - Self or Admin only
- *       404:
- *         description: Payment not found
- */
+// GET /paiements/me - Get my payments
+router.get('/me', requireAuth, paiementController.getMyPaiements);
 
-/**
- * @swagger
- * /paiements/createPaiement:
- *   post:
- *     summary: Create a new payment
- *     tags: [Paiements]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - inscriptionId
- *               - montant
- *             properties:
- *               inscriptionId:
- *                 type: string
- *               montant:
- *                 type: number
- *               methodePaiement:
- *                 type: string
- *                 enum: [carte, virement, especes]
- *     responses:
- *       201:
- *         description: Payment created
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - Apprenant role only
- */
+// POST /paiements - Initiate payment
+router.post('/', requireAuth, paiementController.createPaiement);
 
-/**
- * @swagger
- * /paiements/confirmerPaiement/{id}:
- *   put:
- *     summary: Confirm a payment
- *     tags: [Paiements]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Payment confirmed
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - Admin or ResponsableCF only
- */
+// GET /paiements/:id - Get payment by ID
+router.get('/:id', requireAuth, paiementController.getPaiementById);
 
-/**
- * @swagger
- * /paiements/deletePaiement/{id}:
- *   delete:
- *     summary: Delete a payment
- *     tags: [Paiements]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Payment deleted
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - Admin only
- */
+// PUT /paiements/:id/confirm - Confirm payment (after successful payment)
+router.put('/:id/confirm', requireAuth, paiementController.confirmPaiement);
 
-// ───────── PROTECTED ROUTES ─────────
-// GetAll: Admin or ResponsableCF
-router.get('/getAllPaiements', requireAuth, requireRole('admin', 'responsableCF'), paiementController.getAllPaiements);
+// PUT /paiements/:id/cancel - Cancel payment
+router.put('/:id/cancel', requireAuth, paiementController.cancelPaiement);
 
-// GetById: Self or Admin
-router.get('/getPaiementById/:id', requireAuth, paiementController.getPaiementById);
-
-// Create: Authenticated user
-router.post('/createPaiement', requireAuth, paiementController.createPaiement);
-
-// Confirmer: Admin or ResponsableCF
-router.put('/confirmerPaiement/:id', requireAuth, requireRole('admin', 'responsableCF'), paiementController.confirmerPaiement);
-
-// Delete: Admin only
-router.delete('/deletePaiement/:id', requireAuth, requireRole('admin'), paiementController.deletePaiement);
+// DELETE /paiements/:id - Delete payment (admin only)
+router.delete('/:id', requireAuth, requireRole('admin'), paiementController.deletePaiement);
 
 module.exports = router;

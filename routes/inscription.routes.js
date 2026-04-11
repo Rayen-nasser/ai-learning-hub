@@ -36,12 +36,6 @@ router.post('/', requireAuth, inscriptionController.createInscription);
 // GET /inscriptions/:id - Get inscription by ID
 router.get('/:id', requireAuth, inscriptionController.getInscriptionById);
 
-// PUT /inscriptions/:id/accept - Accept inscription (responsableCF only)
-router.put('/:id/accept', requireAuth, requireRole('responsableCF'), inscriptionController.acceptInscription);
-
-// PUT /inscriptions/:id/reject - Reject inscription (responsableCF only)
-router.put('/:id/reject', requireAuth, requireRole('responsableCF'), inscriptionController.rejectInscription);
-
 // DELETE /inscriptions/:id - Delete inscription
 router.delete('/:id', requireAuth, requireRole('admin'), inscriptionController.deleteInscription);
 
