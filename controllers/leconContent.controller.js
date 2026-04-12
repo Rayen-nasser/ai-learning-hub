@@ -1,6 +1,26 @@
 const leconContentModel = require("../models/leconContent.model");
 const leconModel = require("../models/lecon.model");
 
+const formatContent = (c) => ({
+  _id: c._id,
+  leconId: c.leconId,
+  type: c.type,
+  title: c.title,
+  description: c.description,
+  order: c.order,
+  url: c.url,
+  sourceType: c.sourceType,
+  fileName: c.fileName,
+  fileSize: c.fileSize,
+  mimeType: c.mimeType,
+  linkTitle: c.linkTitle,
+  linkUrl: c.linkUrl,
+  linkDescription: c.linkDescription,
+  passingGrade: c.passingGrade,
+  questions: c.questions,
+  createdAt: c.createdAt,
+});
+
 module.exports.getContentsByLecon = async (req, res) => {
   try {
     const { leconId } = req.params;
@@ -13,7 +33,7 @@ module.exports.getContentsByLecon = async (req, res) => {
     const contents = await leconContentModel.find({ leconId })
       .sort({ order: 1, createdAt: 1 });
 
-    res.status(200).json({ message: "Contents retrieved successfully", data: contents });
+    res.status(200).json({ data: contents });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -25,7 +45,7 @@ module.exports.getContentById = async (req, res) => {
     if (!content) {
       return res.status(404).json({ message: "Content not found" });
     }
-    res.status(200).json({ message: "Content retrieved successfully", data: content });
+    res.status(200).json({ data: formatContent(content) });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -46,7 +66,7 @@ module.exports.createContent = async (req, res) => {
 
     const lecon = await leconModel.findById(leconId);
     if (!lecon) {
-      return res.status(400).json({ message: "Lesson not found" });
+      return res.status(404).json({ message: "Lesson not found" });
     }
 
     let url, fileName, filePath, fileSize, mimeType;
@@ -79,7 +99,7 @@ module.exports.createContent = async (req, res) => {
     });
 
     await newContent.save();
-    res.status(201).json({ message: "Content created successfully", data: newContent });
+    res.status(201).json({ message: "Content created successfully", data: formatContent(newContent) });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -125,7 +145,7 @@ module.exports.updateContent = async (req, res) => {
       { new: true, runValidators: true }
     );
 
-    res.status(200).json({ message: "Content updated successfully", data: updatedContent });
+    res.status(200).json({ message: "Content updated successfully", data: formatContent(updatedContent) });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
