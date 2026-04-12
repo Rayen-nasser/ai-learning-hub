@@ -43,6 +43,7 @@ var avisRouter            = require('./routes/avis.routes');
 var favoriRouter          = require('./routes/favori.route');
 var categorieRouter       = require('./routes/categorie.route');
 var adminRouter           = require('./routes/admin.routes');
+var reportRouter          = require('./routes/report.routes');
 
 // ── Enregistrement des routes ────────────────────────────
 app.use('/users',        usersRouter);
@@ -56,6 +57,7 @@ app.use('/avis',         avisRouter);
 app.use('/favoris',      favoriRouter);
 app.use('/categories',   categorieRouter);
 app.use('/admin',        adminRouter);
+app.use('/reports',      reportRouter);
 
 const swaggerOptions = {
   definition: {
