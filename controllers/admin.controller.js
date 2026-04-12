@@ -491,3 +491,59 @@ module.exports.getReportRevenue = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+module.exports.getBlockHistory = async (req, res) => {
+  try {
+    const { page = 1, limit = 20 } = req.query;
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const [history, total] = await Promise.all([
+      blockHistoryModel.find()
+        .populate("userId", "nom prenom email role")
+        .populate("adminId", "nom prenom")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(Number(limit)),
+      blockHistoryModel.countDocuments(),
+    ]);
+
+    const stats = await blockHistoryModel.aggregate([
+      {
+        $group: {
+          _id: "$action",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    res.status(200).json({
+      data: history.map(h => ({
+        _id: h._id,
+        action: h.action,
+        reason: h.reason,
+        createdAt: h.createdAt,
+        user: h.userId ? {
+          _id: h.userId._id,
+          nom: h.userId.nom,
+          prenom: h.userId.prenom,
+          email: h.userId.email,
+          role: h.userId.role,
+        } : null,
+        admin: h.adminId ? {
+          _id: h.adminId._id,
+          nom: h.adminId.nom,
+          prenom: h.adminId.prenom,
+        } : null,
+      })),
+      stats: stats.reduce((acc, s) => { acc[s._id] = s.count; return acc; }, {}),
+      pagination: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        pages: Math.ceil(total / Number(limit)),
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

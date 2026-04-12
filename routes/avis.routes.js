@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const avisController = require('../controllers/avis.controller');
-const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
+const { requireAuth } = require('../middlewares/authMiddleware');
 
 /**
  * @swagger
@@ -10,29 +10,39 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *     Avis:
  *       type: object
  *       properties:
- *         apprenantId:
+ *         _id:
  *           type: string
- *           description: Learner ID
- *         formationId:
- *           type: string
- *           description: Formation ID
  *         note:
  *           type: number
  *           minimum: 1
  *           maximum: 5
- *           description: Rating (1-5)
  *         commentaire:
  *           type: string
- *           description: Review comment
- *         dateAvis:
+ *         formationId:
  *           type: string
- *           format: date
- *           description: Review date
+ *         formationTitre:
+ *           type: string
+ *         apprenantId:
+ *           type: object
+ *           properties:
+ *             _id:
+ *               type: string
+ *             nom:
+ *               type: string
+ *             prenom:
+ *               type: string
+ *             user_image:
+ *               type: string
+ *         createdAt:
+ *           type: string
+ *           format: date-time
  */
+
+// ───────── ROUTES ─────────
 
 /**
  * @swagger
- * /avis/getAllAvis:
+ * /avis:
  *   get:
  *     summary: Get all reviews
  *     tags: [Avis]
@@ -40,6 +50,23 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *       200:
  *         description: List of reviews
  */
+router.get('/', avisController.getAllAvis);
+
+/**
+ * @swagger
+ * /avis/me:
+ *   get:
+ *     summary: Get my reviews
+ *     tags: [Avis]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of my reviews
+ *       401:
+ *         description: Unauthorized
+ */
+router.get('/me', requireAuth, avisController.getMyAvis);
 
 /**
  * @swagger
@@ -53,15 +80,15 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *         required: true
  *         schema:
  *           type: string
- *         description: Formation ID
  *     responses:
  *       200:
  *         description: List of reviews for the formation
  */
+router.get('/formation/:formationId', avisController.getAvisByFormation);
 
 /**
  * @swagger
- * /avis/getAvisById/{id}:
+ * /avis/{id}:
  *   get:
  *     summary: Get review by ID
  *     tags: [Avis]
@@ -77,10 +104,11 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *       404:
  *         description: Review not found
  */
+router.get('/:id', avisController.getAvisById);
 
 /**
  * @swagger
- * /avis/createAvis:
+ * /avis:
  *   post:
  *     summary: Create a new review
  *     tags: [Avis]
@@ -102,19 +130,23 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *                 type: number
  *                 minimum: 1
  *                 maximum: 5
- *                 description: Rating (1-5, required)
  *               commentaire:
  *                 type: string
  *     responses:
  *       201:
  *         description: Review created
+ *       400:
+ *         description: Invalid data
  *       401:
  *         description: Unauthorized
+ *       403:
+ *         description: Must be enrolled to review
  */
+router.post('/', requireAuth, avisController.createAvis);
 
 /**
  * @swagger
- * /avis/updateAvis/{id}:
+ * /avis/{id}:
  *   put:
  *     summary: Update a review
  *     tags: [Avis]
@@ -127,23 +159,32 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *         schema:
  *           type: string
  *     requestBody:
- *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Avis'
+ *             type: object
+ *             properties:
+ *               note:
+ *                 type: number
+ *                 minimum: 1
+ *                 maximum: 5
+ *               commentaire:
+ *                 type: string
  *     responses:
  *       200:
  *         description: Review updated
  *       401:
  *         description: Unauthorized
  *       403:
- *         description: Forbidden - Self or Admin only
+ *         description: Forbidden
+ *       404:
+ *         description: Review not found
  */
+router.put('/:id', requireAuth, avisController.updateAvis);
 
 /**
  * @swagger
- * /avis/deleteAvis/{id}:
+ * /avis/{id}:
  *   delete:
  *     summary: Delete a review
  *     tags: [Avis]
@@ -161,22 +202,10 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *       401:
  *         description: Unauthorized
  *       403:
- *         description: Forbidden - Self or Admin only
+ *         description: Forbidden
+ *       404:
+ *         description: Review not found
  */
-
-// ───────── PUBLIC ROUTES ─────────
-router.get('/getAllAvis', avisController.getAllAvis);
-router.get('/getAvisById/:id', avisController.getAvisById);
-router.get('/formation/:formationId', avisController.getAvisByFormation);
-
-// ───────── PROTECTED ROUTES ─────────
-// Create: Authenticated user
-router.post('/createAvis', requireAuth, avisController.createAvis);
-
-// Update: Self or Admin
-router.put('/updateAvis/:id', requireAuth, avisController.updateAvis);
-
-// Delete: Self or Admin
-router.delete('/deleteAvis/:id', requireAuth, avisController.deleteAvis);
+router.delete('/:id', requireAuth, avisController.deleteAvis);
 
 module.exports = router;

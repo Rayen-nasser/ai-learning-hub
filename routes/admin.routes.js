@@ -91,7 +91,7 @@ router.get('/paiements/stats', requireAuth, requireRole('admin'), adminControlle
  *         name: days
  *         schema:
  *           type: number
- *         description: Number of days to look back (default: 7)
+ *         description: 'Number of days to look back (default: 7)'
  *     responses:
  *       200:
  *         description: New users report
@@ -115,7 +115,7 @@ router.get('/reports/users', requireAuth, requireRole('admin'), adminController.
  *         name: days
  *         schema:
  *           type: number
- *         description: Number of days to look back (default: 7)
+ *         description: 'Number of days to look back (default: 7)'
  *     responses:
  *       200:
  *         description: Enrollments report
@@ -139,7 +139,7 @@ router.get('/reports/enrollments', requireAuth, requireRole('admin'), adminContr
  *         name: days
  *         schema:
  *           type: number
- *         description: Number of days to look back (default: 30)
+ *         description: 'Number of days to look back (default: 30)'
  *     responses:
  *       200:
  *         description: Revenue report
@@ -289,5 +289,32 @@ router.put('/users/:id/block', requireAuth, requireRole('admin'), adminControlle
  *         description: User not found
  */
 router.put('/users/:id/unblock', requireAuth, requireRole('admin'), adminController.unblockUser);
+
+/**
+ * @swagger
+ * /admin/block-history:
+ *   get:
+ *     summary: Get block/unblock history
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: number
+ *     responses:
+ *       200:
+ *         description: Block history with pagination
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin only
+ */
+router.get('/block-history', requireAuth, requireRole('admin'), adminController.getBlockHistory);
 
 module.exports = router;

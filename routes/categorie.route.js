@@ -75,7 +75,7 @@ router.get('/:id', categorieController.getCategorieById);
  *       403:
  *         description: Forbidden - Admin only
  */
-router.post('/', requireAuth, requireRole('admin'), categorieController.createCategorie);
+router.post('/', requireAuth, requireRole(['admin', 'responsableCF']), categorieController.createCategorie);
 
 /**
  * @swagger
@@ -105,7 +105,7 @@ router.post('/', requireAuth, requireRole('admin'), categorieController.createCa
  *       403:
  *         description: Forbidden - Admin only
  */
-router.put('/:id', requireAuth, requireRole('admin'), categorieController.updateCategorie);
+router.put('/:id', requireAuth, requireRole(['admin', 'responsableCF']), categorieController.updateCategorie);
 
 /**
  * @swagger
@@ -129,6 +129,6 @@ router.put('/:id', requireAuth, requireRole('admin'), categorieController.update
  *       403:
  *         description: Forbidden - Admin only
  */
-router.delete('/:id', requireAuth, requireRole('admin'), categorieController.deleteCategorie);
+router.delete('/:id', requireAuth, requireRole(['admin', 'responsableCF']), categorieController.deleteCategorie);
 
 module.exports = router;

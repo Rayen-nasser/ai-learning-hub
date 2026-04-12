@@ -124,7 +124,7 @@ router.get('/', formationController.getAllFormations);
  *       403:
  *         description: Forbidden
  */
-router.post('/', requireAuth, requireRole('responsableCF', 'admin'), uploadSingle('image', 'images'), formationController.createFormation);
+router.post('/', requireAuth, requireRole('responsableCF'), uploadSingle('image', 'images'), formationController.createFormation);
 
 // GET /formations/:id - Get formation by ID
 /**
