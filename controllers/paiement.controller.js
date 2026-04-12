@@ -88,45 +88,57 @@ module.exports.createPaiement = async (req, res) => {
     }
 
     const existingInscription = await inscriptionModel.findOne({ apprenantId, formationId });
-    if (existingInscription && existingInscription.statut === "acceptée") {
+    if (existingInscription && existingInscription.statut === "acceptee") {
       return res.status(400).json({ message: "You are already enrolled in this formation" });
     }
 
     let inscription;
     if (existingInscription) {
-      if (existingInscription.statut === "acceptée") {
-        return res.status(400).json({ message: "You are already enrolled in this formation" });
-      }
       inscription = existingInscription;
     } else {
-      inscription = new inscriptionModel({ 
-        apprenantId, 
-        formationId, 
-        statut: "en_attente" 
-      });
+      inscription = new inscriptionModel({ apprenantId, formationId, statut: "en_attente" });
       await inscription.save();
     }
 
     const existingPaiement = await paiementModel.findOne({ inscriptionId: inscription._id });
-    if (existingPaiement && existingPaiement.statut === "confirmé") {
+    if (existingPaiement && existingPaiement.statut === "confirme") {
       return res.status(400).json({ message: "Payment already completed for this inscription" });
     }
+
+    const method = methodePaiement || "carte";
+
+    // ── Card payments are confirmed instantly, no admin approval needed ──
+    const isCardPayment = method === "carte";
+    const paiementStatut = isCardPayment ? "confirme" : "en_attente";
 
     const newPaiement = new paiementModel({
       inscriptionId: inscription._id,
       apprenantId,
       montant: formation.prix,
-      methodePaiement: methodePaiement || "carte",
-      statut: "en_attente",
+      methodePaiement: method,
+      statut: paiementStatut,
     });
     await newPaiement.save();
 
+    // Auto-accept inscription immediately for card payments
+    if (isCardPayment) {
+      await inscriptionModel.findByIdAndUpdate(inscription._id, {
+        statut: "acceptee",
+        dateAcceptation: Date.now(),
+      });
+    }
+
     const populatedPaiement = await paiementModel.findById(newPaiement._id)
-      .populate("inscriptionId", "formationId")
+      .populate("inscriptionId", "formationId statut")
       .populate("apprenantId", "nom prenom");
 
+    const message = isCardPayment
+      ? "Payment confirmed. You now have instant access to the formation. 🎉"
+      : "Payment request submitted. Access will be granted once your payment is verified by an admin.";
+
     res.status(201).json({ 
-      message: "Payment initiated. Please complete payment to confirm enrollment.",
+      message,
+      autoEnrolled: isCardPayment,
       data: formatPaiement(populatedPaiement),
     });
   } catch (error) {
@@ -142,19 +154,19 @@ module.exports.confirmPaiement = async (req, res) => {
       return res.status(404).json({ message: "Payment not found" });
     }
 
-    if (paiement.statut === "confirmé") {
+    if (paiement.statut === "confirme") {
       return res.status(400).json({ message: "Payment already confirmed" });
     }
 
     const updatedPaiement = await paiementModel.findByIdAndUpdate(
       req.params.id,
-      { statut: "confirmé" },
+      { statut: "confirme" },
       { new: true }
     ).populate("inscriptionId", "formationId").populate("apprenantId", "nom prenom");
 
     await inscriptionModel.findByIdAndUpdate(
       paiement.inscriptionId._id,
-      { statut: "acceptée", dateAcceptation: Date.now() }
+      { statut: "acceptee", dateAcceptation: Date.now() }
     );
 
     res.status(200).json({ 
@@ -174,7 +186,7 @@ module.exports.cancelPaiement = async (req, res) => {
       return res.status(404).json({ message: "Payment not found" });
     }
 
-    if (paiement.statut === "confirmé") {
+    if (paiement.statut === "confirme") {
       return res.status(400).json({ message: "Cannot cancel a confirmed payment" });
     }
 

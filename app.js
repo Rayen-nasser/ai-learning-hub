@@ -42,6 +42,7 @@ var paiementRouter        = require('./routes/paiement.routes');
 var avisRouter            = require('./routes/avis.routes');
 var favoriRouter          = require('./routes/favori.route');
 var categorieRouter       = require('./routes/categorie.route');
+var adminRouter           = require('./routes/admin.routes');
 
 // ── Enregistrement des routes ────────────────────────────
 app.use('/users',        usersRouter);
@@ -54,6 +55,7 @@ app.use('/paiements',    paiementRouter);
 app.use('/avis',         avisRouter);
 app.use('/favoris',      favoriRouter);
 app.use('/categories',   categorieRouter);
+app.use('/admin',        adminRouter);
 
 const swaggerOptions = {
   definition: {

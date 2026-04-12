@@ -7,8 +7,8 @@ const paiementSchema = new mongoose.Schema(
     montant: { type: Number, required: true },
     statut: {
       type: String,
-      enum: ["en attente", "confirmé", "refusé"],
-      default: "en attente",
+      enum: ["en_attente", "confirme", "refuse"],
+      default: "en_attente",
     },
     methodePaiement: {
       type: String,

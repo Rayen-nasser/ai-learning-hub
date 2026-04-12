@@ -6,8 +6,8 @@ const inscriptionSchema = new mongoose.Schema(
     formationId: { type: mongoose.Schema.Types.ObjectId, ref: "Formation", required: true },
     statut: {
       type: String,
-      enum: ["en attente", "acceptée", "refusée"],
-      default: "en attente",
+      enum: ["en_attente", "acceptee", "refusee"],
+      default: "en_attente",
     },
     dateAcceptation: { type: Date },
   },

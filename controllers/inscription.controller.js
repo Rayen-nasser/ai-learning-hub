@@ -85,7 +85,7 @@ module.exports.createInscription = async (req, res) => {
       return res.status(404).json({ message: "Formation not found" });
     }
 
-    const statut = formation.prix === 0 ? "acceptée" : "en_attente";
+    const statut = formation.prix === 0 ? "acceptee" : "en_attente";
 
     const newInscription = new inscriptionModel({ 
       apprenantId, 
@@ -100,7 +100,7 @@ module.exports.createInscription = async (req, res) => {
       .populate("formationId", "titre");
 
     res.status(201).json({ 
-      message: statut === "acceptée" 
+      message: statut === "acceptee"
         ? "Enrolled successfully. You now have access to this formation." 
         : "Enrollment pending. Please complete payment to gain access.",
       data: formatInscription(populatedInscription),

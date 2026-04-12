@@ -22,12 +22,37 @@ const requireAuth = async (req, res, next) => {
       if (decodedToken.type === "password-reset") {
         return res.status(401).json({ error: "Unauthorized: Invalid token type" });
       }
-      const user = await userModel.findById(decodedToken.id)
+      
+      let user = await userModel.findById(decodedToken.id)
         .select("-password -loginAttempts")
         .populate({ path: "centreIds", model: "CentreFormation" });
+        
       if (!user) {
         return res.status(401).json({ error: "Unauthorized: User not found" });
       }
+
+      if (user.blockExpiresAt && new Date() > user.blockExpiresAt) {
+        await userModel.findByIdAndUpdate(user._id, {
+          block: false,
+          blockReason: null,
+          blockedAt: null,
+          blockedBy: null,
+          blockExpiresAt: null,
+        });
+        user.block = false;
+      }
+
+      if (user.block) {
+        let message = "Your account has been blocked.";
+        if (user.blockReason) {
+          message += ` Reason: ${user.blockReason}`;
+        }
+        if (user.blockExpiresAt) {
+          message += ` Blocked until ${user.blockExpiresAt.toISOString().split('T')[0]}`;
+        }
+        return res.status(403).json({ error: message });
+      }
+
       req.user = user;
       next();
     });
