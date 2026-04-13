@@ -1,5 +1,18 @@
 const centreFormationModel = require("../models/centreFormation.model");
 const userModel = require("../models/user.model");
+const config = require("../config/config");
+
+const sanitizeCentre = (centre) => {
+  const obj = centre.toObject ? centre.toObject() : { ...centre };
+  if (obj.logo) {
+    let path = obj.logo;
+    if (!path.startsWith('http') && !path.startsWith('/')) {
+      path = '/' + path;
+    }
+    obj.logo = path.startsWith('http') ? path : `${config.baseUrl}${path}`;
+  }
+  return obj;
+};
 
 module.exports.getAllCentres = async (req, res) => {
   try {
@@ -7,7 +20,7 @@ module.exports.getAllCentres = async (req, res) => {
     if (centres.length === 0) {
       return res.status(404).json({ message: "No centres found" });
     }
-    res.status(200).json({ message: "Centres retrieved successfully", data: centres });
+    res.status(200).json({ message: "Centres retrieved successfully", data: centres.map(sanitizeCentre) });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -19,7 +32,7 @@ module.exports.getMyCentres = async (req, res) => {
     const centres = await centreFormationModel
       .find({ responsableId: req.user._id })
       .populate("responsableId", "-password");
-    res.status(200).json({ message: "My centres retrieved successfully", data: centres });
+    res.status(200).json({ message: "My centres retrieved successfully", data: centres.map(sanitizeCentre) });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -33,7 +46,7 @@ module.exports.getFormateurCentres = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    res.status(200).json({ message: "Formateur centres retrieved successfully", data: user.centreIds || [] });
+    res.status(200).json({ message: "Formateur centres retrieved successfully", data: (user.centreIds || []).map(sanitizeCentre) });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -45,7 +58,7 @@ module.exports.getCentreById = async (req, res) => {
     if (!centre) {
       return res.status(404).json({ message: "Centre not found" });
     }
-    res.status(200).json({ message: "Centre retrieved successfully", data: centre });
+    res.status(200).json({ message: "Centre retrieved successfully", data: sanitizeCentre(centre) });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -53,7 +66,7 @@ module.exports.getCentreById = async (req, res) => {
 
 module.exports.createCentre = async (req, res) => {
   try {
-    const { nom, adresse, description, telephone, responsableId, logo } = req.body;
+    const { nom, adresse, description, telephone, responsableId } = req.body;
 
     if (!nom) {
       return res.status(400).json({ message: "Centre name is required" });
@@ -69,6 +82,8 @@ module.exports.createCentre = async (req, res) => {
       return res.status(400).json({ message: "Responsable must have role responsableCF or admin" });
     }
 
+    const logo = req.file ? `${req.file.folder}/${req.file.filename}` : req.body.logo;
+
     const newCentre = new centreFormationModel({
       nom,
       adresse,
@@ -80,7 +95,7 @@ module.exports.createCentre = async (req, res) => {
     await newCentre.save();
     const populatedCentre = await centreFormationModel.findById(newCentre._id)
       .populate("responsableId", "-password");
-    res.status(201).json({ message: "Centre created successfully", data: populatedCentre });
+    res.status(201).json({ message: "Centre created successfully", data: sanitizeCentre(populatedCentre) });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -108,6 +123,7 @@ module.exports.updateCentre = async (req, res) => {
     if (description !== undefined) updates.description = description;
     if (telephone !== undefined) updates.telephone = telephone;
     if (logo !== undefined) updates.logo = logo;
+    if (req.file) updates.logo = `${req.file.folder}/${req.file.filename}`;
 
     if (Object.keys(updates).length === 0) {
       return res.status(400).json({ message: "No fields to update" });
@@ -119,7 +135,7 @@ module.exports.updateCentre = async (req, res) => {
       { new: true, runValidators: true }
     ).populate("responsableId", "-password");
 
-    res.status(200).json({ message: "Centre updated successfully", data: updatedCentre });
+    res.status(200).json({ message: "Centre updated successfully", data: sanitizeCentre(updatedCentre) });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

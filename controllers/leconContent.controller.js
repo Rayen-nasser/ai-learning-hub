@@ -1,6 +1,7 @@
 const leconContentModel = require("../models/leconContent.model");
 const leconModel = require("../models/lecon.model");
 const formationModel = require("../models/formation.model");
+const config = require("../config/config");
 
 const isFormateurAssigned = async (userId, formationId) => {
   const formation = await formationModel.findById(formationId);
@@ -33,7 +34,7 @@ const formatContent = (c) => ({
   title: c.title,
   description: c.description,
   order: c.order,
-  url: c.url,
+  url: (c.url && !c.url.startsWith('http')) ? `${config.baseUrl}${c.url.startsWith('/') ? '' : '/'}${c.url}` : c.url,
   sourceType: c.sourceType,
   fileName: c.fileName,
   fileSize: c.fileSize,
@@ -58,7 +59,7 @@ module.exports.getContentsByLecon = async (req, res) => {
     const contents = await leconContentModel.find({ leconId })
       .sort({ order: 1, createdAt: 1 });
 
-    res.status(200).json({ data: contents });
+    res.status(200).json({ data: contents.map(formatContent) });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -79,6 +79,9 @@ const { uploadSingle } = require('../middlewares/uploadfile');
  *           description: Formateur profile image
  */
 
+const validate = require('../middlewares/validateMiddleware');
+const { formationSchema } = require('../validations/formation.validation');
+
 // ───────── ROUTES ─────────
 
 /**
@@ -137,8 +140,37 @@ const { uploadSingle } = require('../middlewares/uploadfile');
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Formation'
- */
+  */
 router.get('/', formationController.getAllFormations);
+
+/**
+ * @swagger
+ * /formations/formateurs:
+ *   get:
+ *     summary: Get all available formateurs
+ *     tags: [Formations]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all formateurs
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Formateur'
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Only responsableCF or admin
+ */
+router.get('/formateurs', requireAuth, requireRole('responsableCF', 'admin'), formationController.getAvailableFormateurs);
 
 /**
  * @swagger
@@ -233,7 +265,7 @@ router.get('/my-assignments', requireAuth, formationController.getMyAssignments)
  *       403:
  *         description: Forbidden - Only responsableCF or admin can create formations
  */
-router.post('/', requireAuth, requireRole('responsableCF', 'admin'), uploadSingle('image', 'images'), formationController.createFormation);
+router.post('/', requireAuth, requireRole('responsableCF', 'admin'), validate(formationSchema), uploadSingle('image', 'images'), formationController.createFormation);
 
 /**
  * @swagger
@@ -325,6 +357,9 @@ router.get('/:id', formationController.getFormationById);
  */
 router.put('/:id', requireAuth, uploadSingle('image', 'images'), formationController.updateFormation);
 
+// Alias POST for updates (useful for some multipart-form-data clients)
+router.post('/:id', requireAuth, uploadSingle('image', 'images'), formationController.updateFormation);
+
 /**
  * @swagger
  * /formations/{id}:
@@ -357,7 +392,7 @@ router.put('/:id', requireAuth, uploadSingle('image', 'images'), formationContro
  *       404:
  *         description: Formation not found
  */
-router.delete('/:id', requireAuth, requireRole('admin'), formationController.deleteFormation);
+router.delete('/:id', requireAuth, requireRole('admin', 'responsableCF'), formationController.deleteFormation);
 
 /**
  * @swagger

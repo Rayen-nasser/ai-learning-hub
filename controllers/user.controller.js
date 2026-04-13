@@ -165,7 +165,7 @@ module.exports.createUserWithImage = async (req, res) => {
       password,
       telephone: telephone || phone,
       role: role || "apprenant",
-      user_image: req.file ? req.file.filename : undefined,
+      user_image: req.file ? `${req.file.folder}/${req.file.filename}` : undefined,
       niveauEtude: niveauEtude || educationLevel,
       dateNaissance: dateNaissance || birthDate,
       adresse: adresse || address,

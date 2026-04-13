@@ -182,7 +182,7 @@ module.exports.assignFormateurs = asyncHandler(async (req, res) => {
 
   const formateurs = await userModel.find({ _id: { $in: formateurIds }, role: "formateur" });
   if (formateurs.length !== formateurIds.length) {
-    return sendError(res, "Some IDs are not valid formateurs", 400);
+    return sendError(res, "Some IDs are not valid formateurs or have incorrect role", 400);
   }
 
   const newFormateurIds = formateurIds.filter(
@@ -195,7 +195,7 @@ module.exports.assignFormateurs = asyncHandler(async (req, res) => {
   const updatedFormation = await formationModel.findById(req.params.id)
     .populate("centreId")
     .populate("categorieId")
-    .populate("formateurIds", "nom prenom email");
+    .populate("formateurIds", "nom prenom email role user_image");
 
   return sendSuccess(res, sanitizeFormation(updatedFormation), "Formateurs assigned successfully");
 });
@@ -227,11 +227,26 @@ module.exports.removeFormateur = asyncHandler(async (req, res) => {
 // @access  Private (Owner, admin)
 module.exports.getFormateurs = asyncHandler(async (req, res) => {
   const formation = await formationModel.findById(req.params.id)
-    .populate("formateurIds", "nom prenom email user_image");
+    .populate({
+      path: "formateurIds",
+      match: { role: "formateur" },
+      select: "nom prenom email role user_image"
+    });
 
   if (!formation) return sendError(res, "Formation not found", 404);
 
-  return sendSuccess(res, formation.formateurIds, "Formateurs retrieved successfully");
+  const formateurs = formation.formateurIds.filter(f => f !== null);
+  return sendSuccess(res, formateurs, "Formateurs retrieved successfully");
+});
+
+// @desc    Get all available formateurs
+// @route   GET /formations/formateurs
+// @access  Private (responsableCF, admin)
+module.exports.getAvailableFormateurs = asyncHandler(async (req, res) => {
+  const formateurs = await userModel.find({ role: "formateur" })
+    .select("nom prenom email user_image");
+
+  return sendSuccess(res, formateurs, "Available formateurs retrieved successfully");
 });
 
 // @desc    Get formations assigned to current formateur

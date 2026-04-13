@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const centreFormationController = require('../controllers/centreFormation.controller');
 const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
+const { uploadSingle } = require('../middlewares/uploadfile');
 
 /**
  * @swagger
@@ -131,7 +132,7 @@ router.get('/:id', centreFormationController.getCentreById);
  *       403:
  *         description: Forbidden - requires ResponsableCF or Admin role
  */
-router.post('/', requireAuth, requireRole('responsableCF', 'admin'), centreFormationController.createCentre);
+router.post('/', requireAuth, requireRole('responsableCF', 'admin'), uploadSingle('logo', 'images'), centreFormationController.createCentre);
 
 
 /**
@@ -151,9 +152,21 @@ router.post('/', requireAuth, requireRole('responsableCF', 'admin'), centreForma
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
- *             $ref: '#/components/schemas/CentreFormation'
+ *             type: object
+ *             properties:
+ *               nom:
+ *                 type: string
+ *               adresse:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               telephone:
+ *                 type: string
+ *               logo:
+ *                 type: string
+ *                 format: binary
  *     responses:
  *       200:
  *         description: Centre updated
@@ -162,7 +175,7 @@ router.post('/', requireAuth, requireRole('responsableCF', 'admin'), centreForma
  *       403:
  *         description: Forbidden - requires owner or Admin role
  */
-router.put('/:id', requireAuth, centreFormationController.updateCentre);
+router.put('/:id', requireAuth, uploadSingle('logo', 'images'), centreFormationController.updateCentre);
 
 /**
  * @swagger

@@ -16,7 +16,9 @@ const { connectToMongoDB } = require('./config/db');
 var app = express();
 
 // ── Security & Optimization ────────────────────────────────
-app.use(helmet()); // Basic security headers
+app.use(helmet({
+  crossOriginResourcePolicy: false,
+})); // Basic security headers with CORP disabled to allow image loading
 const limiter = rateLimit({
   windowMs: config.rateLimit.windowMs,
   max: config.rateLimit.max,
