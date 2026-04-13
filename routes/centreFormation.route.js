@@ -133,6 +133,7 @@ router.get('/:id', centreFormationController.getCentreById);
  */
 router.post('/', requireAuth, requireRole('responsableCF', 'admin'), centreFormationController.createCentre);
 
+
 /**
  * @swagger
  * /centres/{id}:

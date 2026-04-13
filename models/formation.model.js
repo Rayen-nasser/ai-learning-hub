@@ -9,6 +9,7 @@ const formationSchema = new mongoose.Schema(
     categorieId: { type: mongoose.Schema.Types.ObjectId, ref: "Categorie" },
     duree: { type: Number },
     image: { type: String },
+    formateurIds: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   },
   { timestamps: true }
 );

@@ -1,5 +1,30 @@
 const leconContentModel = require("../models/leconContent.model");
 const leconModel = require("../models/lecon.model");
+const formationModel = require("../models/formation.model");
+
+const isFormateurAssigned = async (userId, formationId) => {
+  const formation = await formationModel.findById(formationId);
+  if (!formation) return false;
+  return formation.formateurIds.some(id => id.toString() === userId.toString());
+};
+
+const checkFormateurAccess = async (leconId, user) => {
+  if (user.role === 'admin') return true;
+  
+  const lecon = await leconModel.findById(leconId);
+  if (!lecon) return false;
+  
+  if (user.role === 'formateur') {
+    const isOwner = lecon.formateurId && lecon.formateurId.toString() === user._id.toString();
+    if (isOwner) return true;
+    
+    if (lecon.formationId) {
+      return await isFormateurAssigned(user._id, lecon.formationId);
+    }
+  }
+  
+  return false;
+};
 
 const formatContent = (c) => ({
   _id: c._id,
@@ -69,6 +94,11 @@ module.exports.createContent = async (req, res) => {
       return res.status(404).json({ message: "Lesson not found" });
     }
 
+    const hasAccess = await checkFormateurAccess(leconId, req.user);
+    if (!hasAccess) {
+      return res.status(403).json({ message: "Access denied. You can only add content to lessons of formations you're assigned to." });
+    }
+
     let url, fileName, filePath, fileSize, mimeType;
 
     if (req.file) {
@@ -112,6 +142,11 @@ module.exports.updateContent = async (req, res) => {
       return res.status(404).json({ message: "Content not found" });
     }
 
+    const hasAccess = await checkFormateurAccess(content.leconId, req.user);
+    if (!hasAccess) {
+      return res.status(403).json({ message: "Access denied. You can only update content of lessons you're assigned to." });
+    }
+
     const { title, description, order, url, sourceType, linkTitle, linkUrl, linkDescription, passingGrade, questions } = req.body;
 
     const updates = {};
@@ -153,10 +188,17 @@ module.exports.updateContent = async (req, res) => {
 
 module.exports.deleteContent = async (req, res) => {
   try {
-    const content = await leconContentModel.findByIdAndDelete(req.params.id);
+    const content = await leconContentModel.findById(req.params.id);
     if (!content) {
       return res.status(404).json({ message: "Content not found" });
     }
+
+    const hasAccess = await checkFormateurAccess(content.leconId, req.user);
+    if (!hasAccess) {
+      return res.status(403).json({ message: "Access denied. You can only delete content of lessons you're assigned to." });
+    }
+
+    await leconContentModel.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: "Content deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });

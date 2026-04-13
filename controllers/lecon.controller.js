@@ -4,9 +4,14 @@ const formationModel = require("../models/formation.model");
 const userModel = require("../models/user.model");
 const leconContentModel = require("../models/leconContent.model");
 
+const isFormateurAssigned = async (userId, formationId) => {
+  const formation = await formationModel.findById(formationId);
+  if (!formation) return false;
+  return formation.formateurIds.some(id => id.toString() === userId.toString());
+};
+
 const checkAccess = async (lecon, user) => {
   const leconObj = lecon.toObject ? lecon.toObject() : lecon;
-  const leconId = leconObj._id;
 
   if (user.role === 'admin') {
     return { hasAccess: true, role: 'admin' };
@@ -15,6 +20,14 @@ const checkAccess = async (lecon, user) => {
   const isFormateur = leconObj.formateurId && leconObj.formateurId.toString() === user._id.toString();
   if (isFormateur) {
     return { hasAccess: true, role: 'formateur' };
+  }
+
+  if (user.role === 'formateur' && leconObj.formationId) {
+    const formationId = leconObj.formationId._id || leconObj.formationId;
+    const assigned = await isFormateurAssigned(user._id, formationId);
+    if (assigned) {
+      return { hasAccess: true, role: 'formateur' };
+    }
   }
 
   const isAccessible = leconObj.estAccessible === true;
@@ -32,6 +45,24 @@ const checkAccess = async (lecon, user) => {
   }
 
   return { hasAccess: isAccessible, role: user.role };
+};
+
+const checkFormateurCanModify = async (lecon, user) => {
+  if (user.role === 'admin') return true;
+  
+  const leconObj = lecon.toObject ? lecon.toObject() : lecon;
+  
+  if (user.role === 'formateur') {
+    const isOwner = leconObj.formateurId && leconObj.formateurId.toString() === user._id.toString();
+    if (isOwner) return true;
+    
+    if (leconObj.formationId) {
+      const formationId = leconObj.formationId._id || leconObj.formationId;
+      return await isFormateurAssigned(user._id, formationId);
+    }
+  }
+  
+  return false;
 };
 
 module.exports.getLecons = async (req, res) => {
@@ -137,6 +168,13 @@ module.exports.createLecon = async (req, res) => {
       if (!formation) {
         return res.status(400).json({ message: "Formation not found" });
       }
+
+      if (req.user.role === 'formateur') {
+        const assigned = await isFormateurAssigned(req.user._id, formationId);
+        if (!assigned) {
+          return res.status(403).json({ message: "You are not assigned to this formation" });
+        }
+      }
     }
 
     let finalFormateurId = req.user._id;
@@ -183,11 +221,9 @@ module.exports.updateLecon = async (req, res) => {
       return res.status(404).json({ message: "Lesson not found" });
     }
 
-    const isOwner = lecon.formateurId && lecon.formateurId.toString() === req.user._id.toString();
-    const isAdmin = req.user.role === 'admin';
-
-    if (!isOwner && !isAdmin) {
-      return res.status(403).json({ message: "Access denied. You can only update your own lessons." });
+    const canModify = await checkFormateurCanModify(lecon, req.user);
+    if (!canModify) {
+      return res.status(403).json({ message: "Access denied. You can only update lessons of formations you're assigned to." });
     }
 
     const { titre, description, contenu, duree, estAccessible, order } = req.body;
@@ -231,11 +267,9 @@ module.exports.deleteLecon = async (req, res) => {
       return res.status(404).json({ message: "Lesson not found" });
     }
 
-    const isOwner = lecon.formateurId && lecon.formateurId.toString() === req.user._id.toString();
-    const isAdmin = req.user.role === 'admin';
-
-    if (!isOwner && !isAdmin) {
-      return res.status(403).json({ message: "Access denied. Only the instructor or admin can delete this lesson." });
+    const canModify = await checkFormateurCanModify(lecon, req.user);
+    if (!canModify) {
+      return res.status(403).json({ message: "Access denied. You can only delete lessons of formations you're assigned to." });
     }
 
     await leconContentModel.deleteMany({ leconId: req.params.id });

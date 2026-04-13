@@ -1,6 +1,8 @@
 const paiementModel = require("../models/paiement.model");
 const inscriptionModel = require("../models/inscription.model");
 const formationModel = require("../models/formation.model");
+const asyncHandler = require("express-async-handler");
+const { sendSuccess, sendError } = require("../utils/response");
 
 const formatPaiement = (p) => ({
   _id: p._id,
@@ -16,195 +18,182 @@ const formatPaiement = (p) => ({
   apprenantPrenom: p.apprenantId?.prenom,
 });
 
-module.exports.getAllPaiements = async (req, res) => {
-  try {
-    const paiements = await paiementModel.find()
-      .populate("inscriptionId", "formationId")
-      .populate("apprenantId", "nom prenom");
+// @desc    Get all payments
+// @route   GET /paiements
+// @access  Private (Admin)
+module.exports.getAllPaiements = asyncHandler(async (req, res) => {
+  const paiements = await paiementModel.find()
+    .populate("inscriptionId", "formationId")
+    .populate("apprenantId", "nom prenom");
 
-    if (paiements.length === 0) {
-      return res.status(404).json({ message: "No payments found" });
-    }
-
-    const formattedPaiements = paiements.map(formatPaiement);
-    res.status(200).json({ message: "Payments retrieved successfully", data: formattedPaiements });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  if (paiements.length === 0) {
+    return sendError(res, "No payments found", 404);
   }
-};
 
-module.exports.getMyPaiements = async (req, res) => {
-  try {
-    const paiements = await paiementModel.find({ apprenantId: req.user._id })
-      .populate("inscriptionId", "formationId")
-      .populate("apprenantId", "nom prenom");
+  const formattedPaiements = paiements.map(formatPaiement);
+  return sendSuccess(res, formattedPaiements, "Payments retrieved successfully");
+});
 
-    const formattedPaiements = paiements.map(formatPaiement);
-    res.status(200).json({ message: "My payments retrieved successfully", data: formattedPaiements });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+// @desc    Get my payments
+// @route   GET /paiements/my-paiements
+// @access  Private (Apprenant)
+module.exports.getMyPaiements = asyncHandler(async (req, res) => {
+  const paiements = await paiementModel.find({ apprenantId: req.user._id })
+    .populate("inscriptionId", "formationId")
+    .populate("apprenantId", "nom prenom");
+
+  const formattedPaiements = paiements.map(formatPaiement);
+  return sendSuccess(res, formattedPaiements, "My payments retrieved successfully");
+});
+
+// @desc    Get payment by ID
+// @route   GET /paiements/:id
+// @access  Private (Owner, Admin, ResponsableCF)
+module.exports.getPaiementById = asyncHandler(async (req, res) => {
+  const paiement = await paiementModel.findById(req.params.id)
+    .populate("inscriptionId", "formationId")
+    .populate("apprenantId", "nom prenom");
+
+  if (!paiement) {
+    return sendError(res, "Payment not found", 404);
   }
-};
 
-module.exports.getPaiementById = async (req, res) => {
-  try {
-    const paiement = await paiementModel.findById(req.params.id)
-      .populate("inscriptionId", "formationId")
-      .populate("apprenantId", "nom prenom");
+  const isOwner = paiement.apprenantId?._id.toString() === req.user._id.toString();
+  const isAdminOrResponsable = ['admin', 'responsableCF'].includes(req.user.role);
 
-    if (!paiement) {
-      return res.status(404).json({ message: "Payment not found" });
-    }
-
-    const isOwner = paiement.apprenantId?._id.toString() === req.user._id.toString();
-    const isAdminOrResponsable = ['admin', 'responsableCF'].includes(req.user.role);
-
-    if (!isOwner && !isAdminOrResponsable) {
-      return res.status(403).json({ message: "Access denied." });
-    }
-
-    res.status(200).json({ message: "Payment retrieved successfully", data: formatPaiement(paiement) });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  if (!isOwner && !isAdminOrResponsable) {
+    return sendError(res, "Access denied.", 403);
   }
-};
 
-module.exports.createPaiement = async (req, res) => {
-  try {
-    const { formationId, methodePaiement } = req.body;
-    const apprenantId = req.user._id;
+  return sendSuccess(res, formatPaiement(paiement), "Payment retrieved successfully");
+});
 
-    if (!formationId) {
-      return res.status(400).json({ message: "formationId is required" });
-    }
+// @desc    Create a new payment request
+// @route   POST /paiements
+// @access  Private (Apprenant)
+module.exports.createPaiement = asyncHandler(async (req, res) => {
+  const { formationId, methodePaiement } = req.body;
+  const apprenantId = req.user._id;
 
-    const formation = await formationModel.findById(formationId);
-    if (!formation) {
-      return res.status(404).json({ message: "Formation not found" });
-    }
+  if (!formationId) {
+    return sendError(res, "formationId is required", 400);
+  }
 
-    if (formation.prix === 0) {
-      return res.status(400).json({ message: "This formation is free. No payment needed." });
-    }
+  const formation = await formationModel.findById(formationId);
+  if (!formation) {
+    return sendError(res, "Formation not found", 404);
+  }
 
-    const existingInscription = await inscriptionModel.findOne({ apprenantId, formationId });
-    if (existingInscription && existingInscription.statut === "acceptee") {
-      return res.status(400).json({ message: "You are already enrolled in this formation" });
-    }
+  if (formation.prix === 0) {
+    return sendError(res, "This formation is free. No payment needed.", 400);
+  }
 
-    let inscription;
-    if (existingInscription) {
-      inscription = existingInscription;
-    } else {
-      inscription = new inscriptionModel({ apprenantId, formationId, statut: "en_attente" });
-      await inscription.save();
-    }
+  const existingInscription = await inscriptionModel.findOne({ apprenantId, formationId });
+  if (existingInscription && existingInscription.statut === "acceptee") {
+    return sendError(res, "You are already enrolled in this formation", 400);
+  }
 
-    const existingPaiement = await paiementModel.findOne({ inscriptionId: inscription._id });
-    if (existingPaiement && existingPaiement.statut === "confirme") {
-      return res.status(400).json({ message: "Payment already completed for this inscription" });
-    }
+  let inscription;
+  if (existingInscription) {
+    inscription = existingInscription;
+  } else {
+    inscription = new inscriptionModel({ apprenantId, formationId, statut: "en_attente" });
+    await inscription.save();
+  }
 
-    const method = methodePaiement || "carte";
+  const existingPaiement = await paiementModel.findOne({ inscriptionId: inscription._id });
+  if (existingPaiement && existingPaiement.statut === "confirme") {
+    return sendError(res, "Payment already completed for this inscription", 400);
+  }
 
-    // ── Card payments are confirmed instantly, no admin approval needed ──
-    const isCardPayment = method === "carte";
-    const paiementStatut = isCardPayment ? "confirme" : "en_attente";
+  const method = methodePaiement || "carte";
 
-    const newPaiement = new paiementModel({
-      inscriptionId: inscription._id,
-      apprenantId,
-      montant: formation.prix,
-      methodePaiement: method,
-      statut: paiementStatut,
+  // ── Card payments are confirmed instantly
+  const isCardPayment = method === "carte";
+  const paiementStatut = isCardPayment ? "confirme" : "en_attente";
+
+  const newPaiement = new paiementModel({
+    inscriptionId: inscription._id,
+    apprenantId,
+    montant: formation.prix,
+    methodePaiement: method,
+    statut: paiementStatut,
+  });
+  await newPaiement.save();
+
+  // Auto-accept inscription immediately for card payments
+  if (isCardPayment) {
+    await inscriptionModel.findByIdAndUpdate(inscription._id, {
+      statut: "acceptee",
+      dateAcceptation: Date.now(),
     });
-    await newPaiement.save();
-
-    // Auto-accept inscription immediately for card payments
-    if (isCardPayment) {
-      await inscriptionModel.findByIdAndUpdate(inscription._id, {
-        statut: "acceptee",
-        dateAcceptation: Date.now(),
-      });
-    }
-
-    const populatedPaiement = await paiementModel.findById(newPaiement._id)
-      .populate("inscriptionId", "formationId statut")
-      .populate("apprenantId", "nom prenom");
-
-    const message = isCardPayment
-      ? "Payment confirmed. You now have instant access to the formation. 🎉"
-      : "Payment request submitted. Access will be granted once your payment is verified by an admin.";
-
-    res.status(201).json({ 
-      message,
-      autoEnrolled: isCardPayment,
-      data: formatPaiement(populatedPaiement),
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
   }
-};
 
-module.exports.confirmPaiement = async (req, res) => {
-  try {
-    const paiement = await paiementModel.findById(req.params.id).populate("inscriptionId");
-    
-    if (!paiement) {
-      return res.status(404).json({ message: "Payment not found" });
-    }
+  const populatedPaiement = await paiementModel.findById(newPaiement._id)
+    .populate("inscriptionId", "formationId statut")
+    .populate("apprenantId", "nom prenom");
 
-    if (paiement.statut === "confirme") {
-      return res.status(400).json({ message: "Payment already confirmed" });
-    }
+  const message = isCardPayment
+    ? "Payment confirmed. You now have instant access to the formation. 🎉"
+    : "Payment request submitted. Access will be granted once your payment is verified by an admin.";
 
-    const updatedPaiement = await paiementModel.findByIdAndUpdate(
-      req.params.id,
-      { statut: "confirme" },
-      { new: true }
-    ).populate("inscriptionId", "formationId").populate("apprenantId", "nom prenom");
+  return sendSuccess(res, formatPaiement(populatedPaiement), message, 201);
+});
 
-    await inscriptionModel.findByIdAndUpdate(
-      paiement.inscriptionId._id,
-      { statut: "acceptee", dateAcceptation: Date.now() }
-    );
-
-    res.status(200).json({ 
-      message: "Payment confirmed. You now have access to the formation.",
-      data: formatPaiement(updatedPaiement),
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+// @desc    Confirm a payment (Admin/ResponsableCF)
+// @route   POST /paiements/confirm/:id
+// @access  Private (Admin, ResponsableCF)
+module.exports.confirmPaiement = asyncHandler(async (req, res) => {
+  const paiement = await paiementModel.findById(req.params.id).populate("inscriptionId");
+  
+  if (!paiement) {
+    return sendError(res, "Payment not found", 404);
   }
-};
 
-module.exports.cancelPaiement = async (req, res) => {
-  try {
-    const paiement = await paiementModel.findById(req.params.id);
-    
-    if (!paiement) {
-      return res.status(404).json({ message: "Payment not found" });
-    }
-
-    if (paiement.statut === "confirme") {
-      return res.status(400).json({ message: "Cannot cancel a confirmed payment" });
-    }
-
-    await paiementModel.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: "Payment cancelled successfully" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  if (paiement.statut === "confirme") {
+    return sendError(res, "Payment already confirmed", 400);
   }
-};
 
-module.exports.deletePaiement = async (req, res) => {
-  try {
-    const deletedPaiement = await paiementModel.findByIdAndDelete(req.params.id);
-    if (!deletedPaiement) {
-      return res.status(404).json({ message: "Payment not found" });
-    }
-    res.status(200).json({ message: "Payment deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  const updatedPaiement = await paiementModel.findByIdAndUpdate(
+    req.params.id,
+    { statut: "confirme" },
+    { new: true }
+  ).populate("inscriptionId", "formationId").populate("apprenantId", "nom prenom");
+
+  await inscriptionModel.findByIdAndUpdate(
+    paiement.inscriptionId._id,
+    { statut: "acceptee", dateAcceptation: Date.now() }
+  );
+
+  return sendSuccess(res, formatPaiement(updatedPaiement), "Payment confirmed. Access granted.");
+});
+
+// @desc    Cancel a payment request
+// @route   DELETE /paiements/cancel/:id
+// @access  Private (Owner, Admin)
+module.exports.cancelPaiement = asyncHandler(async (req, res) => {
+  const paiement = await paiementModel.findById(req.params.id);
+  
+  if (!paiement) {
+    return sendError(res, "Payment not found", 404);
   }
-};
+
+  if (paiement.statut === "confirme") {
+    return sendError(res, "Cannot cancel a confirmed payment", 400);
+  }
+
+  await paiementModel.findByIdAndDelete(req.params.id);
+  return sendSuccess(res, null, "Payment cancelled successfully");
+});
+
+// @desc    Hard delete a payment record (Admin)
+// @route   DELETE /paiements/:id
+// @access  Private (Admin)
+module.exports.deletePaiement = asyncHandler(async (req, res) => {
+  const deletedPaiement = await paiementModel.findByIdAndDelete(req.params.id);
+  if (!deletedPaiement) {
+    return sendError(res, "Payment not found", 404);
+  }
+  return sendSuccess(res, null, "Payment deleted successfully");
+});
+

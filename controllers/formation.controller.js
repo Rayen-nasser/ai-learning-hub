@@ -1,10 +1,10 @@
 const formationModel = require("../models/formation.model");
 const centreFormationModel = require("../models/centreFormation.model");
 const categorieModel = require("../models/categorie.model");
-
-const getBaseUrl = () => {
-  return process.env.BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
-};
+const userModel = require("../models/user.model");
+const asyncHandler = require("express-async-handler");
+const { sendSuccess, sendError } = require("../utils/response");
+const config = require("../config/config");
 
 const sanitizeFormation = (f) => {
   const obj = f.toObject ? f.toObject() : { ...f };
@@ -13,151 +13,240 @@ const sanitizeFormation = (f) => {
     if (!path.startsWith('http') && !path.startsWith('/')) {
       path = '/' + path;
     }
-    obj.image = path.startsWith('http') ? path : `${getBaseUrl()}${path}`;
+    obj.image = path.startsWith('http') ? path : `${config.baseUrl}${path}`;
   }
   return obj;
 };
 
-module.exports.getAllFormations = async (req, res) => {
-  try {
-    const { titre, description, prixMin, prixMax, categorieId, centreId, dureeMin, dureeMax, search } = req.query;
+// @desc    Get all formations
+// @route   GET /formations
+// @access  Public
+module.exports.getAllFormations = asyncHandler(async (req, res) => {
+  const { titre, description, prixMin, prixMax, categorieId, centreId, dureeMin, dureeMax, search } = req.query;
 
-    let query = {};
+  let query = {};
 
-    if (search) {
-      query.$or = [
-        { titre: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } }
-      ];
-    } else {
-      if (titre)       query.titre       = { $regex: titre, $options: 'i' };
-      if (description) query.description = { $regex: description, $options: 'i' };
-    }
-
-    if (prixMin || prixMax) {
-      query.prix = {};
-      if (prixMin) query.prix.$gte = Number(prixMin);
-      if (prixMax) query.prix.$lte = Number(prixMax);
-    }
-
-    if (categorieId) query.categorieId = categorieId;
-    if (centreId)    query.centreId    = centreId;
-
-    if (dureeMin || dureeMax) {
-      query.duree = {};
-      if (dureeMin) query.duree.$gte = Number(dureeMin);
-      if (dureeMax) query.duree.$lte = Number(dureeMax);
-    }
-
-    const formations = await formationModel
-      .find(query)
-      .populate("centreId")
-      .populate("categorieId");
-
-    // ✅ FIXED: always return 200 — let the frontend handle empty arrays
-    const sanitizedFormations = formations.map(sanitizeFormation);
-    res.status(200).json({
-      message: "Formations retrieved successfully",
-      data: sanitizedFormations,
-      total: sanitizedFormations.length,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  if (search) {
+    query.$or = [
+      { titre: { $regex: search, $options: 'i' } },
+      { description: { $regex: search, $options: 'i' } }
+    ];
+  } else {
+    if (titre)       query.titre       = { $regex: titre, $options: 'i' };
+    if (description) query.description = { $regex: description, $options: 'i' };
   }
-};
 
-module.exports.getFormationById = async (req, res) => {
-  try {
-    const formation = await formationModel
-      .findById(req.params.id)
-      .populate("centreId")
-      .populate("categorieId");
-    if (!formation) {
-      return res.status(404).json({ message: "Formation not found" });
-    }
-    res.status(200).json({ message: "Formation retrieved successfully", data: sanitizeFormation(formation) });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  if (prixMin || prixMax) {
+    query.prix = {};
+    if (prixMin) query.prix.$gte = Number(prixMin);
+    if (prixMax) query.prix.$lte = Number(prixMax);
   }
-};
 
-module.exports.createFormation = async (req, res) => {
-  try {
-    const { titre, description, prix, duree, centreId, categorieId } = req.body;
+  if (categorieId) query.categorieId = categorieId;
+  if (centreId)    query.centreId    = centreId;
 
-    if (!titre) {
-      return res.status(400).json({ message: "Formation title is required" });
-    }
-
-    if (centreId) {
-      const centre = await centreFormationModel.findById(centreId);
-      if (!centre) return res.status(400).json({ message: "Centre not found" });
-    }
-
-    if (categorieId) {
-      const categorie = await categorieModel.findById(categorieId);
-      if (!categorie) return res.status(400).json({ message: "Category not found" });
-    }
-
-    const image = req.file ? `${req.file.folder}/${req.file.filename}` : undefined;
-
-    const newFormation = new formationModel({ titre, description, prix, duree, centreId, categorieId, image });
-    await newFormation.save();
-
-    const populated = await formationModel
-      .findById(newFormation._id)
-      .populate("centreId")
-      .populate("categorieId");
-
-    res.status(201).json({ message: "Formation created successfully", data: sanitizeFormation(populated) });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  if (dureeMin || dureeMax) {
+    query.duree = {};
+    if (dureeMin) query.duree.$gte = Number(dureeMin);
+    if (dureeMax) query.duree.$lte = Number(dureeMax);
   }
-};
 
-module.exports.updateFormation = async (req, res) => {
-  try {
-    const formation = await formationModel.findById(req.params.id).populate("centreId");
-    if (!formation) {
-      return res.status(404).json({ message: "Formation not found" });
-    }
+  const formations = await formationModel
+    .find(query)
+    .populate("centreId")
+    .populate("categorieId");
 
-    const isOwner = formation.centreId?.responsableId?.toString() === req.user._id.toString();
+  const sanitizedFormations = formations.map(sanitizeFormation);
+  
+  return sendSuccess(res, sanitizedFormations, "Formations retrieved successfully");
+});
+
+// @desc    Get formation by ID
+// @route   GET /formations/:id
+// @access  Public
+module.exports.getFormationById = asyncHandler(async (req, res) => {
+  const formation = await formationModel
+    .findById(req.params.id)
+    .populate("centreId")
+    .populate("categorieId");
+
+  if (!formation) {
+    return sendError(res, "Formation not found", 404);
+  }
+
+  return sendSuccess(res, sanitizeFormation(formation), "Formation retrieved successfully");
+});
+
+// @desc    Create a new formation
+// @route   POST /formations
+// @access  Private (responsableCF, admin)
+module.exports.createFormation = asyncHandler(async (req, res) => {
+  const { titre, description, prix, duree, centreId, categorieId } = req.body;
+
+  if (centreId) {
+    const centre = await centreFormationModel.findById(centreId);
+    if (!centre) return sendError(res, "Centre not found", 400);
+    
+    // Authorization check: Only owner or admin can add to this centre
+    const isOwner = centre.responsableId?.toString() === req.user._id.toString();
     const isAdmin = req.user.role === 'admin';
-
     if (!isOwner && !isAdmin) {
-      return res.status(403).json({ message: "Access denied. You can only update formations of your own centres." });
+      return sendError(res, "Access denied. You can only add formations to your own centres.", 403);
     }
-
-    const { titre, description, prix, duree } = req.body;
-    const updates = {};
-    if (titre)                 updates.titre       = titre;
-    if (description !== undefined) updates.description = description;
-    if (prix        !== undefined) updates.prix        = prix;
-    if (duree       !== undefined) updates.duree       = duree;
-    if (req.file) updates.image = `${req.file.folder}/${req.file.filename}`;
-
-    if (Object.keys(updates).length === 0) {
-      return res.status(400).json({ message: "No fields to update" });
-    }
-
-    const updated = await formationModel
-      .findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true })
-      .populate("centreId")
-      .populate("categorieId");
-
-    res.status(200).json({ message: "Formation updated successfully", data: sanitizeFormation(updated) });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
   }
-};
 
-module.exports.deleteFormation = async (req, res) => {
-  try {
-    const deleted = await formationModel.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ message: "Formation not found" });
-    res.status(200).json({ message: "Formation deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  if (categorieId) {
+    const categorie = await categorieModel.findById(categorieId);
+    if (!categorie) return sendError(res, "Category not found", 400);
   }
-};
+
+  const image = req.file ? `${req.file.folder}/${req.file.filename}` : undefined;
+
+  const newFormation = new formationModel({ titre, description, prix, duree, centreId, categorieId, image });
+  await newFormation.save();
+
+  const populated = await formationModel
+    .findById(newFormation._id)
+    .populate("centreId")
+    .populate("categorieId");
+
+  return sendSuccess(res, sanitizeFormation(populated), "Formation created successfully", 21);
+});
+
+// @desc    Update a formation
+// @route   PUT /formations/:id
+// @access  Private (Owner, admin)
+module.exports.updateFormation = asyncHandler(async (req, res) => {
+  const formation = await formationModel.findById(req.params.id).populate("centreId");
+  if (!formation) {
+    return sendError(res, "Formation not found", 404);
+  }
+
+  const isOwner = formation.centreId?.responsableId?.toString() === req.user._id.toString();
+  const isAdmin = req.user.role === 'admin';
+
+  if (!isOwner && !isAdmin) {
+    return sendError(res, "Access denied. You can only update formations of your own centres.", 403);
+  }
+
+  const { titre, description, prix, duree } = req.body;
+  const updates = {};
+  if (titre)                 updates.titre       = titre;
+  if (description !== undefined) updates.description = description;
+  if (prix        !== undefined) updates.prix        = prix;
+  if (duree       !== undefined) updates.duree       = duree;
+  if (req.file) updates.image = `${req.file.folder}/${req.file.filename}`;
+
+  if (Object.keys(updates).length === 0) {
+    return sendError(res, "No fields to update", 400);
+  }
+
+  const updated = await formationModel
+    .findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true })
+    .populate("centreId")
+    .populate("categorieId");
+
+  return sendSuccess(res, sanitizeFormation(updated), "Formation updated successfully");
+});
+
+// @desc    Delete a formation
+// @route   DELETE /formations/:id
+// @access  Private (admin)
+module.exports.deleteFormation = asyncHandler(async (req, res) => {
+  const deleted = await formationModel.findByIdAndDelete(req.params.id);
+  if (!deleted) return sendError(res, "Formation not found", 404);
+  
+  // TODO: Implement file cleanup here if needed
+  
+  return sendSuccess(res, null, "Formation deleted successfully");
+});
+
+// @desc    Assign formateurs to formation
+// @route   POST /formations/:id/formateurs
+// @access  Private (Owner, admin)
+module.exports.assignFormateurs = asyncHandler(async (req, res) => {
+  const formation = await formationModel.findById(req.params.id).populate("centreId");
+  if (!formation) return sendError(res, "Formation not found", 404);
+
+  const isOwner = formation.centreId?.responsableId?.toString() === req.user._id.toString();
+  const isAdmin = req.user.role === 'admin';
+
+  if (!isOwner && !isAdmin) {
+    return sendError(res, "Access denied. Only the centre owner or admin can assign formateurs.", 403);
+  }
+
+  const { formateurIds } = req.body;
+  if (!formateurIds || !Array.isArray(formateurIds)) {
+    return sendError(res, "formateurIds array is required", 400);
+  }
+
+  const formateurs = await userModel.find({ _id: { $in: formateurIds }, role: "formateur" });
+  if (formateurs.length !== formateurIds.length) {
+    return sendError(res, "Some IDs are not valid formateurs", 400);
+  }
+
+  const newFormateurIds = formateurIds.filter(
+    id => !formation.formateurIds.map(fId => fId.toString()).includes(id.toString())
+  );
+
+  formation.formateurIds.push(...newFormateurIds);
+  await formation.save();
+
+  const updatedFormation = await formationModel.findById(req.params.id)
+    .populate("centreId")
+    .populate("categorieId")
+    .populate("formateurIds", "nom prenom email");
+
+  return sendSuccess(res, sanitizeFormation(updatedFormation), "Formateurs assigned successfully");
+});
+
+// @desc    Remove formateur from formation
+// @route   DELETE /formations/:id/formateurs/:formateurId
+// @access  Private (Owner, admin)
+module.exports.removeFormateur = asyncHandler(async (req, res) => {
+  const formation = await formationModel.findById(req.params.id).populate("centreId");
+  if (!formation) return sendError(res, "Formation not found", 404);
+
+  const isOwner = formation.centreId?.responsableId?.toString() === req.user._id.toString();
+  const isAdmin = req.user.role === 'admin';
+
+  if (!isOwner && !isAdmin) {
+    return sendError(res, "Access denied. Only the centre owner or admin can remove formateurs.", 403);
+  }
+
+  formation.formateurIds = formation.formateurIds.filter(
+    id => id.toString() !== req.params.formateurId
+  );
+  await formation.save();
+
+  return sendSuccess(res, null, "Formateur removed successfully");
+});
+
+// @desc    Get formateurs of a formation
+// @route   GET /formations/:id/formateurs
+// @access  Private (Owner, admin)
+module.exports.getFormateurs = asyncHandler(async (req, res) => {
+  const formation = await formationModel.findById(req.params.id)
+    .populate("formateurIds", "nom prenom email user_image");
+
+  if (!formation) return sendError(res, "Formation not found", 404);
+
+  return sendSuccess(res, formation.formateurIds, "Formateurs retrieved successfully");
+});
+
+// @desc    Get formations assigned to current formateur
+// @route   GET /formations/my-assignments
+// @access  Private (formateur)
+module.exports.getMyAssignments = asyncHandler(async (req, res) => {
+  if (req.user.role !== 'formateur') {
+    return sendError(res, "Only formateurs can access this endpoint", 403);
+  }
+
+  const formations = await formationModel
+    .find({ formateurIds: req.user._id })
+    .populate("centreId", "nom")
+    .populate("categorieId", "nom");
+
+  const sanitizedFormations = formations.map(sanitizeFormation);
+  return sendSuccess(res, sanitizedFormations, "My assignments retrieved successfully");
+});

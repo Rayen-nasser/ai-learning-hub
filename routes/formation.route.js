@@ -34,6 +34,9 @@ const { uploadSingle } = require('../middlewares/uploadfile');
  *           description: Centre ID
  */
 
+const validate = require('../middlewares/validateMiddleware');
+const { formationSchema } = require('../validations/formation.validation');
+
 // ───────── ROUTES ─────────
 
 // GET /formations - Get all formations
@@ -124,7 +127,8 @@ router.get('/', formationController.getAllFormations);
  *       403:
  *         description: Forbidden
  */
-router.post('/', requireAuth, requireRole('responsableCF'), uploadSingle('image', 'images'), formationController.createFormation);
+router.post('/', requireAuth, requireRole('responsableCF', 'admin'), validate(formationSchema), uploadSingle('image', 'images'), formationController.createFormation);
+
 
 // GET /formations/:id - Get formation by ID
 /**
@@ -213,5 +217,117 @@ router.put('/:id', requireAuth, uploadSingle('image', 'images'), formationContro
  *         description: Forbidden - Admin only
  */
 router.delete('/:id', requireAuth, requireRole('admin'), formationController.deleteFormation);
+
+// GET /formations/my-assignments - Get formations assigned to current formateur
+/**
+ * @swagger
+ * /formations/my-assignments:
+ *   get:
+ *     summary: Get formations assigned to current formateur
+ *     tags: [Formations]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of assigned formations
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Formateur only
+ */
+router.get('/my-assignments', requireAuth, formationController.getMyAssignments);
+
+// GET /formations/:id/formateurs - Get formateurs of a formation
+/**
+ * @swagger
+ * /formations/{id}/formateurs:
+ *   get:
+ *     summary: Get formateurs assigned to a formation
+ *     tags: [Formations]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of formateurs
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Centre owner or Admin only
+ */
+router.get('/:id/formateurs', requireAuth, formationController.getFormateurs);
+
+// POST /formations/:id/formateurs - Assign formateurs to a formation
+/**
+ * @swagger
+ * /formations/{id}/formateurs:
+ *   post:
+ *     summary: Assign formateurs to a formation
+ *     tags: [Formations]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - formateurIds
+ *             properties:
+ *               formateurIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *     responses:
+ *       200:
+ *         description: Formateurs assigned
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Centre owner or Admin only
+ */
+router.post('/:id/formateurs', requireAuth, formationController.assignFormateurs);
+
+// DELETE /formations/:id/formateurs/:formateurId - Remove formateur from a formation
+/**
+ * @swagger
+ * /formations/{id}/formateurs/{formateurId}:
+ *   delete:
+ *     summary: Remove formateur from a formation
+ *     tags: [Formations]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: formateurId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Formateur removed
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Centre owner or Admin only
+ */
+router.delete('/:id/formateurs/:formateurId', requireAuth, formationController.removeFormateur);
 
 module.exports = router;
