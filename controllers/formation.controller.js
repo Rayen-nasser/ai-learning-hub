@@ -214,9 +214,18 @@ module.exports.removeFormateur = asyncHandler(async (req, res) => {
     return sendError(res, "Access denied. Only the centre owner or admin can remove formateurs.", 403);
   }
 
-  formation.formateurIds = formation.formateurIds.filter(
-    id => id.toString() !== req.params.formateurId
-  );
+  const targetId = req.params.formateurId;
+  const initialLength = formation.formateurIds.length;
+  
+  formation.formateurIds = formation.formateurIds.filter(id => {
+    const idStr = id._id ? id._id.toString() : id.toString();
+    return idStr !== targetId;
+  });
+
+  if (formation.formateurIds.length === initialLength) {
+    return sendError(res, "Formateur not found in this formation", 404);
+  }
+
   await formation.save();
 
   return sendSuccess(res, null, "Formateur removed successfully");
