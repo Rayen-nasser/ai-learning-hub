@@ -11,6 +11,9 @@ const { uploadSingle } = require('../middlewares/uploadfile');
  *     Formation:
  *       type: object
  *       properties:
+ *         _id:
+ *           type: string
+ *           description: Formation ID
  *         titre:
  *           type: string
  *           description: Formation title
@@ -19,7 +22,7 @@ const { uploadSingle } = require('../middlewares/uploadfile');
  *           description: Formation description
  *         prix:
  *           type: number
- *           description: Formation price
+ *           description: Formation price (0 for free)
  *         duree:
  *           type: number
  *           description: Duration in hours
@@ -30,16 +33,54 @@ const { uploadSingle } = require('../middlewares/uploadfile');
  *           type: string
  *           description: Category ID
  *         centreId:
+ *           type: object
+ *           description: Centre information
+ *           properties:
+ *             _id:
+ *               type: string
+ *             nom:
+ *               type: string
+ *         formateurIds:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               _id:
+ *                 type: string
+ *               nom:
+ *                 type: string
+ *               prenom:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *         createdAt:
  *           type: string
- *           description: Centre ID
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *     Formateur:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: Formateur ID
+ *         nom:
+ *           type: string
+ *           description: Formateur last name
+ *         prenom:
+ *           type: string
+ *           description: Formateur first name
+ *         email:
+ *           type: string
+ *           description: Formateur email
+ *         user_image:
+ *           type: string
+ *           description: Formateur profile image
  */
-
-const validate = require('../middlewares/validateMiddleware');
-const { formationSchema } = require('../validations/formation.validation');
 
 // ───────── ROUTES ─────────
 
-// GET /formations - Get all formations
 /**
  * @swagger
  * /formations:
@@ -85,10 +126,49 @@ const { formationSchema } = require('../validations/formation.validation');
  *     responses:
  *       200:
  *         description: List of formations
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Formation'
  */
 router.get('/', formationController.getAllFormations);
 
-// POST /formations - Create formation
+/**
+ * @swagger
+ * /formations/my-assignments:
+ *   get:
+ *     summary: Get formations assigned to current formateur
+ *     tags: [Formations]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of formations assigned to the current formateur
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Formation'
+ *       401:
+ *         description: Unauthorized - Token not provided or invalid
+ *       403:
+ *         description: Forbidden - Only formateurs can access this endpoint
+ */
+router.get('/my-assignments', requireAuth, formationController.getMyAssignments);
+
 /**
  * @swagger
  * /formations:
@@ -103,34 +183,58 @@ router.get('/', formationController.getAllFormations);
  *         multipart/form-data:
  *           schema:
  *             type: object
+ *             required:
+ *               - titre
  *             properties:
  *               titre:
  *                 type: string
+ *                 description: Formation title
+ *                 example: "Web Development Fundamentals"
  *               description:
  *                 type: string
+ *                 description: Formation description
+ *                 example: "Learn the basics of web development"
  *               prix:
  *                 type: number
+ *                 description: Formation price (0 for free)
+ *                 example: 99.99
  *               duree:
  *                 type: number
+ *                 description: Duration in hours
+ *                 example: 40
  *               centreId:
  *                 type: string
+ *                 description: Centre ID
+ *                 example: "507f1f77bcf86cd799439011"
  *               categorieId:
  *                 type: string
+ *                 description: Category ID
+ *                 example: "507f1f77bcf86cd799439012"
  *               image:
  *                 type: string
  *                 format: binary
+ *                 description: Formation image file
  *     responses:
  *       201:
- *         description: Formation created
+ *         description: Formation created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   $ref: '#/components/schemas/Formation'
+ *       400:
+ *         description: Bad request - Validation error
  *       401:
  *         description: Unauthorized
  *       403:
- *         description: Forbidden
+ *         description: Forbidden - Only responsableCF or admin can create formations
  */
-router.post('/', requireAuth, requireRole('responsableCF', 'admin'), validate(formationSchema), uploadSingle('image', 'images'), formationController.createFormation);
+router.post('/', requireAuth, requireRole('responsableCF', 'admin'), uploadSingle('image', 'images'), formationController.createFormation);
 
-
-// GET /formations/:id - Get formation by ID
 /**
  * @swagger
  * /formations/{id}:
@@ -143,15 +247,24 @@ router.post('/', requireAuth, requireRole('responsableCF', 'admin'), validate(fo
  *         required: true
  *         schema:
  *           type: string
+ *         description: Formation ID
  *     responses:
  *       200:
  *         description: Formation details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   $ref: '#/components/schemas/Formation'
  *       404:
  *         description: Formation not found
  */
 router.get('/:id', formationController.getFormationById);
 
-// PUT /formations/:id - Update formation
 /**
  * @swagger
  * /formations/{id}:
@@ -166,6 +279,7 @@ router.get('/:id', formationController.getFormationById);
  *         required: true
  *         schema:
  *           type: string
+ *         description: Formation ID
  *     requestBody:
  *       content:
  *         multipart/form-data:
@@ -174,26 +288,43 @@ router.get('/:id', formationController.getFormationById);
  *             properties:
  *               titre:
  *                 type: string
+ *                 description: Formation title
  *               description:
  *                 type: string
+ *                 description: Formation description
  *               prix:
  *                 type: number
+ *                 description: Formation price
  *               duree:
  *                 type: number
+ *                 description: Duration in hours
  *               image:
  *                 type: string
  *                 format: binary
+ *                 description: Formation image file
  *     responses:
  *       200:
- *         description: Formation updated
+ *         description: Formation updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   $ref: '#/components/schemas/Formation'
+ *       400:
+ *         description: Bad request
  *       401:
  *         description: Unauthorized
  *       403:
- *         description: Forbidden
+ *         description: Forbidden - Only centre owner or admin can update
+ *       404:
+ *         description: Formation not found
  */
 router.put('/:id', requireAuth, uploadSingle('image', 'images'), formationController.updateFormation);
 
-// DELETE /formations/:id - Delete formation
 /**
  * @swagger
  * /formations/{id}:
@@ -208,36 +339,26 @@ router.put('/:id', requireAuth, uploadSingle('image', 'images'), formationContro
  *         required: true
  *         schema:
  *           type: string
+ *         description: Formation ID
  *     responses:
  *       200:
- *         description: Formation deleted
+ *         description: Formation deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
  *       401:
  *         description: Unauthorized
  *       403:
  *         description: Forbidden - Admin only
+ *       404:
+ *         description: Formation not found
  */
 router.delete('/:id', requireAuth, requireRole('admin'), formationController.deleteFormation);
 
-// GET /formations/my-assignments - Get formations assigned to current formateur
-/**
- * @swagger
- * /formations/my-assignments:
- *   get:
- *     summary: Get formations assigned to current formateur
- *     tags: [Formations]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: List of assigned formations
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - Formateur only
- */
-router.get('/my-assignments', requireAuth, formationController.getMyAssignments);
-
-// GET /formations/:id/formateurs - Get formateurs of a formation
 /**
  * @swagger
  * /formations/{id}/formateurs:
@@ -252,17 +373,30 @@ router.get('/my-assignments', requireAuth, formationController.getMyAssignments)
  *         required: true
  *         schema:
  *           type: string
+ *         description: Formation ID
  *     responses:
  *       200:
- *         description: List of formateurs
+ *         description: List of formateurs assigned to the formation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Formateur'
  *       401:
  *         description: Unauthorized
  *       403:
- *         description: Forbidden - Centre owner or Admin only
+ *         description: Forbidden - Only centre owner or admin can view
+ *       404:
+ *         description: Formation not found
  */
 router.get('/:id/formateurs', requireAuth, formationController.getFormateurs);
 
-// POST /formations/:id/formateurs - Assign formateurs to a formation
 /**
  * @swagger
  * /formations/{id}/formateurs:
@@ -277,6 +411,7 @@ router.get('/:id/formateurs', requireAuth, formationController.getFormateurs);
  *         required: true
  *         schema:
  *           type: string
+ *         description: Formation ID
  *     requestBody:
  *       required: true
  *       content:
@@ -290,22 +425,36 @@ router.get('/:id/formateurs', requireAuth, formationController.getFormateurs);
  *                 type: array
  *                 items:
  *                   type: string
+ *                 description: Array of formateur user IDs
+ *                 example: ["507f1f77bcf86cd799439013", "507f1f77bcf86cd799439014"]
  *     responses:
  *       200:
- *         description: Formateurs assigned
+ *         description: Formateurs assigned successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   $ref: '#/components/schemas/Formation'
+ *       400:
+ *         description: Bad request - Invalid formateur IDs
  *       401:
  *         description: Unauthorized
  *       403:
- *         description: Forbidden - Centre owner or Admin only
+ *         description: Forbidden - Only centre owner or admin can assign formateurs
+ *       404:
+ *         description: Formation not found
  */
 router.post('/:id/formateurs', requireAuth, formationController.assignFormateurs);
 
-// DELETE /formations/:id/formateurs/:formateurId - Remove formateur from a formation
 /**
  * @swagger
  * /formations/{id}/formateurs/{formateurId}:
  *   delete:
- *     summary: Remove formateur from a formation
+ *     summary: Remove a formateur from a formation
  *     tags: [Formations]
  *     security:
  *       - bearerAuth: []
@@ -315,18 +464,29 @@ router.post('/:id/formateurs', requireAuth, formationController.assignFormateurs
  *         required: true
  *         schema:
  *           type: string
+ *         description: Formation ID
  *       - in: path
  *         name: formateurId
  *         required: true
  *         schema:
  *           type: string
+ *         description: Formateur user ID to remove
  *     responses:
  *       200:
- *         description: Formateur removed
+ *         description: Formateur removed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
  *       401:
  *         description: Unauthorized
  *       403:
- *         description: Forbidden - Centre owner or Admin only
+ *         description: Forbidden - Only centre owner or admin can remove formateurs
+ *       404:
+ *         description: Formation not found
  */
 router.delete('/:id/formateurs/:formateurId', requireAuth, formationController.removeFormateur);
 
