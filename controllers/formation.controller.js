@@ -54,7 +54,8 @@ module.exports.getAllFormations = asyncHandler(async (req, res) => {
   const formations = await formationModel
     .find(query)
     .populate("centreId")
-    .populate("categorieId");
+    .populate("categorieId")
+    .populate("formateurIds", "nom prenom email role user_image");
 
   const sanitizedFormations = formations.map(sanitizeFormation);
   
@@ -68,7 +69,8 @@ module.exports.getFormationById = asyncHandler(async (req, res) => {
   const formation = await formationModel
     .findById(req.params.id)
     .populate("centreId")
-    .populate("categorieId");
+    .populate("categorieId")
+    .populate("formateurIds", "nom prenom email role user_image");
 
   if (!formation) {
     return sendError(res, "Formation not found", 404);
@@ -185,11 +187,8 @@ module.exports.assignFormateurs = asyncHandler(async (req, res) => {
     return sendError(res, "Some IDs are not valid formateurs or have incorrect role", 400);
   }
 
-  const newFormateurIds = formateurIds.filter(
-    id => !formation.formateurIds.map(fId => fId.toString()).includes(id.toString())
-  );
-
-  formation.formateurIds.push(...newFormateurIds);
+  // Synchronize the array: Replace current formateurs with the new list
+  formation.formateurIds = formateurIds;
   await formation.save();
 
   const updatedFormation = await formationModel.findById(req.params.id)
@@ -207,6 +206,7 @@ module.exports.removeFormateur = asyncHandler(async (req, res) => {
   const formation = await formationModel.findById(req.params.id).populate("centreId");
   if (!formation) return sendError(res, "Formation not found", 404);
 
+  // Authorization check: Only centre owner or admin
   const isOwner = formation.centreId?.responsableId?.toString() === req.user._id.toString();
   const isAdmin = req.user.role === 'admin';
 
@@ -215,20 +215,23 @@ module.exports.removeFormateur = asyncHandler(async (req, res) => {
   }
 
   const targetId = req.params.formateurId;
-  const initialLength = formation.formateurIds.length;
   
-  formation.formateurIds = formation.formateurIds.filter(id => {
-    const idStr = id._id ? id._id.toString() : id.toString();
-    return idStr !== targetId;
-  });
-
-  if (formation.formateurIds.length === initialLength) {
+  // Check if formateur is actually in the array
+  const exists = formation.formateurIds.some(id => id.toString() === targetId);
+  if (!exists) {
     return sendError(res, "Formateur not found in this formation", 404);
   }
 
+  // Use Mongoose's pull method to remove the ID from the array
+  formation.formateurIds.pull(targetId);
   await formation.save();
 
-  return sendSuccess(res, null, "Formateur removed successfully");
+  const updatedFormation = await formationModel.findById(formation._id)
+    .populate("centreId")
+    .populate("categorieId")
+    .populate("formateurIds", "nom prenom email role user_image");
+
+  return sendSuccess(res, sanitizeFormation(updatedFormation), "Formateur removed successfully");
 });
 
 // @desc    Get formateurs of a formation

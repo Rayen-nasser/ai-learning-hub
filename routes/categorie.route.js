@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const categorieController = require('../controllers/categorie.controller');
 const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
+const { uploadSingle } = require('../middlewares/uploadfile');
 
 /**
  * @swagger
@@ -75,7 +76,7 @@ router.get('/:id', categorieController.getCategorieById);
  *       403:
  *         description: Forbidden - Admin only
  */
-router.post('/', requireAuth, requireRole(['admin', 'responsableCF']), categorieController.createCategorie);
+router.post('/', requireAuth, requireRole(['admin', 'responsableCF']), uploadSingle('image', 'images'), categorieController.createCategorie);
 
 /**
  * @swagger
@@ -105,7 +106,7 @@ router.post('/', requireAuth, requireRole(['admin', 'responsableCF']), categorie
  *       403:
  *         description: Forbidden - Admin only
  */
-router.put('/:id', requireAuth, requireRole(['admin', 'responsableCF']), categorieController.updateCategorie);
+router.put('/:id', requireAuth, requireRole(['admin', 'responsableCF']), uploadSingle('image', 'images'), categorieController.updateCategorie);
 
 /**
  * @swagger

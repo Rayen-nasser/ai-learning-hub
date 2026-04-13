@@ -1,14 +1,26 @@
 const categorieModel = require("../models/categorie.model");
+const { sendSuccess, sendError } = require("../utils/response");
+const config = require("../config/config");
+
+const sanitizeCategorie = (cat) => {
+  const obj = cat.toObject ? cat.toObject() : { ...cat };
+  if (obj.image) {
+    let path = obj.image;
+    if (!path.startsWith('http') && !path.startsWith('/')) {
+      path = '/' + path;
+    }
+    obj.image = path.startsWith('http') ? path : `${config.baseUrl}${path}`;
+  }
+  return obj;
+};
 
 module.exports.getAllCategories = async (req, res) => {
   try {
     const categories = await categorieModel.find();
-    if (categories.length === 0) {
-      return res.status(404).json({ message: "No categories found" });
-    }
-    res.status(200).json({ message: "Categories retrieved successfully", data: categories });
+    const sanitized = categories.map(sanitizeCategorie);
+    return sendSuccess(res, sanitized, "Categories retrieved successfully");
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return sendError(res, error.message);
   }
 };
 
@@ -16,46 +28,67 @@ module.exports.getCategorieById = async (req, res) => {
   try {
     const categorie = await categorieModel.findById(req.params.id);
     if (!categorie) {
-      return res.status(404).json({ message: "Category not found" });
+      return sendError(res, "Category not found", 404);
     }
-    res.status(200).json({ message: "Category retrieved successfully", data: categorie });
+    return sendSuccess(res, sanitizeCategorie(categorie), "Category retrieved successfully");
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return sendError(res, error.message);
   }
 };
 
 module.exports.createCategorie = async (req, res) => {
   try {
-    const { nom, description, image } = req.body;
+    const { nom, description } = req.body;
 
     if (!nom) {
-      return res.status(400).json({ message: "Category name is required" });
+      return sendError(res, "Category name is required", 400);
     }
 
     const existingCategory = await categorieModel.findOne({ nom });
     if (existingCategory) {
-      return res.status(400).json({ message: "Category with this name already exists" });
+      return sendError(res, "Category with this name already exists", 400);
     }
 
-    const newCategorie = new categorieModel({ nom, description, image });
+    const image = req.file ? `${req.file.folder}/${req.file.filename}` : req.body.image;
+    const ownerId = req.user._id;
+
+    const newCategorie = new categorieModel({ nom, description, image, ownerId });
     await newCategorie.save();
-    res.status(201).json({ message: "Category created successfully", data: newCategorie });
+    return sendSuccess(res, sanitizeCategorie(newCategorie), "Category created successfully", 201);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return sendError(res, error.message);
   }
 };
 
 module.exports.updateCategorie = async (req, res) => {
   try {
-    const { nom, description, image } = req.body;
+    const { nom, description } = req.body;
+
+    const categorie = await categorieModel.findById(req.params.id);
+    if (!categorie) {
+      return sendError(res, "Category not found", 404);
+    }
+
+    // Authorization check: Only owner or admin
+    const isOwner = categorie.ownerId?.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isOwner && !isAdmin) {
+      return sendError(res, "Access denied. Only the creator or admin can update this category.", 403);
+    }
 
     const updates = {};
     if (nom) updates.nom = nom;
     if (description !== undefined) updates.description = description;
-    if (image !== undefined) updates.image = image;
+    
+    if (req.file) {
+      updates.image = `${req.file.folder}/${req.file.filename}`;
+    } else if (req.body.image !== undefined) {
+      updates.image = req.body.image;
+    }
 
     if (Object.keys(updates).length === 0) {
-      return res.status(400).json({ message: "No fields to update" });
+      return sendError(res, "No fields to update", 400);
     }
 
     const updatedCategorie = await categorieModel.findByIdAndUpdate(
@@ -63,23 +96,31 @@ module.exports.updateCategorie = async (req, res) => {
       updates,
       { new: true, runValidators: true }
     );
-    if (!updatedCategorie) {
-      return res.status(404).json({ message: "Category not found" });
-    }
-    res.status(200).json({ message: "Category updated successfully", data: updatedCategorie });
+    
+    return sendSuccess(res, sanitizeCategorie(updatedCategorie), "Category updated successfully");
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return sendError(res, error.message);
   }
 };
 
 module.exports.deleteCategorie = async (req, res) => {
   try {
-    const deletedCategorie = await categorieModel.findByIdAndDelete(req.params.id);
-    if (!deletedCategorie) {
-      return res.status(404).json({ message: "Category not found" });
+    const categorie = await categorieModel.findById(req.params.id);
+    if (!categorie) {
+      return sendError(res, "Category not found", 404);
     }
-    res.status(200).json({ message: "Category deleted successfully" });
+
+    // Authorization check: Only owner or admin
+    const isOwner = categorie.ownerId?.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isOwner && !isAdmin) {
+      return sendError(res, "Access denied. Only the creator or admin can delete this category.", 403);
+    }
+
+    await categorieModel.findByIdAndDelete(req.params.id);
+    return sendSuccess(res, null, "Category deleted successfully");
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return sendError(res, error.message);
   }
 };
