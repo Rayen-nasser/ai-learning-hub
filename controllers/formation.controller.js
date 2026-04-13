@@ -110,7 +110,7 @@ module.exports.createFormation = asyncHandler(async (req, res) => {
     .populate("centreId")
     .populate("categorieId");
 
-  return sendSuccess(res, sanitizeFormation(populated), "Formation created successfully", 21);
+  return sendSuccess(res, sanitizeFormation(populated), "Formation created successfully", 201);
 });
 
 // @desc    Update a formation
