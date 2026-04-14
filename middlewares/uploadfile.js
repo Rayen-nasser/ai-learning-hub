@@ -71,12 +71,38 @@ const createUploadMiddleware = (folder = 'uploads') => {
         });
       };
     },
+    any: () => {
+      const middleware = multerInstance.any();
+      return (req, res, cb) => {
+        middleware(req, res, (err) => {
+          if (err) return cb(err);
+          if (req.file) {
+            req.file.folder = folder;
+          }
+          if (req.files && req.files.length > 0) {
+            req.files.forEach(f => { f.folder = folder; });
+            req.file = req.files[0];
+          }
+          cb();
+        });
+      };
+    },
     array: multerInstance.array,
   };
 };
 
-const uploadSingle = (fieldName, folder = 'uploads') => createUploadMiddleware(folder).single(fieldName);
-const uploadMultiple = createUploadMiddleware('uploads').array;
+const uploadSingle = (fieldName, folder = 'uploads') => {
+  if (typeof fieldName !== 'string') {
+    throw new Error('uploadSingle must be called with a field name, e.g., uploadSingle("image")');
+  }
+  return createUploadMiddleware(folder).single(fieldName);
+};
+const uploadMultiple = (fieldName, maxCount = 10, folder = 'uploads') => {
+  if (typeof fieldName !== 'string') {
+    throw new Error('uploadMultiple must be called with a field name, e.g., uploadMultiple("files")');
+  }
+  return createUploadMiddleware(folder).array(fieldName, maxCount);
+};
 const uploadfile = createUploadMiddleware('images');
 
 module.exports = uploadfile;

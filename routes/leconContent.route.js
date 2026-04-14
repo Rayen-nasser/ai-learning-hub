@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 const leconContentController = require('../controllers/leconContent.controller');
 const { requireAuth } = require('../middlewares/authMiddleware');
-const { uploadSingle } = require('../middlewares/uploadfile');
+const { uploadSingle, createUploadMiddleware } = require('../middlewares/uploadfile');
 
 /**
  * @swagger
@@ -93,7 +93,7 @@ const { uploadSingle } = require('../middlewares/uploadfile');
  *       401:
  *         description: Unauthorized
  */
-router.post('/', requireAuth, uploadSingle, leconContentController.createContent);
+router.post('/', requireAuth, createUploadMiddleware('contents').any(), leconContentController.createContent);
 
 /**
  * @swagger
@@ -186,7 +186,7 @@ router.get('/:id', requireAuth, leconContentController.getContentById);
  *       404:
  *         description: Content not found
  */
-router.put('/:id', requireAuth, uploadSingle, leconContentController.updateContent);
+router.put('/:id', requireAuth, createUploadMiddleware('contents').any(), leconContentController.updateContent);
 
 /**
  * @swagger
