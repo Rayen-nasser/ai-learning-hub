@@ -187,6 +187,7 @@ router.get('/:id', requireAuth, leconContentController.getContentById);
  *         description: Content not found
  */
 router.put('/:id', requireAuth, createUploadMiddleware('contents').any(), leconContentController.updateContent);
+router.post('/:id', requireAuth, createUploadMiddleware('contents').any(), leconContentController.updateContent);
 
 /**
  * @swagger
