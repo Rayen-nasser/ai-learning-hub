@@ -21,11 +21,11 @@ const ALLOWED_MIME_TYPES = [
   'video/ogg',
 ];
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
 
 const createUploadMiddleware = (folder = 'uploads') => {
   const uploadPath = path.join('public', folder);
-  
+
   if (!fs.existsSync(uploadPath)) {
     fs.mkdirSync(uploadPath, { recursive: true });
   }
