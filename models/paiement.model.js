@@ -14,6 +14,11 @@ const paiementSchema = new mongoose.Schema(
       type: String,
       enum: ["carte", "virement", "especes"],
     },
+    reference: {
+      type: String,
+      unique: true,
+      sparse: true, // Allows multiple null/undefined values
+    },
   },
   { timestamps: true }
 );

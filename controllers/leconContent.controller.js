@@ -78,6 +78,8 @@ module.exports.getContentById = async (req, res) => {
 };
 
 module.exports.createContent = async (req, res) => {
+  console.log('[createContent] req.body:', JSON.stringify(req.body, null, 2));
+  if (req.file) console.log('[createContent] req.file:', req.file);
   try {
     const { leconId, type, title, description, order, sourceType, linkTitle, linkUrl, linkDescription, passingGrade, questions } = req.body;
 
@@ -110,6 +112,42 @@ module.exports.createContent = async (req, res) => {
       mimeType = req.file.mimetype;
     }
 
+    let parsedQuestions = [];
+    if (questions) {
+      if (typeof questions === 'string') {
+        try {
+          parsedQuestions = JSON.parse(questions);
+        } catch (e) {
+          console.error('[createContent] JSON Parse failed for questions:', e);
+          return res.status(400).json({ message: "Invalid JSON format for questions" });
+        }
+      } else {
+        parsedQuestions = questions;
+      }
+    }
+
+    if (parsedQuestions && Array.isArray(parsedQuestions)) {
+      parsedQuestions = parsedQuestions.map(q => {
+        let item = q;
+        // Sometimes nested data arrives as string even inside an array
+        if (typeof q === 'string') {
+          try { item = JSON.parse(q); } catch (e) { }
+        }
+        
+        if (item && typeof item === 'object') {
+          return {
+            ...item,
+            questionText: item.questionText || item.text || "Untitled Question",
+            type: item.type || "multiple_choice",
+            options: Array.isArray(item.options) ? item.options : [],
+            correctAnswer: item.correctAnswer !== undefined ? item.correctAnswer : null,
+            points: Number(item.points) || 1
+          };
+        }
+        return item;
+      });
+    }
+
     const newContent = new leconContentModel({
       leconId,
       type,
@@ -126,17 +164,20 @@ module.exports.createContent = async (req, res) => {
       linkUrl,
       linkDescription,
       passingGrade: passingGrade || 60,
-      questions: type === 'test' ? questions : undefined,
+      questions: type === 'test' ? parsedQuestions : undefined,
     });
 
     await newContent.save();
     res.status(201).json({ message: "Content created successfully", data: formatContent(newContent) });
   } catch (error) {
+    console.error('[Error in createContent]:', error);
     res.status(500).json({ error: error.message });
   }
 };
 
 module.exports.updateContent = async (req, res) => {
+  console.log('[updateContent] req.body:', JSON.stringify(req.body, null, 2));
+  if (req.file) console.log('[updateContent] req.file:', req.file);
   try {
     const content = await leconContentModel.findById(req.params.id);
     if (!content) {
@@ -160,7 +201,6 @@ module.exports.updateContent = async (req, res) => {
     if (linkUrl !== undefined) updates.linkUrl = linkUrl;
     if (linkDescription !== undefined) updates.linkDescription = linkDescription;
     if (passingGrade !== undefined) updates.passingGrade = passingGrade;
-    if (questions !== undefined) updates.questions = questions;
 
     if (req.file) {
       updates.url = `/${req.file.folder}/${req.file.filename}`;
@@ -169,6 +209,42 @@ module.exports.updateContent = async (req, res) => {
       updates.fileSize = req.file.size;
       updates.mimeType = req.file.mimetype;
       updates.sourceType = 'upload';
+    }
+
+    if (questions !== undefined) {
+      let parsedQuestions = [];
+      if (typeof questions === 'string') {
+        try {
+          parsedQuestions = JSON.parse(questions);
+        } catch (e) {
+          console.error('[updateContent] JSON Parse failed for questions:', e);
+          return res.status(400).json({ message: "Invalid JSON format for questions" });
+        }
+      } else {
+        parsedQuestions = questions;
+      }
+
+      if (parsedQuestions && Array.isArray(parsedQuestions)) {
+        updates.questions = parsedQuestions.map(q => {
+          let item = q;
+          if (typeof q === 'string') {
+            try { item = JSON.parse(q); } catch (e) { }
+          }
+          if (item && typeof item === 'object') {
+            return {
+              ...item,
+              questionText: item.questionText || item.text || "Untitled Question",
+              type: item.type || "multiple_choice",
+              options: Array.isArray(item.options) ? item.options : [],
+              correctAnswer: item.correctAnswer !== undefined ? item.correctAnswer : null,
+              points: Number(item.points) || 1
+            };
+          }
+          return item;
+        });
+      } else {
+        updates.questions = parsedQuestions;
+      }
     }
 
     if (Object.keys(updates).length === 0) {
@@ -183,6 +259,7 @@ module.exports.updateContent = async (req, res) => {
 
     res.status(200).json({ message: "Content updated successfully", data: formatContent(updatedContent) });
   } catch (error) {
+    console.error('[Error in updateContent]:', error);
     res.status(500).json({ error: error.message });
   }
 };
