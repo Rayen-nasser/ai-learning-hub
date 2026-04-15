@@ -5,9 +5,8 @@ const formationModel = require("../models/formation.model");
 const asyncHandler = require("express-async-handler");
 const { sendSuccess, sendError } = require("../utils/response");
 
-const formatPaiement = (p) => {
-  const formation = p.inscriptionId?.formationId;
-  const formationObj = typeof formation === 'object' && formation?._id ? formation : null;
+const formatPaiement = (p, formation) => {
+  const formationObj = formation || (p.inscriptionId?.formationId?._id ? p.inscriptionId.formationId : null);
   
   return {
     _id: p._id,
@@ -17,7 +16,7 @@ const formatPaiement = (p) => {
     createdAt: p.createdAt,
     inscriptionId: p.inscriptionId?._id,
     inscriptionStatut: p.inscriptionId?.statut,
-    formationId: formationObj?._id || formation,
+    formationId: formationObj?._id || p.inscriptionId?.formationId,
     formation: formationObj ? {
       titre: formationObj.titre,
       description: formationObj.description,
@@ -40,17 +39,29 @@ const formatPaiement = (p) => {
 // @access  Private (Admin)
 module.exports.getAllPaiements = asyncHandler(async (req, res) => {
   const paiements = await paiementModel.find()
-    .populate("inscriptionId", "formationId statut")
-    .populate("apprenantId", "nom prenom")
-    .populate("inscriptionId.formationId", "titre description prix duree centreId categorieId image")
-    .populate("inscriptionId.formationId.centreId", "nom")
-    .populate("inscriptionId.formationId.categorieId", "nom");
+    .populate("inscriptionId")
+    .populate("apprenantId", "nom prenom");
 
   if (paiements.length === 0) {
     return sendError(res, "No payments found", 404);
   }
 
-  const formattedPaiements = paiements.map(formatPaiement);
+  const formationIds = paiements
+    .map(p => p.inscriptionId?.formationId)
+    .filter(id => id);
+
+  const formations = await formationModel.find({ _id: { $in: formationIds } })
+    .populate("centreId", "nom")
+    .populate("categorieId", "nom");
+
+  const formationMap = {};
+  formations.forEach(f => { formationMap[f._id.toString()] = f; });
+
+  const formattedPaiements = paiements.map(p => {
+    const formation = formationMap[p.inscriptionId?.formationId?.toString()];
+    return formatPaiement(p, formation);
+  });
+
   return sendSuccess(res, formattedPaiements, "Payments retrieved successfully");
 });
 
@@ -59,13 +70,25 @@ module.exports.getAllPaiements = asyncHandler(async (req, res) => {
 // @access  Private (Apprenant)
 module.exports.getMyPaiements = asyncHandler(async (req, res) => {
   const paiements = await paiementModel.find({ apprenantId: req.user._id })
-    .populate("inscriptionId", "formationId statut")
-    .populate("apprenantId", "nom prenom")
-    .populate("inscriptionId.formationId", "titre description prix duree centreId categorieId image")
-    .populate("inscriptionId.formationId.centreId", "nom")
-    .populate("inscriptionId.formationId.categorieId", "nom");
+    .populate("inscriptionId")
+    .populate("apprenantId", "nom prenom");
 
-  const formattedPaiements = paiements.map(formatPaiement);
+  const formationIds = paiements
+    .map(p => p.inscriptionId?.formationId)
+    .filter(id => id);
+
+  const formations = await formationModel.find({ _id: { $in: formationIds } })
+    .populate("centreId", "nom")
+    .populate("categorieId", "nom");
+
+  const formationMap = {};
+  formations.forEach(f => { formationMap[f._id.toString()] = f; });
+
+  const formattedPaiements = paiements.map(p => {
+    const formation = formationMap[p.inscriptionId?.formationId?.toString()];
+    return formatPaiement(p, formation);
+  });
+
   return sendSuccess(res, formattedPaiements, "My payments retrieved successfully");
 });
 
@@ -82,11 +105,8 @@ module.exports.getPaiementById = asyncHandler(async (req, res) => {
   }
 
   const paiement = await paiementModel.findById(req.params.id)
-    .populate("inscriptionId", "formationId statut")
-    .populate("apprenantId", "nom prenom")
-    .populate("inscriptionId.formationId", "titre description prix duree centreId categorieId image")
-    .populate("inscriptionId.formationId.centreId", "nom")
-    .populate("inscriptionId.formationId.categorieId", "nom");
+    .populate("inscriptionId")
+    .populate("apprenantId", "nom prenom");
 
   if (!paiement) {
     return sendError(res, "Payment not found", 404);
@@ -99,7 +119,12 @@ module.exports.getPaiementById = asyncHandler(async (req, res) => {
     return sendError(res, "Access denied.", 403);
   }
 
-  return sendSuccess(res, formatPaiement(paiement), "Payment retrieved successfully");
+  const formationId = paiement.inscriptionId?.formationId;
+  const formation = formationId ? await formationModel.findById(formationId)
+    .populate("centreId", "nom")
+    .populate("categorieId", "nom") : null;
+
+  return sendSuccess(res, formatPaiement(paiement, formation), "Payment retrieved successfully");
 });
 
 // @desc    Create a new payment request
@@ -164,17 +189,18 @@ module.exports.createPaiement = asyncHandler(async (req, res) => {
   }
 
   const populatedPaiement = await paiementModel.findById(newPaiement._id)
-    .populate("inscriptionId", "formationId statut")
-    .populate("apprenantId", "nom prenom")
-    .populate("inscriptionId.formationId", "titre description prix duree centreId categorieId image")
-    .populate("inscriptionId.formationId.centreId", "nom")
-    .populate("inscriptionId.formationId.categorieId", "nom");
+    .populate("inscriptionId")
+    .populate("apprenantId", "nom prenom");
+
+  const populatedFormation = await formationModel.findById(formationId)
+    .populate("centreId", "nom")
+    .populate("categorieId", "nom");
 
   const message = isCardPayment
     ? "Payment confirmed. You now have instant access to the formation. 🎉"
     : "Payment request submitted. Access will be granted once your payment is verified by an admin.";
 
-  return sendSuccess(res, formatPaiement(populatedPaiement), message, 201);
+  return sendSuccess(res, formatPaiement(populatedPaiement, populatedFormation), message, 201);
 });
 
 // @desc    Confirm a payment (Admin/ResponsableCF)
@@ -196,18 +222,20 @@ module.exports.confirmPaiement = asyncHandler(async (req, res) => {
     { statut: "confirme" },
     { new: true }
   )
-    .populate("inscriptionId", "formationId statut")
-    .populate("apprenantId", "nom prenom")
-    .populate("inscriptionId.formationId", "titre description prix duree centreId categorieId image")
-    .populate("inscriptionId.formationId.centreId", "nom")
-    .populate("inscriptionId.formationId.categorieId", "nom");
+    .populate("inscriptionId")
+    .populate("apprenantId", "nom prenom");
 
   await inscriptionModel.findByIdAndUpdate(
     paiement.inscriptionId._id,
     { statut: "acceptee", dateAcceptation: Date.now() }
   );
 
-  return sendSuccess(res, formatPaiement(updatedPaiement), "Payment confirmed. Access granted.");
+  const formationId = updatedPaiement.inscriptionId?.formationId;
+  const formation = formationId ? await formationModel.findById(formationId)
+    .populate("centreId", "nom")
+    .populate("categorieId", "nom") : null;
+
+  return sendSuccess(res, formatPaiement(updatedPaiement, formation), "Payment confirmed. Access granted.");
 });
 
 // @desc    Cancel a payment request
