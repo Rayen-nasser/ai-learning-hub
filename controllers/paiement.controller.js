@@ -1,30 +1,50 @@
+const mongoose = require("mongoose");
 const paiementModel = require("../models/paiement.model");
 const inscriptionModel = require("../models/inscription.model");
 const formationModel = require("../models/formation.model");
 const asyncHandler = require("express-async-handler");
 const { sendSuccess, sendError } = require("../utils/response");
 
-const formatPaiement = (p) => ({
-  _id: p._id,
-  montant: p.montant,
-  methodePaiement: p.methodePaiement,
-  statut: p.statut,
-  createdAt: p.createdAt,
-  inscriptionId: p.inscriptionId?._id,
-  formationId: p.inscriptionId?.formationId?._id || p.inscriptionId?.formationId,
-  formationTitre: p.inscriptionId?.formationId?.titre,
-  apprenantId: p.apprenantId?._id,
-  apprenantNom: p.apprenantId?.nom,
-  apprenantPrenom: p.apprenantId?.prenom,
-});
+const formatPaiement = (p) => {
+  const formation = p.inscriptionId?.formationId;
+  const formationObj = typeof formation === 'object' && formation?._id ? formation : null;
+  
+  return {
+    _id: p._id,
+    montant: p.montant,
+    methodePaiement: p.methodePaiement,
+    statut: p.statut,
+    createdAt: p.createdAt,
+    inscriptionId: p.inscriptionId?._id,
+    inscriptionStatut: p.inscriptionId?.statut,
+    formationId: formationObj?._id || formation,
+    formation: formationObj ? {
+      titre: formationObj.titre,
+      description: formationObj.description,
+      prix: formationObj.prix,
+      duree: formationObj.duree,
+      centreId: formationObj.centreId?._id || formationObj.centreId,
+      centreNom: formationObj.centreId?.nom,
+      categorieId: formationObj.categorieId?._id || formationObj.categorieId,
+      categorieNom: formationObj.categorieId?.nom,
+      image: formationObj.image,
+    } : null,
+    apprenantId: p.apprenantId?._id,
+    apprenantNom: p.apprenantId?.nom,
+    apprenantPrenom: p.apprenantId?.prenom,
+  };
+};
 
 // @desc    Get all payments
 // @route   GET /paiements
 // @access  Private (Admin)
 module.exports.getAllPaiements = asyncHandler(async (req, res) => {
   const paiements = await paiementModel.find()
-    .populate("inscriptionId", "formationId")
-    .populate("apprenantId", "nom prenom");
+    .populate("inscriptionId", "formationId statut")
+    .populate("apprenantId", "nom prenom")
+    .populate("inscriptionId.formationId", "titre description prix duree centreId categorieId image")
+    .populate("inscriptionId.formationId.centreId", "nom")
+    .populate("inscriptionId.formationId.categorieId", "nom");
 
   if (paiements.length === 0) {
     return sendError(res, "No payments found", 404);
@@ -39,8 +59,11 @@ module.exports.getAllPaiements = asyncHandler(async (req, res) => {
 // @access  Private (Apprenant)
 module.exports.getMyPaiements = asyncHandler(async (req, res) => {
   const paiements = await paiementModel.find({ apprenantId: req.user._id })
-    .populate("inscriptionId", "formationId")
-    .populate("apprenantId", "nom prenom");
+    .populate("inscriptionId", "formationId statut")
+    .populate("apprenantId", "nom prenom")
+    .populate("inscriptionId.formationId", "titre description prix duree centreId categorieId image")
+    .populate("inscriptionId.formationId.centreId", "nom")
+    .populate("inscriptionId.formationId.categorieId", "nom");
 
   const formattedPaiements = paiements.map(formatPaiement);
   return sendSuccess(res, formattedPaiements, "My payments retrieved successfully");
@@ -50,9 +73,20 @@ module.exports.getMyPaiements = asyncHandler(async (req, res) => {
 // @route   GET /paiements/:id
 // @access  Private (Owner, Admin, ResponsableCF)
 module.exports.getPaiementById = asyncHandler(async (req, res) => {
+  if (req.params.id === 'my') {
+    return this.getMyPaiements(req, res);
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return sendError(res, "Invalid payment ID format", 400);
+  }
+
   const paiement = await paiementModel.findById(req.params.id)
-    .populate("inscriptionId", "formationId")
-    .populate("apprenantId", "nom prenom");
+    .populate("inscriptionId", "formationId statut")
+    .populate("apprenantId", "nom prenom")
+    .populate("inscriptionId.formationId", "titre description prix duree centreId categorieId image")
+    .populate("inscriptionId.formationId.centreId", "nom")
+    .populate("inscriptionId.formationId.categorieId", "nom");
 
   if (!paiement) {
     return sendError(res, "Payment not found", 404);
@@ -131,7 +165,10 @@ module.exports.createPaiement = asyncHandler(async (req, res) => {
 
   const populatedPaiement = await paiementModel.findById(newPaiement._id)
     .populate("inscriptionId", "formationId statut")
-    .populate("apprenantId", "nom prenom");
+    .populate("apprenantId", "nom prenom")
+    .populate("inscriptionId.formationId", "titre description prix duree centreId categorieId image")
+    .populate("inscriptionId.formationId.centreId", "nom")
+    .populate("inscriptionId.formationId.categorieId", "nom");
 
   const message = isCardPayment
     ? "Payment confirmed. You now have instant access to the formation. 🎉"
@@ -158,7 +195,12 @@ module.exports.confirmPaiement = asyncHandler(async (req, res) => {
     req.params.id,
     { statut: "confirme" },
     { new: true }
-  ).populate("inscriptionId", "formationId").populate("apprenantId", "nom prenom");
+  )
+    .populate("inscriptionId", "formationId statut")
+    .populate("apprenantId", "nom prenom")
+    .populate("inscriptionId.formationId", "titre description prix duree centreId categorieId image")
+    .populate("inscriptionId.formationId.centreId", "nom")
+    .populate("inscriptionId.formationId.categorieId", "nom");
 
   await inscriptionModel.findByIdAndUpdate(
     paiement.inscriptionId._id,
