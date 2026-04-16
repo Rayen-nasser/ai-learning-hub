@@ -2,8 +2,12 @@ const mongoose = require("mongoose");
 const paiementModel = require("../models/paiement.model");
 const inscriptionModel = require("../models/inscription.model");
 const formationModel = require("../models/formation.model");
+const userModel = require("../models/user.model");
+const centreFormationModel = require("../models/centreFormation.model");
 const asyncHandler = require("express-async-handler");
 const { sendSuccess, sendError } = require("../utils/response");
+const { sendPaymentPendingNotification, sendPaymentConfirmedNotification } = require("../services/email.service");
+const { createNotification } = require("./notification.controller");
 
 const formatPaiement = (p, formation) => {
   const formationObj = formation || (p.inscriptionId?.formationId?._id ? p.inscriptionId.formationId : null);
@@ -196,6 +200,28 @@ module.exports.createPaiement = asyncHandler(async (req, res) => {
     .populate("centreId", "nom")
     .populate("categorieId", "nom");
 
+  // ── Send notifications for pending payments (virement/especes)
+  if (!isCardPayment) {
+    // Find responsableCF of the formation's centre
+    const centre = await centreFormationModel.findById(formation.centreId);
+    if (centre?.responsableId) {
+      const responsable = await userModel.findById(centre.responsableId).select("nom prenom email");
+      
+      // Create in-app notification
+      await createNotification({
+        userId: responsable._id,
+        type: "paiement_pending",
+        title: "Nouveau paiement en attente",
+        message: `Un nouveau paiement de ${req.user.prenom} ${req.user.nom} pour "${populatedFormation.titre}" (${formation.prix} TND) nécessite votre vérification.`,
+        relatedId: newPaiement._id,
+        relatedModel: "Paiement",
+      });
+
+      // Send email notification
+      await sendPaymentPendingNotification(responsable, newPaiement, populatedFormation, req.user);
+    }
+  }
+
   const message = isCardPayment
     ? "Payment confirmed. You now have instant access to the formation. 🎉"
     : "Payment request submitted. Access will be granted once your payment is verified by an admin.";
@@ -234,6 +260,21 @@ module.exports.confirmPaiement = asyncHandler(async (req, res) => {
   const formation = formationId ? await formationModel.findById(formationId)
     .populate("centreId", "nom")
     .populate("categorieId", "nom") : null;
+
+  // Notify the apprenant that their payment is confirmed
+  const apprenant = await userModel.findById(updatedPaiement.apprenantId?._id || updatedPaiement.apprenantId).select("nom prenom email");
+  if (apprenant) {
+    await createNotification({
+      userId: apprenant._id,
+      type: "paiement_confirmed",
+      title: "Paiement confirmé",
+      message: `Votre paiement pour "${formation?.titre}" a été confirmé. Vous avez maintenant accès à la formation.`,
+      relatedId: updatedPaiement._id,
+      relatedModel: "Paiement",
+    });
+
+    await sendPaymentConfirmedNotification(apprenant, updatedPaiement, formation);
+  }
 
   return sendSuccess(res, formatPaiement(updatedPaiement, formation), "Payment confirmed. Access granted.");
 });
