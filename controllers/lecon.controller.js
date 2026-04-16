@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const leconModel = require("../models/lecon.model");
 const inscriptionModel = require("../models/inscription.model");
 const formationModel = require("../models/formation.model");
@@ -73,6 +74,9 @@ module.exports.getLecons = async (req, res) => {
     let query = {};
 
     if (formationId) {
+      if (!mongoose.Types.ObjectId.isValid(formationId)) {
+        return res.status(400).json({ message: "Invalid formationId format" });
+      }
       const formation = await formationModel.findById(formationId);
       if (!formation) {
         return res.status(404).json({ message: "Formation not found" });
@@ -120,6 +124,9 @@ module.exports.getLecons = async (req, res) => {
 
 module.exports.getLeconById = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid lesson ID format" });
+    }
     const lecon = await leconModel.findById(req.params.id)
       .populate("formationId", "titre description prix duree")
       .populate("formateurId", "nom prenom");

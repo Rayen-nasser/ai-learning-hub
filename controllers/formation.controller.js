@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const formationModel = require("../models/formation.model");
 const centreFormationModel = require("../models/centreFormation.model");
 const categorieModel = require("../models/categorie.model");
@@ -66,6 +67,10 @@ module.exports.getAllFormations = asyncHandler(async (req, res) => {
 // @route   GET /formations/:id
 // @access  Public
 module.exports.getFormationById = asyncHandler(async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return sendError(res, "Invalid formation ID format", 400);
+  }
+
   const formation = await formationModel
     .findById(req.params.id)
     .populate("centreId")
