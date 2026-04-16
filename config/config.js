@@ -12,6 +12,16 @@ const config = {
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
   baseUrl: process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`,
   
+  // Email configuration
+  email: {
+    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.EMAIL_PORT) || 587,
+    secure: process.env.EMAIL_SECURE === 'true',
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+    fromName: process.env.EMAIL_FROM_NAME || 'Formation Center',
+  },
+  
   // Rate limiting config
   rateLimit: {
     windowMs: 15 * 60 * 1000, // 15 minutes
