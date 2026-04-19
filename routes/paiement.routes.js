@@ -141,7 +141,7 @@ router.get('/:id', requireAuth, paiementController.getPaiementById);
  * @swagger
  * /paiements/{id}/confirm:
  *   put:
- *     summary: Confirm payment (after successful payment)
+ *     summary: Confirm payment (ResponsableCF only - for their centre's payments)
  *     tags: [Paiements]
  *     security:
  *       - bearerAuth: []
@@ -158,16 +158,18 @@ router.get('/:id', requireAuth, paiementController.getPaiementById);
  *         description: Payment already confirmed
  *       401:
  *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - ResponsableCF only
  *       404:
  *         description: Payment not found
  */
-router.put('/:id/confirm', requireAuth, paiementController.confirmPaiement);
+router.put('/:id/confirm', requireAuth, requireRole('responsableCF'), paiementController.confirmPaiement);
 
 /**
  * @swagger
  * /paiements/{id}/cancel:
  *   put:
- *     summary: Cancel a pending payment
+ *     summary: Cancel own pending payment (user only - their own pending payments)
  *     tags: [Paiements]
  *     security:
  *       - bearerAuth: []
@@ -181,38 +183,14 @@ router.put('/:id/confirm', requireAuth, paiementController.confirmPaiement);
  *       200:
  *         description: Payment cancelled
  *       400:
- *         description: Cannot cancel confirmed payment
+ *         description: Cannot cancel confirmed payment or not owner
  *       401:
  *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Only owner can cancel
  *       404:
  *         description: Payment not found
  */
 router.put('/:id/cancel', requireAuth, paiementController.cancelPaiement);
-
-/**
- * @swagger
- * /paiements/{id}:
- *   delete:
- *     summary: Delete a payment
- *     tags: [Paiements]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Payment deleted
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - Admin only
- *       404:
- *         description: Payment not found
- */
-router.delete('/:id', requireAuth, requireRole('admin'), paiementController.deletePaiement);
 
 module.exports = router;

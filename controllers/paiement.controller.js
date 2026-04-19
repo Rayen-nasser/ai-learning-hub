@@ -229,9 +229,9 @@ module.exports.createPaiement = asyncHandler(async (req, res) => {
   return sendSuccess(res, formatPaiement(populatedPaiement, populatedFormation), message, 201);
 });
 
-// @desc    Confirm a payment (Admin/ResponsableCF)
+// @desc    Confirm a payment (ResponsableCF only - for their centre's payments)
 // @route   POST /paiements/confirm/:id
-// @access  Private (Admin, ResponsableCF)
+// @access  Private (ResponsableCF)
 module.exports.confirmPaiement = asyncHandler(async (req, res) => {
   const paiement = await paiementModel.findById(req.params.id).populate("inscriptionId");
   
@@ -241,6 +241,20 @@ module.exports.confirmPaiement = asyncHandler(async (req, res) => {
 
   if (paiement.statut === "confirme") {
     return sendError(res, "Payment already confirmed", 400);
+  }
+
+  // Check if ResponsableCF owns this formation's centre
+  const formationId = paiement.inscriptionId?.formationId;
+  if (formationId) {
+    const formation = await formationModel.findById(formationId).populate("centreId");
+    if (!formation?.centreId?.responsableId) {
+      return sendError(res, "Formation has no responsable assigned", 400);
+    }
+
+    const isResponsableOfCentre = formation.centreId.responsableId.toString() === req.user._id.toString();
+    if (!isResponsableOfCentre) {
+      return sendError(res, "You can only confirm payments for your own centre's formations", 403);
+    }
   }
 
   const updatedPaiement = await paiementModel.findByIdAndUpdate(
@@ -279,9 +293,9 @@ module.exports.confirmPaiement = asyncHandler(async (req, res) => {
   return sendSuccess(res, formatPaiement(updatedPaiement, formation), "Payment confirmed. Access granted.");
 });
 
-// @desc    Cancel a payment request
-// @route   DELETE /paiements/cancel/:id
-// @access  Private (Owner, Admin)
+// @desc    Cancel own pending payment
+// @route   PUT /paiements/cancel/:id
+// @access  Private (Owner only)
 module.exports.cancelPaiement = asyncHandler(async (req, res) => {
   const paiement = await paiementModel.findById(req.params.id);
   
@@ -289,22 +303,27 @@ module.exports.cancelPaiement = asyncHandler(async (req, res) => {
     return sendError(res, "Payment not found", 404);
   }
 
+  // Only owner can cancel their own payment
+  const isOwner = paiement.apprenantId.toString() === req.user._id.toString();
+  if (!isOwner) {
+    return sendError(res, "You can only cancel your own payments", 403);
+  }
+
   if (paiement.statut === "confirme") {
     return sendError(res, "Cannot cancel a confirmed payment", 400);
   }
 
+  // Delete the payment and set inscription back to pending
   await paiementModel.findByIdAndDelete(req.params.id);
+  
+  // Optionally: Could update inscription back to en_attente or delete it
+  // For now, we leave the inscription as is
+  
   return sendSuccess(res, null, "Payment cancelled successfully");
 });
 
-// @desc    Hard delete a payment record (Admin)
-// @route   DELETE /paiements/:id
-// @access  Private (Admin)
+// Note: Delete payment endpoint removed - payments should never be deleted for audit trail
 module.exports.deletePaiement = asyncHandler(async (req, res) => {
-  const deletedPaiement = await paiementModel.findByIdAndDelete(req.params.id);
-  if (!deletedPaiement) {
-    return sendError(res, "Payment not found", 404);
-  }
-  return sendSuccess(res, null, "Payment deleted successfully");
+  return sendError(res, "Payments cannot be deleted. Contact support if needed.", 403);
 });
 
