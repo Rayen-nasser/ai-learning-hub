@@ -24,19 +24,118 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
 
 // ───────── ROUTES ─────────
 
-// GET /inscriptions - Get all inscriptions (responsableCF only)
+/**
+ * @swagger
+ * /inscriptions:
+ *   get:
+ *     summary: Get all inscriptions (responsableCF only)
+ *     tags: [Inscriptions]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of inscriptions
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - ResponsableCF only
+ */
 router.get('/', requireAuth, requireRole('responsableCF'), inscriptionController.getAllInscriptions);
 
-// GET /inscriptions/me - Get my inscriptions (logged-in user)
+/**
+ * @swagger
+ * /inscriptions/me:
+ *   get:
+ *     summary: Get my inscriptions (logged-in user)
+ *     tags: [Inscriptions]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of my inscriptions
+ *       401:
+ *         description: Unauthorized
+ */
 router.get('/me', requireAuth, inscriptionController.getMyInscriptions);
 
-// POST /inscriptions - Create inscription (enroll in formation)
+/**
+ * @swagger
+ * /inscriptions:
+ *   post:
+ *     summary: Create inscription (enroll in formation)
+ *     tags: [Inscriptions]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - formationId
+ *             properties:
+ *               formationId:
+ *                 type: string
+ *                 description: Formation ID
+ *     responses:
+ *       201:
+ *         description: Inscription created
+ *       400:
+ *         description: Already enrolled or formation not found
+ *       401:
+ *         description: Unauthorized
+ */
 router.post('/', requireAuth, inscriptionController.createInscription);
 
-// GET /inscriptions/:id - Get inscription by ID
+/**
+ * @swagger
+ * /inscriptions/{id}:
+ *   get:
+ *     summary: Get inscription by ID
+ *     tags: [Inscriptions]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Inscription details
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Inscription not found
+ */
 router.get('/:id', requireAuth, inscriptionController.getInscriptionById);
 
-// DELETE /inscriptions/:id - Delete inscription
+/**
+ * @swagger
+ * /inscriptions/{id}:
+ *   delete:
+ *     summary: Delete inscription (admin only)
+ *     tags: [Inscriptions]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Inscription deleted
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin only
+ *       404:
+ *         description: Inscription not found
+ */
 router.delete('/:id', requireAuth, requireRole('admin'), inscriptionController.deleteInscription);
 
 module.exports = router;
