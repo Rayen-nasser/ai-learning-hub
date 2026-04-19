@@ -6,11 +6,11 @@
 
 ### 1. Payment Methods & Access
 
-| Method | Payment Status | Can Study? | Who Confirms |
-|--------|---------------|------------|--------------|
-| **Card (`carte`)** | ✅ Confirmed instantly | ✅ Yes immediately | Auto (system) |
-| **Transfer (`virement`)** | ⏳ Pending | ❌ No | ResponsableCF only |
-| **Cash (`especes`)** | ⏳ Pending | ❌ No | ResponsableCF only |
+| Method | Payment Status | Can See Lessons | Can See Content | Who Confirms |
+|--------|---------------|------------|------------|-----------------|--------------|
+| **Card (`carte`)** | ✅ Confirmed instantly | ✅ Yes | ✅ Yes | Auto (system) |
+| **Transfer (`virement`)** | ⏳ Pending | ❌ No | ❌ No | ResponsableCF only |
+| **Cash (`especes`)** | ⏳ Pending | ❌ No | ❌ No | ResponsableCF only |
 
 ---
 
