@@ -244,14 +244,14 @@ module.exports.confirmPaiement = asyncHandler(async (req, res) => {
   }
 
   // Check if ResponsableCF owns this formation's centre
-  const formationId = paiement.inscriptionId?.formationId;
-  if (formationId) {
-    const formation = await formationModel.findById(formationId).populate("centreId");
-    if (!formation?.centreId?.responsableId) {
+  const checkFormationId = paiement.inscriptionId?.formationId;
+  if (checkFormationId) {
+    const checkFormation = await formationModel.findById(checkFormationId).populate("centreId");
+    if (!checkFormation?.centreId?.responsableId) {
       return sendError(res, "Formation has no responsable assigned", 400);
     }
 
-    const isResponsableOfCentre = formation.centreId.responsableId.toString() === req.user._id.toString();
+    const isResponsableOfCentre = checkFormation.centreId.responsableId.toString() === req.user._id.toString();
     if (!isResponsableOfCentre) {
       return sendError(res, "You can only confirm payments for your own centre's formations", 403);
     }
@@ -270,8 +270,8 @@ module.exports.confirmPaiement = asyncHandler(async (req, res) => {
     { statut: "acceptee", dateAcceptation: Date.now() }
   );
 
-  const formationId = updatedPaiement.inscriptionId?.formationId;
-  const formation = formationId ? await formationModel.findById(formationId)
+  const confirmedFormationId = updatedPaiement.inscriptionId?.formationId;
+  const confirmedFormation = confirmedFormationId ? await formationModel.findById(confirmedFormationId)
     .populate("centreId", "nom")
     .populate("categorieId", "nom") : null;
 
@@ -282,15 +282,15 @@ module.exports.confirmPaiement = asyncHandler(async (req, res) => {
       userId: apprenant._id,
       type: "paiement_confirmed",
       title: "Paiement confirmé",
-      message: `Votre paiement pour "${formation?.titre}" a été confirmé. Vous avez maintenant accès à la formation.`,
+      message: `Votre paiement pour "${confirmedFormation?.titre}" a été confirmé. Vous avez maintenant accès à la formation.`,
       relatedId: updatedPaiement._id,
       relatedModel: "Paiement",
     });
 
-    await sendPaymentConfirmedNotification(apprenant, updatedPaiement, formation);
+    await sendPaymentConfirmedNotification(apprenant, updatedPaiement, confirmedFormation);
   }
 
-  return sendSuccess(res, formatPaiement(updatedPaiement, formation), "Payment confirmed. Access granted.");
+  return sendSuccess(res, formatPaiement(updatedPaiement, confirmedFormation), "Payment confirmed. Access granted.");
 });
 
 // @desc    Cancel own pending payment
