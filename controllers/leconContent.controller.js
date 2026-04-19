@@ -1,6 +1,8 @@
 const leconContentModel = require("../models/leconContent.model");
 const leconModel = require("../models/lecon.model");
 const formationModel = require("../models/formation.model");
+const inscriptionModel = require("../models/inscription.model");
+const paiementModel = require("../models/paiement.model");
 const config = require("../config/config");
 
 const isFormateurAssigned = async (userId, formationId) => {
@@ -21,6 +23,42 @@ const checkFormateurAccess = async (leconId, user) => {
     
     if (lecon.formationId) {
       return await isFormateurAssigned(user._id, lecon.formationId);
+    }
+  }
+  
+  return false;
+};
+
+const checkApprenantAccess = async (lecon, user) => {
+  // Admin and Formateur always have access
+  if (user.role === 'admin' || user.role === 'formateur') return true;
+  
+  // Check if user is the formateur of this lesson
+  if (lecon.formateurId && lecon.formateurId.toString() === user._id.toString()) return true;
+  
+  // Check if formateur is assigned to the formation
+  if (user.role === 'formateur' && lecon.formationId) {
+    const assigned = await isFormateurAssigned(user._id, lecon.formationId);
+    if (assigned) return true;
+  }
+  
+  // Check if user has paid and confirmed inscription
+  if (lecon.formationId) {
+    const formationId = lecon.formationId._id || lecon.formationId;
+    
+    const inscription = await inscriptionModel.findOne({
+      apprenantId: user._id,
+      formationId: formationId,
+      statut: "acceptee"
+    });
+    
+    if (inscription) {
+      const paiement = await paiementModel.findOne({
+        inscriptionId: inscription._id,
+        statut: "confirme"
+      });
+      
+      if (paiement) return true;
     }
   }
   
@@ -56,6 +94,12 @@ module.exports.getContentsByLecon = async (req, res) => {
       return res.status(404).json({ message: "Lesson not found" });
     }
 
+    // Check access - only if paid and confirmed
+    const hasAccess = await checkApprenantAccess(lecon, req.user);
+    if (!hasAccess) {
+      return res.status(403).json({ message: "Access denied. Please complete your payment to access this content." });
+    }
+
     const contents = await leconContentModel.find({ leconId })
       .sort({ order: 1, createdAt: 1 });
 
@@ -71,6 +115,16 @@ module.exports.getContentById = async (req, res) => {
     if (!content) {
       return res.status(404).json({ message: "Content not found" });
     }
+
+    // Get the lesson to check access
+    const lecon = await leconModel.findById(content.leconId);
+    
+    // Check access - only if paid and confirmed
+    const hasAccess = await checkApprenantAccess(lecon, req.user);
+    if (!hasAccess) {
+      return res.status(403).json({ message: "Access denied. Please complete your payment to access this content." });
+    }
+
     res.status(200).json({ data: formatContent(content) });
   } catch (error) {
     res.status(500).json({ error: error.message });

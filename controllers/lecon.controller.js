@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const leconModel = require("../models/lecon.model");
 const inscriptionModel = require("../models/inscription.model");
+const paiementModel = require("../models/paiement.model");
 const formationModel = require("../models/formation.model");
 const userModel = require("../models/user.model");
 const leconContentModel = require("../models/leconContent.model");
@@ -35,13 +36,24 @@ const checkAccess = async (lecon, user) => {
 
   if (leconObj.formationId) {
     const formationId = leconObj.formationId._id || leconObj.formationId;
+    
+    // Check if user has accepted inscription
     const inscription = await inscriptionModel.findOne({
       apprenantId: user._id,
       formationId: formationId,
-      statut: "acceptée"
+      statut: "acceptee"
     });
+    
     if (inscription) {
-      return { hasAccess: true, role: 'apprenant' };
+      // Check if payment is confirmed
+      const paiement = await paiementModel.findOne({
+        inscriptionId: inscription._id,
+        statut: "confirme"
+      });
+      
+      if (paiement) {
+        return { hasAccess: true, role: 'apprenant' };
+      }
     }
   }
 
