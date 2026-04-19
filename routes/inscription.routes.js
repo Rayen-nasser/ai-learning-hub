@@ -114,9 +114,9 @@ router.get('/:id', requireAuth, inscriptionController.getInscriptionById);
 
 /**
  * @swagger
- * /inscriptions/{id}:
- *   delete:
- *     summary: Delete inscription (admin only)
+ * /inscriptions/cancel/{id}:
+ *   put:
+ *     summary: Cancel own pending inscription
  *     tags: [Inscriptions]
  *     security:
  *       - bearerAuth: []
@@ -128,14 +128,42 @@ router.get('/:id', requireAuth, inscriptionController.getInscriptionById);
  *           type: string
  *     responses:
  *       200:
- *         description: Inscription deleted
+ *         description: Inscription cancelled
+ *       400:
+ *         description: Cannot cancel accepted/rejected inscription
  *       401:
  *         description: Unauthorized
  *       403:
- *         description: Forbidden - Admin only
+ *         description: Forbidden - Only owner can cancel
  *       404:
  *         description: Inscription not found
  */
-router.delete('/:id', requireAuth, requireRole('admin'), inscriptionController.deleteInscription);
+router.put('/cancel/:id', requireAuth, inscriptionController.cancelInscription);
+
+/**
+ * @swagger
+ * /inscriptions/reject/{id}:
+ *   put:
+ *     summary: Reject inscription (ResponsableCF only - for their centre)
+ *     tags: [Inscriptions]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Inscription rejected
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - ResponsableCF only
+ *       404:
+ *         description: Inscription not found
+ */
+router.put('/reject/:id', requireAuth, requireRole('responsableCF'), inscriptionController.rejectInscription);
 
 module.exports = router;

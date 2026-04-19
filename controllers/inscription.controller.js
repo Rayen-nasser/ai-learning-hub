@@ -91,7 +91,7 @@ module.exports.createInscription = async (req, res) => {
       apprenantId, 
       formationId,
       statut,
-      dateAcceptation: statut === "acceptée" ? Date.now() : null,
+      dateAcceptation: statut === "acceptee" ? Date.now() : null,
     });
     await newInscription.save();
 
@@ -111,12 +111,68 @@ module.exports.createInscription = async (req, res) => {
 };
 
 module.exports.deleteInscription = async (req, res) => {
+  // Inscriptions cannot be deleted - maintains audit trail
+  return res.status(403).json({ message: "Inscriptions cannot be deleted. Contact support if needed." });
+};
+
+// @desc    User cancels own pending inscription
+// @route   PUT /inscriptions/cancel/:id
+// @access  Private (Owner only)
+module.exports.cancelInscription = async (req, res) => {
   try {
-    const deletedInscription = await inscriptionModel.findByIdAndDelete(req.params.id);
-    if (!deletedInscription) {
+    const inscription = await inscriptionModel.findById(req.params.id);
+    if (!inscription) {
       return res.status(404).json({ message: "Inscription not found" });
     }
-    res.status(200).json({ message: "Inscription deleted successfully" });
+
+    // Only owner can cancel
+    const isOwner = inscription.apprenantId.toString() === req.user._id.toString();
+    if (!isOwner) {
+      return res.status(403).json({ message: "You can only cancel your own inscriptions" });
+    }
+
+    // Can only cancel if still pending
+    if (inscription.statut !== "en_attente") {
+      return res.status(400).json({ message: "Cannot cancel an accepted or rejected inscription" });
+    }
+
+    await inscriptionModel.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "Inscription cancelled successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// @desc    ResponsableCF rejects inscription for their centre
+// @route   PUT /inscriptions/reject/:id
+// @access  Private (ResponsableCF only)
+module.exports.rejectInscription = async (req, res) => {
+  try {
+    const inscription = await inscriptionModel.findById(req.params.id)
+      .populate("formationId");
+    
+    if (!inscription) {
+      return res.status(404).json({ message: "Inscription not found" });
+    }
+
+    // Check if the ResponsableCF owns this centre
+    const formation = await formationModel.findById(inscription.formationId._id).populate("centreId");
+    if (!formation?.centreId?.responsableId) {
+      return res.status(403).json({ message: "This formation has no responsable assigned" });
+    }
+
+    const isResponsable = formation.centreId.responsableId.toString() === req.user._id.toString();
+    if (!isResponsable) {
+      return res.status(403).json({ message: "You can only reject inscriptions for your own centre's formations" });
+    }
+
+    // Update to rejected (soft delete - maintains audit trail)
+    await inscriptionModel.findByIdAndUpdate(req.params.id, {
+      statut: "refusee",
+      dateAcceptation: Date.now()
+    });
+
+    res.status(200).json({ message: "Inscription rejected successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
