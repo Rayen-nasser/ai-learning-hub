@@ -177,3 +177,43 @@ module.exports.rejectInscription = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// @desc    ResponsableCF reactivates rejected inscription for their centre
+// @route   PUT /inscriptions/reactivate/:id
+// @access  Private (ResponsableCF only)
+module.exports.reactivateInscription = async (req, res) => {
+  try {
+    const inscription = await inscriptionModel.findById(req.params.id)
+      .populate("formationId");
+    
+    if (!inscription) {
+      return res.status(404).json({ message: "Inscription not found" });
+    }
+
+    // Check if the ResponsableCF owns this centre
+    const formation = await formationModel.findById(inscription.formationId._id).populate("centreId");
+    if (!formation?.centreId?.responsableId) {
+      return res.status(403).json({ message: "This formation has no responsable assigned" });
+    }
+
+    const isResponsable = formation.centreId.responsableId.toString() === req.user._id.toString();
+    if (!isResponsable) {
+      return res.status(403).json({ message: "You can only reactivate inscriptions for your own centre's formations" });
+    }
+
+    // Can only reactivate if rejected
+    if (inscription.statut !== "refusee") {
+      return res.status(400).json({ message: "Can only reactivate rejected inscriptions" });
+    }
+
+    // Update back to accepted
+    await inscriptionModel.findByIdAndUpdate(req.params.id, {
+      statut: "acceptee",
+      dateAcceptation: Date.now()
+    });
+
+    res.status(200).json({ message: "Inscription reactivated successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

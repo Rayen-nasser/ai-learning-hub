@@ -166,4 +166,32 @@ router.put('/cancel/:id', requireAuth, inscriptionController.cancelInscription);
  */
 router.put('/reject/:id', requireAuth, requireRole('responsableCF'), inscriptionController.rejectInscription);
 
+/**
+ * @swagger
+ * /inscriptions/reactivate/{id}:
+ *   put:
+ *     summary: Reactivate rejected inscription (ResponsableCF only - for their centre)
+ *     tags: [Inscriptions]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Inscription reactivated
+ *       400:
+ *         description: Can only reactivate rejected inscriptions
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - ResponsableCF only
+ *       404:
+ *         description: Inscription not found
+ */
+router.put('/reactivate/:id', requireAuth, requireRole('responsableCF'), inscriptionController.reactivateInscription);
+
 module.exports = router;
