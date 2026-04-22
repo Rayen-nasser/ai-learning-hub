@@ -15,12 +15,17 @@ const formatInscription = (i) => ({
 
 module.exports.getAllInscriptions = async (req, res) => {
   try {
-    const inscriptions = await inscriptionModel.find()
+    // Get formations owned by this ResponsableCF
+    const formations = await formationModel.find({ 'centreId.responsableId': req.user._id }).select("_id");
+    const formationIds = formations.map(f => f._id);
+
+    // Find inscriptions only for these formations
+    const inscriptions = await inscriptionModel.find({ formationId: { $in: formationIds } })
       .populate("apprenantId", "nom prenom")
       .populate("formationId", "titre");
 
     if (inscriptions.length === 0) {
-      return res.status(404).json({ message: "No inscriptions found" });
+      return res.status(404).json({ message: "No inscriptions found for your centre" });
     }
 
     const formattedInscriptions = inscriptions.map(formatInscription);
