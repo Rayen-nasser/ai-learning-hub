@@ -203,6 +203,24 @@ router.get('/my-assignments', requireAuth, formationController.getMyAssignments)
 
 /**
  * @swagger
+ * /formations/my-centre:
+ *   get:
+ *     summary: Get formations for ResponsableCF's own centre
+ *     tags: [Formations]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of formations for the user's centre
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Only responsableCF can access this endpoint
+ */
+router.get('/my-centre', requireAuth, requireRole('responsableCF'), formationController.getMyCentreFormations);
+
+/**
+ * @swagger
  * /formations:
  *   post:
  *     summary: Create a new formation

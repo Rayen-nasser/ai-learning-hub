@@ -282,3 +282,28 @@ module.exports.getMyAssignments = asyncHandler(async (req, res) => {
   const sanitizedFormations = formations.map(sanitizeFormation);
   return sendSuccess(res, sanitizedFormations, "My assignments retrieved successfully");
 });
+
+// @desc    Get formations for ResponsableCF's own centre
+// @route   GET /formations/my-centre
+// @access  Private (responsableCF only)
+module.exports.getMyCentreFormations = asyncHandler(async (req, res) => {
+  if (req.user.role !== 'responsableCF') {
+    return sendError(res, "Only responsableCF can access this endpoint", 403);
+  }
+
+  // Find the centre owned by this ResponsableCF
+  const centre = await centreFormationModel.findOne({ responsableId: req.user._id });
+  if (!centre) {
+    return sendError(res, "You don't have any centre assigned", 404);
+  }
+
+  // Get formations for this centre only
+  const formations = await formationModel
+    .find({ centreId: centre._id })
+    .populate("centreId")
+    .populate("categorieId")
+    .populate("formateurIds", "nom prenom email role user_image");
+
+  const sanitizedFormations = formations.map(sanitizeFormation);
+  return sendSuccess(res, sanitizedFormations, "Your centre formations retrieved successfully");
+});
