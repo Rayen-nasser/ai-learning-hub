@@ -53,6 +53,15 @@ const { uploadSingle } = require('../middlewares/uploadfile');
  *                 type: string
  *               email:
  *                 type: string
+ *         requiredSkills:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               _id:
+ *                 type: string
+ *               name:
+ *                 type: string
  *         createdAt:
  *           type: string
  *           format: date-time
@@ -266,6 +275,12 @@ router.get('/my-centre', requireAuth, requireRole('responsableCF'), formationCon
  *                 type: string
  *                 description: Category ID
  *                 example: "507f1f77bcf86cd799439012"
+ *               requiredSkills:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Array of skill IDs required for this formation
+ *                 example: ["60d5ec186634842d50e8f771", "60d5ec186634842d50e8f772"]
  *               image:
  *                 type: string
  *                 format: binary
@@ -354,6 +369,11 @@ router.get('/:id', formationController.getFormationById);
  *               duree:
  *                 type: number
  *                 description: Duration in hours
+ *               requiredSkills:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Array of skill IDs required for this formation
  *               image:
  *                 type: string
  *                 format: binary

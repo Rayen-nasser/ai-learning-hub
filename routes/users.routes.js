@@ -33,6 +33,33 @@ const { requireAuth } = require('../middlewares/authMiddleware');
  *         user_image:
  *           type: string
  *           description: Profile image URL
+ *         niveauEtude:
+ *           type: string
+ *         dateNaissance:
+ *           type: string
+ *           format: date
+ *         adresse:
+ *           type: string
+ *         specialite:
+ *           type: string
+ *         experience:
+ *           type: number
+ *         statut:
+ *           type: string
+ *           enum: [actif, inactif]
+ *         centreIds:
+ *           type: array
+ *           items:
+ *             type: string
+ *         skills:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               _id:
+ *                 type: string
+ *               name:
+ *                 type: string
  */
 
 // ───────── PUBLIC ROUTES ─────────
@@ -65,6 +92,14 @@ const { requireAuth } = require('../middlewares/authMiddleware');
  *                 type: string
  *               telephone:
  *                 type: string
+ *               skills:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               centreIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *     responses:
  *       201:
  *         description: User registered successfully
@@ -104,6 +139,14 @@ router.post("/register", userController.createUser);
  *               user_image:
  *                 type: string
  *                 format: binary
+ *               skills:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               centreIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *     responses:
  *       201:
  *         description: User registered successfully
@@ -322,6 +365,27 @@ router.get("/:id", requireAuth, userController.getUserById);
  *               user_image:
  *                 type: string
  *                 format: binary
+ *               niveauEtude:
+ *                 type: string
+ *               dateNaissance:
+ *                 type: string
+ *                 format: date
+ *               adresse:
+ *                 type: string
+ *               specialite:
+ *                 type: string
+ *               experience:
+ *                 type: number
+ *               statut:
+ *                 type: string
+ *               skills:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               centreIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *     responses:
  *       200:
  *         description: User updated
