@@ -1,6 +1,7 @@
 const userModel = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const { parseJsonIfString } = require("../utils/parser");
+const { validateUser } = require("../validations/user.validation");
 
 const maxage = 3 * 24 * 60 * 60;
 const secretKey = process.env.JWT_SECRET;
@@ -110,6 +111,11 @@ module.exports.createUser = async (req, res) => {
       return res.status(400).json({ message: "Email already registered" });
     }
 
+    const { error } = validateUser(req.body);
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message, details: error.details });
+    }
+
     const newUser = new userModel({
       nom: nom || firstName,
       prenom: prenom || lastName,
@@ -161,6 +167,11 @@ module.exports.createUserWithImage = async (req, res) => {
     const existingUser = await userModel.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "Email already registered" });
+    }
+
+    const { error } = validateUser(req.body);
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message, details: error.details });
     }
 
     const newUser = new userModel({
@@ -216,6 +227,12 @@ module.exports.updateUser = async (req, res) => {
 
     if (req.file) {
       updates.user_image = `${req.file.folder}/${req.file.filename}`;
+    }
+
+    // Validate updates
+    const { error } = validateUser(updates);
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message, details: error.details });
     }
 
     if (Object.keys(updates).length === 0) {
