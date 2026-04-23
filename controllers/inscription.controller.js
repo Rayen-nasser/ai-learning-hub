@@ -1,5 +1,6 @@
 const inscriptionModel = require("../models/inscription.model");
 const formationModel = require("../models/formation.model");
+const centreFormationModel = require("../models/centreFormation.model");
 
 const formatInscription = (i) => ({
   _id: i._id,
@@ -16,7 +17,9 @@ const formatInscription = (i) => ({
 module.exports.getAllInscriptions = async (req, res) => {
   try {
     // Get formations owned by this ResponsableCF
-    const formations = await formationModel.find({ 'centreId.responsableId': req.user._id }).select("_id");
+    const centres = await centreFormationModel.find({ responsableId: req.user._id }).select("_id");
+    const centreIds = centres.map(c => c._id);
+    const formations = await formationModel.find({ centreId: { $in: centreIds } }).select("_id");
     const formationIds = formations.map(f => f._id);
 
     // Find inscriptions only for these formations
