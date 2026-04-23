@@ -5,6 +5,7 @@ const categorieModel = require("../models/categorie.model");
 const userModel = require("../models/user.model");
 const asyncHandler = require("express-async-handler");
 const { sendSuccess, sendError } = require("../utils/response");
+const { parseJsonIfString } = require("../utils/parser");
 const config = require("../config/config");
 
 const sanitizeFormation = (f) => {
@@ -56,6 +57,7 @@ module.exports.getAllFormations = asyncHandler(async (req, res) => {
     .find(query)
     .populate("centreId")
     .populate("categorieId")
+    .populate("requiredSkills")
     .populate("formateurIds", "nom prenom email role user_image");
 
   const sanitizedFormations = formations.map(sanitizeFormation);
@@ -75,6 +77,7 @@ module.exports.getFormationById = asyncHandler(async (req, res) => {
     .findById(req.params.id)
     .populate("centreId")
     .populate("categorieId")
+    .populate("requiredSkills")
     .populate("formateurIds", "nom prenom email role user_image");
 
   if (!formation) {
@@ -88,7 +91,7 @@ module.exports.getFormationById = asyncHandler(async (req, res) => {
 // @route   POST /formations
 // @access  Private (responsableCF, admin)
 module.exports.createFormation = asyncHandler(async (req, res) => {
-  const { titre, description, prix, duree, centreId, categorieId } = req.body;
+  const { titre, description, prix, duree, centreId, categorieId, requiredSkills } = req.body;
 
   if (centreId) {
     const centre = await centreFormationModel.findById(centreId);
@@ -108,14 +111,16 @@ module.exports.createFormation = asyncHandler(async (req, res) => {
   }
 
   const image = req.file ? `${req.file.folder}/${req.file.filename}` : undefined;
-
-  const newFormation = new formationModel({ titre, description, prix, duree, centreId, categorieId, image });
+  const skillsArray = parseJsonIfString(requiredSkills);
+  
+  const newFormation = new formationModel({ titre, description, prix, duree, centreId, categorieId, image, requiredSkills: skillsArray });
   await newFormation.save();
 
   const populated = await formationModel
     .findById(newFormation._id)
     .populate("centreId")
-    .populate("categorieId");
+    .populate("categorieId")
+    .populate("requiredSkills");
 
   return sendSuccess(res, sanitizeFormation(populated), "Formation created successfully", 201);
 });
@@ -136,12 +141,15 @@ module.exports.updateFormation = asyncHandler(async (req, res) => {
     return sendError(res, "Access denied. You can only update formations of your own centres.", 403);
   }
 
-  const { titre, description, prix, duree } = req.body;
+  const { titre, description, prix, duree, requiredSkills } = req.body;
   const updates = {};
   if (titre)                 updates.titre       = titre;
   if (description !== undefined) updates.description = description;
   if (prix        !== undefined) updates.prix        = prix;
   if (duree       !== undefined) updates.duree       = duree;
+  if (requiredSkills !== undefined) {
+    updates.requiredSkills = parseJsonIfString(requiredSkills);
+  }
   if (req.file) updates.image = `${req.file.folder}/${req.file.filename}`;
 
   if (Object.keys(updates).length === 0) {
@@ -151,17 +159,29 @@ module.exports.updateFormation = asyncHandler(async (req, res) => {
   const updated = await formationModel
     .findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true })
     .populate("centreId")
-    .populate("categorieId");
+    .populate("categorieId")
+    .populate("requiredSkills");
 
   return sendSuccess(res, sanitizeFormation(updated), "Formation updated successfully");
 });
 
 // @desc    Delete a formation
 // @route   DELETE /formations/:id
-// @access  Private (admin)
+// @access  Private (Owner, admin)
 module.exports.deleteFormation = asyncHandler(async (req, res) => {
-  const deleted = await formationModel.findByIdAndDelete(req.params.id);
-  if (!deleted) return sendError(res, "Formation not found", 404);
+  const formation = await formationModel.findById(req.params.id).populate("centreId");
+  if (!formation) {
+    return sendError(res, "Formation not found", 404);
+  }
+
+  const isOwner = formation.centreId?.responsableId?.toString() === req.user._id.toString();
+  const isAdmin = req.user.role === 'admin';
+
+  if (!isOwner && !isAdmin) {
+    return sendError(res, "Access denied. You can only delete formations of your own centres.", 403);
+  }
+
+  await formationModel.findByIdAndDelete(req.params.id);
   
   // TODO: Implement file cleanup here if needed
   
@@ -183,17 +203,19 @@ module.exports.assignFormateurs = asyncHandler(async (req, res) => {
   }
 
   const { formateurIds } = req.body;
-  if (!formateurIds || !Array.isArray(formateurIds)) {
+  const parsedFormateurIds = parseJsonIfString(formateurIds);
+  
+  if (!parsedFormateurIds || parsedFormateurIds.length === 0) {
     return sendError(res, "formateurIds array is required", 400);
   }
 
-  const formateurs = await userModel.find({ _id: { $in: formateurIds }, role: "formateur" });
-  if (formateurs.length !== formateurIds.length) {
+  const formateurs = await userModel.find({ _id: { $in: parsedFormateurIds }, role: "formateur" });
+  if (formateurs.length !== parsedFormateurIds.length) {
     return sendError(res, "Some IDs are not valid formateurs or have incorrect role", 400);
   }
 
   // Synchronize the array: Replace current formateurs with the new list
-  formation.formateurIds = formateurIds;
+  formation.formateurIds = parsedFormateurIds;
   await formation.save();
 
   const updatedFormation = await formationModel.findById(req.params.id)
@@ -260,10 +282,36 @@ module.exports.getFormateurs = asyncHandler(async (req, res) => {
 // @route   GET /formations/formateurs
 // @access  Private (responsableCF, admin)
 module.exports.getAvailableFormateurs = asyncHandler(async (req, res) => {
-  const formateurs = await userModel.find({ role: "formateur" })
-    .select("nom prenom email user_image");
+  const { formationId } = req.query;
+  
+  let query = { role: "formateur" };
+  let requiredSkills = [];
 
-  return sendSuccess(res, formateurs, "Available formateurs retrieved successfully");
+  // If a formationId is provided, we filter by skills
+  if (formationId && mongoose.Types.ObjectId.isValid(formationId)) {
+    const formation = await formationModel.findById(formationId).select("requiredSkills");
+    if (formation && formation.requiredSkills && formation.requiredSkills.length > 0) {
+      requiredSkills = formation.requiredSkills;
+      query.skills = { $in: requiredSkills };
+    }
+  }
+
+  const formateurs = await userModel.find(query)
+    .select("nom prenom email user_image skills specialite")
+    .populate("skills", "name");
+
+  // If we filtered by skills, we can sort them by the number of matching skills
+  let results = formateurs;
+  if (requiredSkills.length > 0) {
+    results = formateurs.map(f => {
+      const matchCount = f.skills.filter(s => 
+        requiredSkills.some(rs => rs.toString() === s._id.toString())
+      ).length;
+      return { ...f.toObject(), matchCount };
+    }).sort((a, b) => b.matchCount - a.matchCount);
+  }
+
+  return sendSuccess(res, results, "Available formateurs retrieved successfully");
 });
 
 // @desc    Get formations assigned to current formateur
@@ -277,13 +325,14 @@ module.exports.getMyAssignments = asyncHandler(async (req, res) => {
   const formations = await formationModel
     .find({ formateurIds: req.user._id })
     .populate("centreId", "nom")
-    .populate("categorieId", "nom");
+    .populate("categorieId", "nom")
+    .populate("requiredSkills");
 
   const sanitizedFormations = formations.map(sanitizeFormation);
   return sendSuccess(res, sanitizedFormations, "My assignments retrieved successfully");
 });
 
-// @desc    Get formations for ResponsableCF's own centre
+// @desc    Get formations for ResponsableCF's own centre(s)
 // @route   GET /formations/my-centre
 // @access  Private (responsableCF only)
 module.exports.getMyCentreFormations = asyncHandler(async (req, res) => {
@@ -291,17 +340,20 @@ module.exports.getMyCentreFormations = asyncHandler(async (req, res) => {
     return sendError(res, "Only responsableCF can access this endpoint", 403);
   }
 
-  // Find the centre owned by this ResponsableCF
-  const centre = await centreFormationModel.findOne({ responsableId: req.user._id });
-  if (!centre) {
-    return sendError(res, "You don't have any centre assigned", 404);
+  // Find the centres owned by this ResponsableCF
+  const centres = await centreFormationModel.find({ responsableId: req.user._id });
+  if (!centres || centres.length === 0) {
+    return sendError(res, "You don't have any centres assigned", 404);
   }
 
-  // Get formations for this centre only
+  const centreIds = centres.map(c => c._id);
+
+  // Get formations for these centres only
   const formations = await formationModel
-    .find({ centreId: centre._id })
+    .find({ centreId: { $in: centreIds } })
     .populate("centreId")
     .populate("categorieId")
+    .populate("requiredSkills")
     .populate("formateurIds", "nom prenom email role user_image");
 
   const sanitizedFormations = formations.map(sanitizeFormation);
