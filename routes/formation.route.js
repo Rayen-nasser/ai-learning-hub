@@ -151,6 +151,12 @@ router.get('/', formationController.getAllFormations);
  *     tags: [Formations]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: formationId
+ *         schema:
+ *           type: string
+ *         description: Optional formation ID to filter formateurs by matching skills
  *     responses:
  *       200:
  *         description: List of all formateurs
