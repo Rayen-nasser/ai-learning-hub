@@ -49,6 +49,7 @@ const userSchema = new mongoose.Schema(
     experience: Number,
     statut: { type: String, enum: [null, "", "actif", "inactif"] },
     centreIds: [{ type: mongoose.Schema.Types.ObjectId, ref: "CentreFormation" }],
+    skills: [{ type: mongoose.Schema.Types.ObjectId, ref: "Skill" }],
 
     // ───── Champs ResponsableCF ─────
     // Centers managed by this responsableCF are queried via CentreFormation.responsableId
