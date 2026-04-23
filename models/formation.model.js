@@ -10,6 +10,7 @@ const formationSchema = new mongoose.Schema(
     duree: { type: Number },
     image: { type: String },
     formateurIds: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    requiredSkills: [{ type: mongoose.Schema.Types.ObjectId, ref: "Skill" }],
   },
   { timestamps: true }
 );
