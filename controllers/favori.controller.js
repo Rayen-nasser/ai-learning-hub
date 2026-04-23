@@ -26,6 +26,9 @@ const getCibleTitre = async (typeCible, cibleId) => {
     } else if (typeCible === "centreFormation") {
       const centre = await require("../models/centreFormation.model").findById(cibleId).select("nom");
       return centre?.nom;
+    } else if (typeCible === "formateur") {
+      const user = await require("../models/user.model").findById(cibleId).select("nom prenom");
+      return user ? `${user.prenom} ${user.nom}` : null;
     }
   } catch (err) {
     return null;

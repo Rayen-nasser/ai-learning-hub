@@ -6,7 +6,7 @@ const favoriSchema = new mongoose.Schema(
     cibleId: { type: mongoose.Schema.Types.ObjectId, required: true },
     typeCible: {
       type: String,
-      enum: ["formation", "lecon", "centreFormation"],
+      enum: ["formation", "lecon", "centreFormation", "formateur"],
       required: true,
     },
   },
