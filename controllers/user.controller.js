@@ -1,5 +1,6 @@
 const userModel = require("../models/user.model");
 const jwt = require("jsonwebtoken");
+const { parseJsonIfString } = require("../utils/parser");
 
 const maxage = 3 * 24 * 60 * 60;
 const secretKey = process.env.JWT_SECRET;
@@ -13,7 +14,8 @@ const createToken = (userId) => {
 };
 
 const POPULATE_CONFIG = [
-  { path: "centreIds", model: "CentreFormation" }
+  { path: "centreIds", model: "CentreFormation" },
+  { path: "skills", model: "Skill" }
 ];
 
 const sanitizeUser = (user) => {
@@ -40,7 +42,7 @@ const ALLOWED_UPDATE_FIELDS = [
   "nom", "prenom", "telephone", "user_image",
   "niveauEtude", "dateNaissance", "adresse",
   "specialite", "experience", "statut",
-  "centreIds",
+  "centreIds", "skills",
 ];
 
 // ───── GET ALL USERS ─────
@@ -100,6 +102,7 @@ module.exports.createUser = async (req, res) => {
       experience,
       status, statut,
       centreIds,
+      skills,
     } = req.body;
 
     const existingUser = await userModel.findOne({ email });
@@ -120,7 +123,8 @@ module.exports.createUser = async (req, res) => {
       specialite: specialite || specialty,
       experience,
       statut: statut || status,
-      centreIds: Array.isArray(centreIds) ? centreIds : (centreIds ? [centreIds] : []),
+      centreIds: parseJsonIfString(centreIds),
+      skills: parseJsonIfString(skills),
     });
     await newUser.save();
     const populatedUser = await userModel.findById(newUser._id).populate(POPULATE_CONFIG);
@@ -151,6 +155,7 @@ module.exports.createUserWithImage = async (req, res) => {
       experience,
       status, statut,
       centreIds,
+      skills,
     } = req.body;
 
     const existingUser = await userModel.findOne({ email });
@@ -172,7 +177,8 @@ module.exports.createUserWithImage = async (req, res) => {
       specialite: specialite || specialty,
       experience,
       statut: statut || status,
-      centreIds: Array.isArray(centreIds) ? centreIds : (centreIds ? [centreIds] : []),
+      centreIds: parseJsonIfString(centreIds),
+      skills: parseJsonIfString(skills),
     });
     await newUser.save();
     const populatedUser = await userModel.findById(newUser._id).populate(POPULATE_CONFIG);
@@ -200,7 +206,11 @@ module.exports.updateUser = async (req, res) => {
     const updates = {};
     for (const field of ALLOWED_UPDATE_FIELDS) {
       if (req.body[field] !== undefined) {
-        updates[field] = req.body[field];
+        if (field === 'skills' || field === 'centreIds') {
+          updates[field] = parseJsonIfString(req.body[field]);
+        } else {
+          updates[field] = req.body[field];
+        }
       }
     }
 
