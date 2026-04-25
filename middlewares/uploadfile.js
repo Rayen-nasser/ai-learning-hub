@@ -23,8 +23,8 @@ const ALLOWED_MIME_TYPES = [
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
 
-const createUploadMiddleware = (folder = 'uploads') => {
-  const uploadPath = path.join('public', folder);
+const createUploadMiddleware = (folder = 'uploads', isPublic = true) => {
+  const uploadPath = isPublic ? path.join('public', folder) : path.join(__dirname, '..', folder);
 
   if (!fs.existsSync(uploadPath)) {
     fs.mkdirSync(uploadPath, { recursive: true });
@@ -78,9 +78,13 @@ const createUploadMiddleware = (folder = 'uploads') => {
           if (err) return cb(err);
           if (req.file) {
             req.file.folder = folder;
+            req.file.isPublic = isPublic;
           }
           if (req.files && req.files.length > 0) {
-            req.files.forEach(f => { f.folder = folder; });
+            req.files.forEach(f => { 
+              f.folder = folder; 
+              f.isPublic = isPublic;
+            });
             req.file = req.files[0];
           }
           cb();
@@ -88,6 +92,23 @@ const createUploadMiddleware = (folder = 'uploads') => {
       };
     },
     array: multerInstance.array,
+    fields: (fieldsArray) => {
+      const middleware = multerInstance.fields(fieldsArray);
+      return (req, res, cb) => {
+        middleware(req, res, (err) => {
+          if (err) return cb(err);
+          if (req.files) {
+            Object.keys(req.files).forEach(key => {
+              req.files[key].forEach(f => {
+                f.folder = folder;
+                f.isPublic = isPublic;
+              });
+            });
+          }
+          cb();
+        });
+      };
+    }
   };
 };
 
@@ -104,9 +125,11 @@ const uploadMultiple = (fieldName, maxCount = 10, folder = 'uploads') => {
   return createUploadMiddleware(folder).array(fieldName, maxCount);
 };
 const uploadfile = createUploadMiddleware('images');
+const privateUpload = createUploadMiddleware('private_verification', false);
 
 module.exports = uploadfile;
 module.exports.uploadSingle = uploadSingle;
 module.exports.uploadMultiple = uploadMultiple;
 module.exports.createUploadMiddleware = createUploadMiddleware;
 module.exports.upload = uploadfile;
+module.exports.privateUpload = privateUpload;
