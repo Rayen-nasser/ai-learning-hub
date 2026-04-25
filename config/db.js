@@ -7,4 +7,4 @@ module.exports.connectToMongoDB = async () => {
   }).catch((err) => {
     console.error('Error connecting to Mongodb:', err);
   });
-};
+};

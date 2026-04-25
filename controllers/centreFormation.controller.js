@@ -331,12 +331,28 @@ module.exports.rejectCentre = async (req, res) => {
 // ───── ADMIN: GET PENDING CENTRES ─────
 module.exports.getPendingCentres = async (req, res) => {
   try {
-    const centres = await centreFormationModel.find({ status: "pending" }).populate("responsableId", "-password");
-    res.status(200).json({ message: "Pending centres retrieved successfully", data: centres.map(sanitizeCentre) });
+    const statuses = req.query.status ? req.query.status.split(',') : ["pending"];
+    const centres = await centreFormationModel.find({ status: { $in: statuses } }).populate("responsableId", "-password");
+    res.status(200).json({ message: "Centres retrieved successfully", data: centres.map(sanitizeCentre) });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+// ───── ADMIN: GET ALL CENTRES ─────
+module.exports.adminGetAllCentres = async (req, res) => {
+  try {
+    const query = {};
+    if (req.query.status) {
+      query.status = { $in: req.query.status.split(',') };
+    }
+    const centres = await centreFormationModel.find(query).populate("responsableId", "-password");
+    res.status(200).json({ message: "All centres retrieved successfully", data: centres.map(sanitizeCentre) });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 
 // ───── PUBLIC: GET VERIFICATION REQUIREMENTS ─────
 module.exports.getVerificationRequirements = async (req, res) => {

@@ -46,10 +46,6 @@ module.exports.getAllPaiements = asyncHandler(async (req, res) => {
     .populate("inscriptionId")
     .populate("apprenantId", "nom prenom");
 
-  if (paiements.length === 0) {
-    return sendError(res, "No payments found", 404);
-  }
-
   const formationIds = paiements
     .map(p => p.inscriptionId?.formationId)
     .filter(id => id);

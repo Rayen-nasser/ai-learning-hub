@@ -145,6 +145,22 @@ router.get('/admin/pending', requireAuth, requireRole('admin'), centreFormationC
 
 /**
  * @swagger
+ * /centres/admin/all:
+ *   get:
+ *     summary: Get all centres (Admin only)
+ *     tags: [Centres]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all centres
+ *       403:
+ *         description: Forbidden - admin only
+ */
+router.get('/admin/all', requireAuth, requireRole('admin'), centreFormationController.adminGetAllCentres);
+
+/**
+ * @swagger
  * /centres/admin/approve/{id}:
  *   patch:
  *     summary: Approve a centre creation request
@@ -445,7 +461,6 @@ router.get('/:id/documents/:docId', requireAuth, centreFormationController.viewD
  *       403:
  *         description: Not the owner
  */
-const { privateUpload } = require('../middlewares/uploadfile');
 router.patch('/:id/documents', requireAuth, privateUpload.any(), centreFormationController.updateDocuments);
 
 module.exports = router;
