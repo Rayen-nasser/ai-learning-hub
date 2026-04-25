@@ -526,10 +526,17 @@ module.exports.viewDocument = async (req, res) => {
 
 module.exports.deleteCentre = async (req, res) => {
   try {
-    const deletedCentre = await centreFormationModel.findByIdAndDelete(req.params.id);
-    if (!deletedCentre) {
+    const centre = await centreFormationModel.findById(req.params.id);
+    if (!centre) {
       return res.status(404).json({ message: "Centre not found" });
     }
+
+    // Only allow deletion if the centre is explicitly rejected
+    if (centre.status !== 'rejected') {
+      return res.status(400).json({ message: "You can only delete centres that have been rejected." });
+    }
+
+    await centreFormationModel.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: "Centre deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
