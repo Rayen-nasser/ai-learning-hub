@@ -1,6 +1,13 @@
 const centreFormationModel = require("../models/centreFormation.model");
 const userModel = require("../models/user.model");
+const formationModel = require("../models/formation.model");
+const inscriptionModel = require("../models/inscription.model");
+const paiementModel = require("../models/paiement.model");
 const config = require("../config/config");
+
+// Fields exposed when a user object is embedded in a public/semi-public response.
+// Role, block status, and all auth fields are intentionally excluded.
+const PUBLIC_USER_FIELDS = "nom prenom email telephone user_image";
 
 const sanitizeCentre = (centre) => {
   const obj = centre.toObject ? centre.toObject() : { ...centre };
@@ -40,7 +47,7 @@ module.exports.getAllCentres = async (req, res) => {
     // By default, only show approved centres. Admins can see all.
     const filter = req.user && req.user.role === 'admin' ? {} : { status: "approved" };
     
-    const centres = await centreFormationModel.find(filter).populate("responsableId", "-password");
+    const centres = await centreFormationModel.find(filter).populate("responsableId", PUBLIC_USER_FIELDS);
     res.status(200).json({ message: "Centres retrieved successfully", data: centres.map(sanitizeCentre) });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -52,7 +59,7 @@ module.exports.getMyCentres = async (req, res) => {
   try {
     const centres = await centreFormationModel
       .find({ responsableId: req.user._id })
-      .populate("responsableId", "-password");
+      .populate("responsableId", PUBLIC_USER_FIELDS);
     res.status(200).json({ message: "My centres retrieved successfully", data: centres.map(sanitizeCentre) });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -63,7 +70,7 @@ module.exports.getMyCentres = async (req, res) => {
 module.exports.getFormateurCentres = async (req, res) => {
   try {
     const userId = req.params.userId || req.user._id;
-    const user = await userModel.findById(userId).populate({ path: "centreIds", model: "CentreFormation", populate: { path: "responsableId", select: "-password" } });
+    const user = await userModel.findById(userId).populate({ path: "centreIds", model: "CentreFormation", populate: { path: "responsableId", select: PUBLIC_USER_FIELDS } });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -75,7 +82,7 @@ module.exports.getFormateurCentres = async (req, res) => {
 
 module.exports.getCentreById = async (req, res) => {
   try {
-    const centre = await centreFormationModel.findById(req.params.id).populate("responsableId", "-password");
+    const centre = await centreFormationModel.findById(req.params.id).populate("responsableId", PUBLIC_USER_FIELDS);
     if (!centre) {
       return res.status(404).json({ message: "Centre not found" });
     }
@@ -88,7 +95,7 @@ module.exports.getCentreById = async (req, res) => {
 // ───── USER: GET APPLICATION STATUS WITH DOCUMENT FEEDBACK ─────
 module.exports.getApplicationStatus = async (req, res) => {
   try {
-    const centre = await centreFormationModel.findById(req.params.id).populate("responsableId", "-password");
+    const centre = await centreFormationModel.findById(req.params.id).populate("responsableId", PUBLIC_USER_FIELDS);
     if (!centre) return res.status(404).json({ message: "Centre not found" });
 
     // Only owner or admin can see this
@@ -224,7 +231,7 @@ module.exports.createCentre = async (req, res) => {
     }
     
     const populatedCentre = await centreFormationModel.findById(newCentre._id)
-      .populate("responsableId", "-password");
+      .populate("responsableId", PUBLIC_USER_FIELDS);
       
     res.status(201).json({ 
       message: isAdmin ? "Centre created successfully" : "Centre creation request submitted successfully. It will be reviewed by an administrator.", 
@@ -267,7 +274,7 @@ module.exports.updateCentre = async (req, res) => {
       req.params.id,
       updates,
       { new: true, runValidators: true }
-    ).populate("responsableId", "-password");
+    ).populate("responsableId", PUBLIC_USER_FIELDS);
 
     res.status(200).json({ message: "Centre updated successfully", data: sanitizeCentre(updatedCentre) });
   } catch (error) {
@@ -332,7 +339,9 @@ module.exports.rejectCentre = async (req, res) => {
 module.exports.getPendingCentres = async (req, res) => {
   try {
     const statuses = req.query.status ? req.query.status.split(',') : ["pending"];
-    const centres = await centreFormationModel.find({ status: { $in: statuses } }).populate("responsableId", "-password");
+    const centres = await centreFormationModel.find({ status: { $in: statuses } }).populate("responsableId", PUBLIC_USER_FIELDS);
+    // Admin endpoint — responsable name/email needed for management UI,
+    // but role is not returned (managed via the admin user panel separately)
     res.status(200).json({ message: "Centres retrieved successfully", data: centres.map(sanitizeCentre) });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -346,7 +355,7 @@ module.exports.adminGetAllCentres = async (req, res) => {
     if (req.query.status) {
       query.status = { $in: req.query.status.split(',') };
     }
-    const centres = await centreFormationModel.find(query).populate("responsableId", "-password");
+    const centres = await centreFormationModel.find(query).populate("responsableId", PUBLIC_USER_FIELDS);
     res.status(200).json({ message: "All centres retrieved successfully", data: centres.map(sanitizeCentre) });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -535,6 +544,73 @@ module.exports.viewDocument = async (req, res) => {
     }
 
     res.sendFile(absolutePath);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// ───── RESPONSABLE CF: GET MY DASHBOARD STATS ─────
+module.exports.getMyStats = async (req, res) => {
+  try {
+    // 1. Get all centres for this responsable
+    const myCentres = await centreFormationModel
+      .find({ responsableId: req.user._id })
+      .select('_id nom status');
+
+    const centreIds = myCentres.map(c => c._id);
+
+    // 2. Get all formations in these centres
+    const myFormations = await formationModel
+      .find({ centreId: { $in: centreIds } })
+      .select('_id titre prix centreId');
+
+    const formationIds = myFormations.map(f => f._id);
+
+    // 3. Get inscriptions for these formations
+    const myInscriptions = await inscriptionModel
+      .find({ formationId: { $in: formationIds } })
+      .select('_id statut');
+
+    const inscriptionIds = myInscriptions.map(i => i._id);
+
+    // 4. Get payments for these inscriptions
+    const myPayments = await paiementModel
+      .find({ inscriptionId: { $in: inscriptionIds } })
+      .select('_id statut montant');
+
+    // 5. Compute stats
+    const approvedCentres   = myCentres.filter(c => c.status === 'approved').length;
+    const pendingCentres    = myCentres.filter(c => c.status === 'pending').length;
+    const pendingInscriptions = myInscriptions.filter(i => i.statut === 'en_attente').length;
+    const acceptedInscriptions = myInscriptions.filter(i => i.statut === 'acceptee').length;
+    const confirmedRevenue  = myPayments
+      .filter(p => p.statut === 'confirme')
+      .reduce((sum, p) => sum + (p.montant || 0), 0);
+    const pendingRevenue    = myPayments
+      .filter(p => p.statut === 'en_attente')
+      .reduce((sum, p) => sum + (p.montant || 0), 0);
+
+    res.status(200).json({
+      data: {
+        centres: {
+          total: myCentres.length,
+          approved: approvedCentres,
+          pending: pendingCentres,
+        },
+        formations: {
+          total: myFormations.length,
+        },
+        inscriptions: {
+          total: myInscriptions.length,
+          pending: pendingInscriptions,
+          accepted: acceptedInscriptions,
+        },
+        revenue: {
+          confirmed: confirmedRevenue,
+          pending: pendingRevenue,
+        },
+      },
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

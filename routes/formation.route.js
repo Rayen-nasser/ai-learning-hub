@@ -304,7 +304,7 @@ router.get('/my-centre', requireAuth, requireRole('responsableCF'), formationCon
  *       403:
  *         description: Forbidden - Only responsableCF or admin can create formations
  */
-router.post('/', requireAuth, requireRole('responsableCF', 'admin'), validate(formationSchema), uploadSingle('image', 'images'), formationController.createFormation);
+router.post('/', requireAuth, requireRole('responsableCF', 'admin'), uploadSingle('image', 'images'), validate(formationSchema), formationController.createFormation);
 
 /**
  * @swagger

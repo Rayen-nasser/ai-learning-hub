@@ -45,6 +45,24 @@ router.get('/', centreFormationController.getAllCentres);
 
 /**
  * @swagger
+ * /centres/my-stats:
+ *   get:
+ *     summary: Get dashboard statistics for the logged-in responsableCF
+ *     tags: [Centres]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Dashboard stats (centres, formations, inscriptions, revenue)
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - ResponsableCF only
+ */
+router.get('/my-stats', requireAuth, requireRole('responsableCF'), centreFormationController.getMyStats);
+
+/**
+ * @swagger
  * /centres/my-centres:
  *   get:
  *     summary: Get all centres managed by the logged-in responsableCF

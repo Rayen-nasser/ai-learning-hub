@@ -19,23 +19,36 @@ const POPULATE_CONFIG = [
   { path: "skills", model: "Skill" }
 ];
 
+// Full sanitizer — for own profile, login, register, admin contexts
 const sanitizeUser = (user) => {
   const obj = user.toObject ? user.toObject() : { ...user };
   delete obj.password;
   delete obj.loginAttempts;
-  
+  delete obj.resetPasswordToken;
+  delete obj.resetPasswordExpires;
+
   if (obj.user_image) {
     let path = obj.user_image;
     if (!path.startsWith('http') && !path.startsWith('/')) {
       path = '/' + path;
     }
-    if (path.startsWith('http')) {
-      obj.user_image = path;
-    } else {
-      obj.user_image = `${getBaseUrl()}${path}`;
-    }
+    obj.user_image = path.startsWith('http') ? path : `${getBaseUrl()}${path}`;
   }
-  
+
+  return obj;
+};
+
+// Public sanitizer — strips role (and other sensitive fields) when returning
+// another user's data to a non-admin caller
+const sanitizePublicUser = (user) => {
+  const obj = sanitizeUser(user);
+  delete obj.role;
+  delete obj.block;
+  delete obj.blockReason;
+  delete obj.blockedAt;
+  delete obj.blockedBy;
+  delete obj.blockExpiresAt;
+  delete obj.loginAttempts;
   return obj;
 };
 
@@ -53,7 +66,9 @@ module.exports.getAllUsers = async (req, res) => {
     if (users.length === 0) {
       return res.status(404).json({ message: "No users found" });
     }
-    const sanitizedUsers = users.map(sanitizeUser);
+    // Role is stripped — any authenticated user can call this endpoint,
+    // so we must not expose other users' roles.
+    const sanitizedUsers = users.map(sanitizePublicUser);
     res.status(200).json({ message: "Users retrieved successfully", data: sanitizedUsers });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -81,7 +96,12 @@ module.exports.getUserById = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    res.status(200).json({ message: "User retrieved successfully", data: sanitizeUser(user) });
+    // Own profile or admin: return full data including role
+    // Any other user looking up someone else: strip role
+    const isOwnProfile = req.user._id.toString() === userId;
+    const isAdmin = req.user.role === 'admin';
+    const sanitize = (isOwnProfile || isAdmin) ? sanitizeUser : sanitizePublicUser;
+    res.status(200).json({ message: "User retrieved successfully", data: sanitize(user) });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

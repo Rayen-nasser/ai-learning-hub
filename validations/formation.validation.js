@@ -7,7 +7,10 @@ const formationSchema = Joi.object({
   duree: Joi.number().optional().min(0),
   centreId: Joi.string().regex(/^[0-9a-fA-F]{24}$/).optional(),
   categorieId: Joi.string().regex(/^[0-9a-fA-F]{24}$/).optional(),
-  requiredSkills: Joi.array().items(Joi.string().regex(/^[0-9a-fA-F]{24}$/)).optional(),
+  requiredSkills: Joi.alternatives().try(
+    Joi.array().items(Joi.string().regex(/^[0-9a-fA-F]{24}$/)),
+    Joi.string()
+  ).optional(),
 });
 
 module.exports = {
