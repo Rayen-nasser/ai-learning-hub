@@ -57,9 +57,27 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *       401:
  *         description: Unauthorized
  *       403:
+ *         description: Forbidden - Admin only
+ */
+router.get('/', requireAuth, requireRole('admin'), paiementController.getAllPaiements);
+
+/**
+ * @swagger
+ * /paiements/centre:
+ *   get:
+ *     summary: Get payments for my centre's formations
+ *     tags: [Paiements]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of payments for my centre
+ *       401:
+ *         description: Unauthorized
+ *       403:
  *         description: Forbidden - ResponsableCF only
  */
-router.get('/', requireAuth, requireRole('responsableCF'), paiementController.getAllPaiements);
+router.get('/centre', requireAuth, requireRole('responsableCF'), paiementController.getCentrePaiements);
 
 /**
  * @swagger

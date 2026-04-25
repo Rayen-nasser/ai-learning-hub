@@ -38,9 +38,27 @@ const { requireAuth, requireRole } = require('../middlewares/roleMiddleware');
  *       401:
  *         description: Unauthorized
  *       403:
+ *         description: Forbidden - Admin only
+ */
+router.get('/', requireAuth, requireRole('admin'), inscriptionController.getAllInscriptions);
+
+/**
+ * @swagger
+ * /inscriptions/centre:
+ *   get:
+ *     summary: Get all inscriptions for my centre's formations (responsableCF only)
+ *     tags: [Inscriptions]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of inscriptions for my centre
+ *       401:
+ *         description: Unauthorized
+ *       403:
  *         description: Forbidden - ResponsableCF only
  */
-router.get('/', requireAuth, requireRole('responsableCF'), inscriptionController.getAllInscriptions);
+router.get('/centre', requireAuth, requireRole('responsableCF'), inscriptionController.getCentreInscriptions);
 
 /**
  * @swagger

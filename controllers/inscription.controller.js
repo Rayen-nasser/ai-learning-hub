@@ -16,6 +16,23 @@ const formatInscription = (i) => ({
 
 module.exports.getAllInscriptions = async (req, res) => {
   try {
+    const inscriptions = await inscriptionModel.find()
+      .populate("apprenantId", "nom prenom")
+      .populate("formationId", "titre");
+
+    if (inscriptions.length === 0) {
+      return res.status(404).json({ message: "No inscriptions found" });
+    }
+
+    const formattedInscriptions = inscriptions.map(formatInscription);
+    res.status(200).json({ message: "All inscriptions retrieved successfully", data: formattedInscriptions });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports.getCentreInscriptions = async (req, res) => {
+  try {
     // Get formations owned by this ResponsableCF
     const centres = await centreFormationModel.find({ responsableId: req.user._id }).select("_id");
     const centreIds = centres.map(c => c._id);

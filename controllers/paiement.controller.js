@@ -69,6 +69,40 @@ module.exports.getAllPaiements = asyncHandler(async (req, res) => {
   return sendSuccess(res, formattedPaiements, "Payments retrieved successfully");
 });
 
+// @desc    Get payments for my centre
+// @route   GET /paiements/centre
+// @access  Private (ResponsableCF)
+module.exports.getCentrePaiements = asyncHandler(async (req, res) => {
+  // 1. Get all centres owned by this user
+  const myCentres = await centreFormationModel.find({ responsableId: req.user._id }).select('_id');
+  const centreIds = myCentres.map(c => c._id);
+
+  // 2. Get all formations in these centres
+  const myFormations = await formationModel.find({ centreId: { $in: centreIds } })
+    .populate("centreId", "nom")
+    .populate("categorieId", "nom");
+  
+  const formationIds = myFormations.map(f => f._id);
+  const formationMap = {};
+  myFormations.forEach(f => { formationMap[f._id.toString()] = f; });
+
+  // 3. Get all inscriptions for these formations
+  const myInscriptions = await inscriptionModel.find({ formationId: { $in: formationIds } }).select('_id');
+  const inscriptionIds = myInscriptions.map(i => i._id);
+
+  // 4. Get all payments for these inscriptions
+  const paiements = await paiementModel.find({ inscriptionId: { $in: inscriptionIds } })
+    .populate("inscriptionId")
+    .populate("apprenantId", "nom prenom");
+
+  const formattedPaiements = paiements.map(p => {
+    const formation = formationMap[p.inscriptionId?.formationId?.toString()];
+    return formatPaiement(p, formation);
+  });
+
+  return sendSuccess(res, formattedPaiements, "Centre payments retrieved successfully");
+});
+
 // @desc    Get my payments
 // @route   GET /paiements/my-paiements
 // @access  Private (Apprenant)
