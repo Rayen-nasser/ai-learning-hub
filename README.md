@@ -1,6 +1,12 @@
-# AI-Powered Learning Management System (PFE 2026)
+# AI Learning Hub (PFE 2026)
 
-Welcome to the AI-Powered LMS and Course Recommender project. This is a full-stack application designed to provide a modern learning experience with intelligent course recommendations.
+Welcome to the **AI Learning Hub**. This project is a full-stack AI-Powered Learning Management System (LMS) designed to provide a modern, intelligent educational experience.
+
+### 💡 About the Name
+The name **AI Learning Hub** was chosen to reflect the core identity of the platform:
+*   **AI**: Highlights the integrated **Artificial Intelligence** course recommender system.
+*   **Learning**: Focuses on the primary mission of the platform—**Education** and knowledge sharing.
+*   **Hub**: Represents the **Centralized** nature of the project, bringing together the Frontend, Backend, and AI workflows into one unified environment.
 
 ## 🏗️ Architecture Overview
 
