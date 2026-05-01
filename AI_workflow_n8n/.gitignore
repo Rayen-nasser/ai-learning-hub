@@ -1,0 +1,5 @@
+# n8n data
+n8n_data/
+node_modules/
+.env
+*.log
