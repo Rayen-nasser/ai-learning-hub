@@ -176,7 +176,7 @@ module.exports.getLeconById = async (req, res) => {
 
 module.exports.createLecon = async (req, res) => {
   try {
-    const { titre, description, contenu, duree, formationId, formateurId, estAccessible, order } = req.body;
+    const { titre, description, duree, formationId, formateurId, estAccessible, order } = req.body;
 
     if (!titre) {
       return res.status(400).json({ message: "Lesson title is required" });
@@ -206,7 +206,6 @@ module.exports.createLecon = async (req, res) => {
     const newLecon = new leconModel({
       titre,
       description,
-      contenu,
       duree,
       formationId,
       formateurId: finalFormateurId,
@@ -245,12 +244,11 @@ module.exports.updateLecon = async (req, res) => {
       return res.status(403).json({ message: "Access denied. You can only update lessons of formations you're assigned to." });
     }
 
-    const { titre, description, contenu, duree, estAccessible, order } = req.body;
+    const { titre, description, duree, estAccessible, order } = req.body;
 
     const updates = {};
     if (titre !== undefined) updates.titre = titre;
     if (description !== undefined) updates.description = description;
-    if (contenu !== undefined) updates.contenu = contenu;
     if (duree !== undefined) updates.duree = duree;
     if (estAccessible !== undefined) updates.estAccessible = estAccessible;
     if (order !== undefined) updates.order = order;

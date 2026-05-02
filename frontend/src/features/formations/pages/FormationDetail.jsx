@@ -572,7 +572,6 @@ const FormationDetail = () => {
                   {expandedLecon === l._id && enrolled && (
                     <div className="fd-lecon-preview">
                       {l.description && <div style={{ marginBottom: 12 }}>{l.description}</div>}
-                      {l.contenu && <div style={{ marginBottom: 12, opacity: 0.9 }}>{l.contenu}</div>}
 
                       {loadingContents[l._id] ? (
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#888' }}>
@@ -595,7 +594,7 @@ const FormationDetail = () => {
                         </div>
                       ) : (
                         <div style={{ color: '#666', fontStyle: 'italic', fontSize: 12 }}>
-                          {!l.description && !l.contenu ? 'No additional content for this lesson.' : ''}
+                          {!l.description ? 'No additional content for this lesson.' : ''}
                         </div>
                       )}
                     </div>
