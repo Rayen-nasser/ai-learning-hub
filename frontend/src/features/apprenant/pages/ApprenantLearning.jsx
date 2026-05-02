@@ -30,20 +30,26 @@ export default function ApprenantLearning() {
   const [aiMessages, setAiMessages] = useState([]);
   const [aiInput, setAiInput] = useState('');
 
-  const handleAiAction = async (action, question = '') => {
+  const handleAiAction = async (action, question = '', contentId = null) => {
     if (!currentLesson) return;
     setAiLoading(true);
     setAiOpen(true);
     
+    // Find content title if contentId is provided
+    const targetContent = contentId ? contents.find(c => c._id === contentId) : null;
+    const contentTitle = targetContent ? targetContent.title : '';
+
     // Add user message to chat
-    if (action === 'explain' && question) {
+    if (action === 'explain' && contentId) {
+      setAiMessages(prev => [...prev, { role: 'user', text: `✨ Explique-moi ce document : "${contentTitle}"` }]);
+    } else if (action === 'explain' && question) {
       setAiMessages(prev => [...prev, { role: 'user', text: question }]);
     } else if (action === 'summarize') {
       setAiMessages(prev => [...prev, { role: 'user', text: "✨ Résume-moi cette leçon." }]);
     }
 
     try {
-      const res = await leconService.assist(currentLesson._id, { action, question });
+      const res = await leconService.assist(currentLesson._id, { action, question, contentId });
       const data = res.data.data || res.data;
       setAiMessages(prev => [...prev, { role: 'ai', text: data.answer }]);
     } catch (err) {
@@ -1368,35 +1374,45 @@ export default function ApprenantLearning() {
                         )}
 
                         {content.type === 'file' && content.url && (
-                          <a
-                            className="learn-file-link"
-                            href={getFullUrl(content.url)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                              <polyline points="7 10 12 15 17 10"/>
-                              <line x1="12" y1="15" x2="12" y2="3"/>
-                            </svg>
-                            Download File
-                          </a>
+                          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                            <a
+                              className="learn-file-link"
+                              href={getFullUrl(content.url)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                              </svg>
+                              Download File
+                            </a>
+                            <button className="ai-quick-btn-inline" onClick={() => handleAiAction('explain', '', content._id)}>
+                              ✨ Explain this PDF
+                            </button>
+                          </div>
                         )}
 
                         {content.type === 'link' && content.url && (
-                          <a
-                            className="learn-link"
-                            href={content.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
-                              <polyline points="15 3 21 3 21 9"/>
-                              <line x1="10" y1="14" x2="21" y2="3"/>
-                            </svg>
-                            Open Link
-                          </a>
+                          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                            <a
+                              className="learn-link"
+                              href={content.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+                                <polyline points="15 3 21 3 21 9"/>
+                                <line x1="10" y1="14" x2="21" y2="3"/>
+                              </svg>
+                              Open Link
+                            </a>
+                            <button className="ai-quick-btn-inline" onClick={() => handleAiAction('explain', '', content._id)}>
+                              ✨ Analyze this link
+                            </button>
+                          </div>
                         )}
 
                         {content.type === 'test' && (

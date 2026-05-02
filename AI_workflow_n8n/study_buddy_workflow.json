@@ -1,5 +1,5 @@
 {
-  "name": "AI Study Buddy v2 (File Reader)",
+  "name": "AI Study Buddy v4 (Contextual Assistant)",
   "nodes": [
     {
       "parameters": {
@@ -13,7 +13,7 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
       "position": [
-        200,
+        50,
         200
       ]
     },
@@ -29,7 +29,7 @@
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1,
       "position": [
-        400,
+        250,
         200
       ]
     },
@@ -45,20 +45,40 @@
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1,
       "position": [
-        600,
+        450,
         200
       ]
     },
     {
       "parameters": {
-        "jsCode": "const contents = $input.all();\nconst files = contents.filter(c => c.json.type === 'file' && c.json.url);\nreturn files.map(f => ({\n  json: f.json,\n  pairedItem: f.pairedItem\n}));"
+        "jsCode": "const contents = $input.all();\nconst body = $('Webhook').first().json.body;\nconst contentId = body.contentId;\n\n// If a specific contentId is passed, focus ONLY on that one\nif (contentId) {\n  const specific = contents.filter(c => c.json._id === contentId);\n  if (specific.length > 0) return specific;\n}\n\n// Otherwise, filter for all readable attachments in the lesson\nconst attachments = contents.filter(c => \n  (c.json.type === 'file' && c.json.url) || \n  (c.json.type === 'link' && c.json.url)\n);\nreturn attachments.map(f => ({\n  json: f.json,\n  pairedItem: f.pairedItem\n}));"
       },
-      "id": "node_filter_files",
-      "name": "Filter Files",
+      "id": "node_filter",
+      "name": "Filter Attachments",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        800,
+        650,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.type }}",
+              "value2": "file"
+            }
+          ]
+        }
+      },
+      "id": "node_if_type",
+      "name": "File or Link?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        850,
         400
       ]
     },
@@ -73,8 +93,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [
-        1000,
-        400
+        1050,
+        350
       ]
     },
     {
@@ -82,34 +102,61 @@
         "operation": "pdf",
         "options": {}
       },
-      "id": "node_extract",
-      "name": "Extract Text",
+      "id": "node_extract_pdf",
+      "name": "Extract PDF",
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1,
       "position": [
-        1200,
-        400
+        1250,
+        350
       ]
     },
     {
       "parameters": {
-        "jsCode": "const lecon = $('Fetch Lecon').first().json;\nconst allContents = $('Fetch Contents').all().map(i => i.json);\nconst action = $('Webhook').first().json.body.action || 'explain';\nconst question = $('Webhook').first().json.body.question || '';\n\n// Get extracted text from files (if any)\nlet extractedText = \"\";\ntry {\n  const fileNodes = $('Extract Text').all();\n  extractedText = fileNodes.map(f => f.json.text).join('\\n\\n---\\n\\n');\n} catch (e) {\n  extractedText = \"No file text extracted.\";\n}\n\nlet context = `LESSON TITLE: ${lecon.titre}\\n`;\ncontext += `DESCRIPTION: ${lecon.description || 'N/A'}\\n\\n`;\n\n// Safety: Truncate extracted text to 15,000 characters to avoid rate limits\nconst safeText = extractedText.substring(0, 15000);\nif (extractedText.length > 15000) {\n  context += `--- FULL TEXT CONTENT (TRUNCATED FOR SPEED) ---\\n${safeText}\\n[...Text truncated due to size...]\\n\\n`;\n} else {\n  context += `--- FULL TEXT CONTENT FROM DOCUMENTS ---\\n${safeText}\\n\\n`;\n}\n\ncontext += `--- ADDITIONAL METADATA ---\\n`;\n\nallContents.forEach((c, i) => {\n  context += `- ${c.type}: ${c.title} (${c.description || ''})\\n`;\n});\n\nreturn [{ json: { context, action, question, leconTitle: lecon.titre } }];"
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "id": "node_scrape",
+      "name": "Scrape URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1050,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Simple HTML to Text stripper\nconst html = $input.first().json.data || $input.first().text || \"\";\nconst text = html\n  .replace(/<script[\\s\\S]*?<\\/script>/gi, '')\n  .replace(/<style[\\s\\S]*?<\\/style>/gi, '')\n  .replace(/<[^>]+>/g, ' ')\n  .replace(/\\s+/g, ' ')\n  .trim();\n\nreturn [{ json: { text: text.substring(0, 10000) } }];"
+      },
+      "id": "node_clean_html",
+      "name": "Clean HTML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1250,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const lecon = $('Fetch Lecon').first().json;\nconst allContents = $('Fetch Contents').all().map(i => i.json);\nconst body = $('Webhook').first().json.body;\nconst action = body.action || 'explain';\nconst question = body.question || '';\nconst contentId = body.contentId;\n\n// Collect text from all sources (PDFs and Scraped URLs)\nlet extractedText = \"\";\ntry {\n  const pdfTexts = $('Extract PDF').all().map(f => f.json.text);\n  const urlTexts = $('Clean HTML').all().map(f => f.json.text);\n  extractedText = [...pdfTexts, ...urlTexts].join('\\n\\n---\\n\\n');\n} catch (e) {\n  extractedText = \"No external content processed.\";\n}\n\nlet context = `LESSON TITLE: ${lecon.titre}\\n`;\nif (contentId) {\n  const target = allContents.find(c => c._id === contentId);\n  context += `TARGET CONTENT: ${target ? target.title : 'Specific content item'}\\n`;\n  context += `Note: The student is specifically asking about this item.\\n\\n`;\n}\n\nconst safeText = extractedText.substring(0, 15000);\ncontext += `--- EXTERNAL KNOWLEDGE ---\\n${safeText}\\n\\n`;\n\nreturn [{ json: { context, action, question, leconTitle: lecon.titre, isSpecific: !!contentId } }];"
       },
       "id": "node_merge",
       "name": "Merge Context",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1450,
+        1500,
         200
       ]
     },
     {
       "parameters": {
         "promptType": "define",
-        "text": "=ACTION: {{ $json.action }}\\nSTUDENT QUESTION: {{ $json.question }}\\n\\nLESSON KNOWLEDGE BASE:\\n{{ $json.context }}\\n\\nInstructions: Use the provided knowledge base to answer the student accurately.",
+        "text": "=ACTION: {{ $json.action }}\\nSTUDENT QUESTION: {{ $json.question }}\\n\\nKNOWLEDGE BASE:\\n{{ $json.context }}",
         "options": {
-          "systemMessage": "=You are 'Study Buddy', a friendly and brilliant AI tutor. \\n\\nTONE & STYLE:\\n- Be warm, encouraging, and highly professional.\\n- Use **bold** for all key terms and technologies.\\n- Use bullet points to break down complex ideas.\\n- Never start with disclaimers or 'I am an AI'. Just dive into the knowledge!\\n- If the lesson title seems different from the content, focus on explaining the content of the PDF clearly.\\n- Structure your response like a high-end AI assistant (Gemini/ChatGPT)."
+          "systemMessage": "=You are 'Study Buddy', a friendly AI tutor.\\n\\n{{ $json.isSpecific ? 'The student has clicked a specific button to ask about a certain document/link. Focus your answer on that specific content primarily.' : 'The student is asking about the general lesson.' }}\\n\\nINSTRUCTIONS:\\n- Use the provided context to answer.\\n- Be pedagogical and friendly.\\n- Use **bold** for key concepts.\\n- Structure your response beautifully with markdown."
         }
       },
       "id": "node_agent",
@@ -117,7 +164,7 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1,
       "position": [
-        1700,
+        1750,
         200
       ]
     },
@@ -133,13 +180,13 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
       "typeVersion": 1,
       "position": [
-        1700,
+        1750,
         360
       ]
     },
     {
       "parameters": {
-        "jsCode": "const output = $input.first().json.output || \"Désolé, je n'ai pas pu lire les fichiers.\";\nreturn [{ json: { success: true, answer: output } }];"
+        "jsCode": "const output = $input.first().json.output || \"Désolé, je n'ai pas pu analyser cette source.\";\nreturn [{ json: { success: true, answer: output } }];"
       },
       "id": "node_format",
       "name": "Format Response",
@@ -154,10 +201,13 @@
   "connections": {
     "Webhook": { "main": [[{ "node": "Fetch Lecon", "type": "main", "index": 0 }]] },
     "Fetch Lecon": { "main": [[{ "node": "Fetch Contents", "type": "main", "index": 0 }]] },
-    "Fetch Contents": { "main": [[{ "node": "Filter Files", "type": "main", "index": 0 }, { "node": "Merge Context", "type": "main", "index": 0 }]] },
-    "Filter Files": { "main": [[{ "node": "Download File", "type": "main", "index": 0 }]] },
-    "Download File": { "main": [[{ "node": "Extract Text", "type": "main", "index": 0 }]] },
-    "Extract Text": { "main": [[{ "node": "Merge Context", "type": "main", "index": 0 }]] },
+    "Fetch Contents": { "main": [[{ "node": "Filter Attachments", "type": "main", "index": 0 }, { "node": "Merge Context", "type": "main", "index": 0 }]] },
+    "Filter Attachments": { "main": [[{ "node": "File or Link?", "type": "main", "index": 0 }]] },
+    "File or Link?": { "main": [[{ "node": "Download File", "type": "main", "index": 0 }], [{ "node": "Scrape URL", "type": "main", "index": 0 }]] },
+    "Download File": { "main": [[{ "node": "Extract PDF", "type": "main", "index": 0 }]] },
+    "Scrape URL": { "main": [[{ "node": "Clean HTML", "type": "main", "index": 0 }]] },
+    "Extract PDF": { "main": [[{ "node": "Merge Context", "type": "main", "index": 0 }]] },
+    "Clean HTML": { "main": [[{ "node": "Merge Context", "type": "main", "index": 0 }]] },
     "Merge Context": { "main": [[{ "node": "AI Agent", "type": "main", "index": 0 }]] },
     "Groq": { "ai_languageModel": [[{ "node": "AI Agent", "type": "ai_languageModel", "index": 0 }]] },
     "AI Agent": { "main": [[{ "node": "Format Response", "type": "main", "index": 0 }]] }

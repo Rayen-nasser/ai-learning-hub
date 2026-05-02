@@ -36,21 +36,21 @@ const checkAccess = async (lecon, user) => {
 
   if (leconObj.formationId) {
     const formationId = leconObj.formationId._id || leconObj.formationId;
-    
+
     // Check if user has accepted inscription
     const inscription = await inscriptionModel.findOne({
       apprenantId: user._id,
       formationId: formationId,
       statut: "acceptee"
     });
-    
+
     if (inscription) {
       // Check if payment is confirmed
       const paiement = await paiementModel.findOne({
         inscriptionId: inscription._id,
         statut: "confirme"
       });
-      
+
       if (paiement) {
         return { hasAccess: true, role: 'apprenant' };
       }
@@ -62,19 +62,19 @@ const checkAccess = async (lecon, user) => {
 
 const checkFormateurCanModify = async (lecon, user) => {
   if (user.role === 'admin') return true;
-  
+
   const leconObj = lecon.toObject ? lecon.toObject() : lecon;
-  
+
   if (user.role === 'formateur') {
     const isOwner = leconObj.formateurId && leconObj.formateurId.toString() === user._id.toString();
     if (isOwner) return true;
-    
+
     if (leconObj.formationId) {
       const formationId = leconObj.formationId._id || leconObj.formationId;
       return await isFormateurAssigned(user._id, formationId);
     }
   }
-  
+
   return false;
 };
 
@@ -124,10 +124,10 @@ module.exports.getLecons = async (req, res) => {
       };
     }));
 
-    res.status(200).json({ 
-      message: "Lessons retrieved successfully", 
+    res.status(200).json({
+      message: "Lessons retrieved successfully",
       data: enrichedLecons,
-      total: enrichedLecons.length 
+      total: enrichedLecons.length
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -152,13 +152,13 @@ module.exports.getLeconById = async (req, res) => {
     const leconObj = lecon.toObject ? lecon.toObject() : lecon;
 
     if (!access.hasAccess) {
-      return res.status(403).json({ 
-        message: "Access denied. You must be enrolled in the formation or the lesson must be accessible." 
+      return res.status(403).json({
+        message: "Access denied. You must be enrolled in the formation or the lesson must be accessible."
       });
     }
 
-    res.status(200).json({ 
-      message: "Lesson retrieved successfully", 
+    res.status(200).json({
+      message: "Lesson retrieved successfully",
       data: {
         _id: leconObj._id,
         titre: leconObj.titre,
@@ -301,7 +301,7 @@ module.exports.deleteLecon = async (req, res) => {
 module.exports.getAIExplanation = async (req, res) => {
   try {
     const { id } = req.params;
-    const { question, action } = req.body;
+    const { question, action, contentId } = req.body;
     const user = req.user;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -328,7 +328,9 @@ module.exports.getAIExplanation = async (req, res) => {
       body: JSON.stringify({
         leconId: id,
         question: question || "",
-        action: action || "explain"
+        action: action || "explain",
+        contentId: contentId || null,
+        sessionId: `${user._id}_${id}`
       })
     });
 
