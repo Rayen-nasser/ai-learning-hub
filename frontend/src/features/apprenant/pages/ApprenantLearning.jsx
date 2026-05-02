@@ -24,6 +24,36 @@ export default function ApprenantLearning() {
   const [testResults, setTestResults] = useState(null);
   const [draftSaved, setDraftSaved] = useState(false);
 
+  // AI Study Buddy state
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiMessages, setAiMessages] = useState([]);
+  const [aiInput, setAiInput] = useState('');
+
+  const handleAiAction = async (action, question = '') => {
+    if (!currentLesson) return;
+    setAiLoading(true);
+    setAiOpen(true);
+    
+    // Add user message to chat
+    if (action === 'explain' && question) {
+      setAiMessages(prev => [...prev, { role: 'user', text: question }]);
+    } else if (action === 'summarize') {
+      setAiMessages(prev => [...prev, { role: 'user', text: "✨ Résume-moi cette leçon." }]);
+    }
+
+    try {
+      const res = await leconService.assist(currentLesson._id, { action, question });
+      const data = res.data.data || res.data;
+      setAiMessages(prev => [...prev, { role: 'ai', text: data.answer }]);
+    } catch (err) {
+      console.error("AI Error:", err);
+      setAiMessages(prev => [...prev, { role: 'ai', text: "Désolé, j'ai rencontré une erreur. Réessaye plus tard." }]);
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchData();
   }, [formationId]);
@@ -859,6 +889,41 @@ export default function ApprenantLearning() {
           .learn-layout { grid-template-columns: 1fr; }
           .learn-sidebar { display: ${sidebarOpen ? 'block' : 'none'}; }
         }
+
+        /* ── AI Study Buddy Styles ── */
+        .ai-fab { position: fixed; bottom: 30px; right: 30px; width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #7ca8d4, #5a9fd4); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 8px 32px rgba(90,159,212,0.4); z-index: 1000; transition: transform 0.2s, box-shadow 0.2s; }
+        .ai-fab:hover { transform: scale(1.05); box-shadow: 0 12px 40px rgba(90,159,212,0.5); }
+        .ai-fab.open { transform: rotate(90deg); background: #333; }
+
+        .ai-drawer { position: fixed; right: 0; top: 0; width: 400px; height: 100vh; background: #0c0c0e; border-left: 1px solid rgba(255,255,255,0.08); z-index: 999; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flexDirection: column; }
+        .ai-drawer.open { transform: translateX(0); }
+        @media (max-width: 500px) { .ai-drawer { width: 100%; } }
+
+        .ai-drawer-header { padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); }
+        .ai-drawer-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; color: #f0ebe0; margin: 0; }
+        .ai-drawer-subtitle { font-size: 12px; color: #666; margin-top: 4px; }
+
+        .ai-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+        .ai-msg { max-width: 85%; padding: 12px 16px; border-radius: 14px; font-size: 14px; line-height: 1.5; }
+        .ai-msg.user { align-self: flex-end; background: rgba(124,168,212,0.1); border: 1px solid rgba(124,168,212,0.2); color: #e8e4dc; border-bottom-right-radius: 2px; }
+        .ai-msg.ai { align-self: flex-start; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #aaa; border-bottom-left-radius: 2px; }
+
+        .ai-input-area { padding: 20px; border-top: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.01); }
+        .ai-input-wrapper { display: flex; gap: 8px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 4px 4px 4px 12px; align-items: center; }
+        .ai-input { flex: 1; background: transparent; border: none; color: #e8e4dc; font-family: inherit; font-size: 14px; outline: none; padding: 8px 0; }
+        .ai-send-btn { width: 36px; height: 36px; border-radius: 8px; background: #7ca8d4; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .ai-send-btn:disabled { opacity: 0.3; }
+
+        .ai-quick-btn { background: rgba(124,168,212,0.1); border: 1px solid rgba(124,168,212,0.2); color: #7ca8d4; border-radius: 20px; padding: 4px 12px; font-size: 11px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; margin-top: 10px; }
+        .ai-quick-btn:hover { background: rgba(124,168,212,0.2); }
+        .ai-quick-btn-inline { background: rgba(124,168,212,0.1); border: 1px solid rgba(124,168,212,0.2); color: #7ca8d4; border-radius: 6px; padding: 6px 12px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+        .ai-quick-btn-inline:hover { background: rgba(124,168,212,0.2); }
+
+        .ai-typing { display: flex; gap: 4px; padding: 12px 16px; background: rgba(255,255,255,0.02); border-radius: 14px; width: fit-content; align-self: flex-start; }
+        .ai-dot { width: 4px; height: 4px; background: #666; border-radius: 50%; animation: ai-bounce 1s infinite; }
+        .ai-dot:nth-child(2) { animation-delay: 0.2s; }
+        .ai-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes ai-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
       `}</style>
 
       <div className="learn-root">
@@ -927,11 +992,16 @@ export default function ApprenantLearning() {
             {currentLesson && (
               <>
                 <div className="learn-lesson-header">
-                  <div>
+                  <div style={{ flex: 1 }}>
                     <h2 className="learn-lesson-title">{currentLesson.titre || currentLesson.title}</h2>
-                    <div className="learn-lesson-meta">
-                      <span>Lesson {currentIndex + 1} of {lessons.length}</span>
-                      <span>{(currentLesson.duree || currentLesson.duration || 0) * 60} min</span>
+                    <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                      <div className="learn-lesson-meta">
+                        <span>Lesson {currentIndex + 1} of {lessons.length}</span>
+                        <span>{(currentLesson.duree || currentLesson.duration || 0) * 60} min</span>
+                      </div>
+                      <button className="ai-quick-btn-inline" onClick={() => handleAiAction('summarize')}>
+                        <span>✨</span> Résumer avec l'IA
+                      </button>
                     </div>
                   </div>
                   <button
@@ -1294,6 +1364,80 @@ export default function ApprenantLearning() {
               </>
             )}
           </main>
+        </div>
+      </div>
+      {/* AI Study Buddy UI */}
+      <button 
+        className={`ai-fab ${aiOpen ? 'open' : ''}`} 
+        onClick={() => setAiOpen(!aiOpen)}
+        title="Study Buddy AI"
+      >
+        {aiOpen ? (
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        ) : (
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        )}
+      </button>
+
+      <div className={`ai-drawer ${aiOpen ? 'open' : ''}`}>
+        <div className="ai-drawer-header">
+          <h2 className="ai-drawer-title">Study Buddy</h2>
+          <p className="ai-drawer-subtitle">Je t'aide à comprendre cette leçon en temps réel.</p>
+        </div>
+
+        <div className="ai-messages">
+          {aiMessages.length === 0 && (
+            <div style={{ textAlign: 'center', marginTop: 40, opacity: 0.5 }}>
+              <div style={{ fontSize: 40, marginBottom: 12 }}>🤖</div>
+              <p style={{ fontSize: 13 }}>Pose-moi une question sur cette leçon ou demande-moi un résumé.</p>
+              <button className="ai-quick-btn" style={{ margin: '20px auto 0' }} onClick={() => handleAiAction('summarize')}>
+                ✨ Résumer la leçon
+              </button>
+            </div>
+          )}
+          
+          {aiMessages.map((msg, idx) => (
+            <div key={idx} className={`ai-msg ${msg.role}`}>
+              {msg.text}
+            </div>
+          ))}
+
+          {aiLoading && (
+            <div className="ai-typing">
+              <div className="ai-dot" />
+              <div className="ai-dot" />
+              <div className="ai-dot" />
+            </div>
+          )}
+          <div id="ai-scroll-anchor" />
+        </div>
+
+        <div className="ai-input-area">
+          <form 
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (aiInput.trim()) {
+                handleAiAction('explain', aiInput);
+                setAiInput('');
+              }
+            }} 
+            className="ai-input-wrapper"
+          >
+            <input 
+              className="ai-input" 
+              placeholder="Pose ta question..." 
+              value={aiInput}
+              onChange={(e) => setAiInput(e.target.value)}
+              disabled={aiLoading}
+            />
+            <button className="ai-send-btn" disabled={aiLoading || !aiInput.trim()}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+            </button>
+          </form>
         </div>
       </div>
     </ApprenantLayout>

@@ -1,0 +1,180 @@
+{
+  "name": "AI Study Buddy v1",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "study-buddy",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "node_webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        400,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "findOne",
+        "collection": "lecons",
+        "options": {},
+        "query": "={ \"_id\": { \"$oid\": \"{{ $json.body.leconId }}\" } }"
+      },
+      "id": "node_fetch_lecon",
+      "name": "Fetch Lecon",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [
+        600,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "collection": "leconcontents",
+        "options": {},
+        "query": "={ \"leconId\": { \"$oid\": \"{{ $('Webhook').item.json.body.leconId }}\" } }"
+      },
+      "id": "node_fetch_contents",
+      "name": "Fetch Contents",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [
+        800,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const lecon = $('Fetch Lecon').first().json;\nconst contents = $('Fetch Contents').all().map(i => i.json);\nconst action = $('Webhook').first().json.body.action || 'explain';\nconst question = $('Webhook').first().json.body.question || '';\n\n// Build a comprehensive knowledge block for the AI\nlet context = `TITRE DE LA LECON: ${lecon.titre}\\n`;\ncontext += `DESCRIPTION: ${lecon.description || 'N/A'}\\n\\n`;\ncontext += `CONTENU DETAILLÉ:\\n`;\n\ncontents.forEach((c, i) => {\n  context += `--- Element ${i+1} (${c.type}) ---\\n`;\n  context += `Titre: ${c.title}\\n`;\n  if (c.description) context += `Description: ${c.description}\\n`;\n  if (c.url) context += `Source: ${c.url}\\n`;\n  context += `\\n`;\n});\n\nreturn [{ json: { context, action, question, leconTitle: lecon.titre } }];"
+      },
+      "id": "node_merge",
+      "name": "Merge Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=ACTION DEMANDÉE: {{ $json.action }}\nQUESTION DE L'ÉTUDIANT: {{ $json.question }}\n\nCONTEXTE DE LA LEÇON:\n{{ $json.context }}\n\nRéponds de manière pédagogique et encourageante en utilisant uniquement le contexte fourni ci-dessus.",
+        "options": {
+          "systemMessage": "=Tu es un assistant d'apprentissage intelligent (Study Buddy) pour la plateforme de formation. Ton rôle est d'aider l'étudiant à comprendre la leçon : \"{{ $json.leconTitle }}\".\n\nCONSIGNES:\n- Si l'action est 'summarize', fais un résumé court et percutant en 3 points clés.\n- Si l'action est 'explain', réponds à la question de l'étudiant de manière claire.\n- Sois toujours poli, utilise un ton motivant.\n- Ne parle jamais de sujets hors de la leçon.\n- Réponds en français."
+        }
+      },
+      "id": "node_agent",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "model": "llama3-70b-8192",
+        "options": {
+          "temperature": 0.5
+        }
+      },
+      "id": "node_groq",
+      "name": "Groq Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const output = $input.first().json.output || $input.first().json.text || \"Désolé, je n'ai pas pu générer de réponse.\";\n\nreturn [{\n  json: {\n    success: true,\n    answer: output,\n    action: $('Merge Context').first().json.action\n  }\n}];"
+      },
+      "id": "node_format_response",
+      "name": "Format Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1400,
+        100
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Fetch Lecon",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Lecon": {
+      "main": [
+        [
+          {
+            "node": "Fetch Contents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Contents": {
+      "main": [
+        [
+          {
+            "node": "Merge Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Context": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

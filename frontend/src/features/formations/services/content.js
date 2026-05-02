@@ -17,6 +17,7 @@ export const leconService = {
   create:        (data)   => client.post('/lecons', data),
   update:        (id, data) => client.put(`/lecons/${id}`, data),
   delete:        (id)     => client.delete(`/lecons/${id}`),
+  assist:        (id, data) => client.post(`/lecons/${id}/assist`, data),
 };
 
 export const contentService = {

@@ -218,6 +218,9 @@ router.post('/', requireAuth, requireRole('formateur', 'admin'), leconController
 // Update lesson
 router.put('/:id', requireAuth, leconController.updateLecon);
 
+// AI Assistant for a specific lesson
+router.post('/:id/assist', requireAuth, leconController.getAIExplanation);
+
 // Delete lesson
 router.delete('/:id', requireAuth, leconController.deleteLecon);
 

@@ -297,3 +297,54 @@ module.exports.deleteLecon = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+module.exports.getAIExplanation = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { question, action } = req.body;
+    const user = req.user;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid lesson ID format" });
+    }
+
+    const lecon = await leconModel.findById(id);
+    if (!lecon) {
+      return res.status(404).json({ message: "Lesson not found" });
+    }
+
+    // Security: Check if student has access to this lesson
+    const access = await checkAccess(lecon, user);
+    if (!access.hasAccess) {
+      return res.status(403).json({ message: "Access denied. You must be enrolled to use the AI assistant." });
+    }
+
+    // Call n8n Webhook
+    const n8nWebhookUrl = process.env.N8N_STUDY_BUDDY_WEBHOOK_URL || "http://localhost:5678/webhook/study-buddy";
+    
+    const response = await fetch(n8nWebhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        leconId: id,
+        question: question || "",
+        action: action || "explain"
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`n8n error: ${errorText}`);
+    }
+
+    const result = await response.json();
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("AI Assistant Error:", error);
+    res.status(500).json({ 
+      success: false, 
+      error: "The AI assistant is currently unavailable. Please try again later.",
+      details: error.message 
+    });
+  }
+};
