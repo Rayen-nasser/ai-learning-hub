@@ -57,8 +57,8 @@ function QuestionEditor({ question, index, onChange, onDelete }) {
           <span style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(200,168,110,0.15)', color: '#c8a86e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 600 }}>
             {index + 1}
           </span>
-          <select 
-            value={question.type || 'multiple_choice'} 
+          <select
+            value={question.type || 'multiple_choice'}
             onChange={e => updateText('type', e.target.value)}
             style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, color: '#e8e4dc', padding: '4px 8px', fontSize: 13, fontFamily: "'DM Sans', sans-serif" }}
           >
@@ -179,7 +179,7 @@ export default function FormateurLessonDetail() {
       data.append('title', formData.title);
       data.append('type', contentType);
       data.append('description', formData.description);
-      
+
       if (contentType === 'link') {
         data.append('url', formData.url);
       } else if (contentType === 'test') {
@@ -250,9 +250,9 @@ export default function FormateurLessonDetail() {
     setEditingContent(content);
     setContentType(content.type);
     setFormData({ title: content.title || '', url: content.url || '', description: content.description || '' });
-    
+
     let questionsData = content.questions;
-    
+
     if (typeof questionsData === 'string') {
       try {
         questionsData = JSON.parse(questionsData);
@@ -260,7 +260,7 @@ export default function FormateurLessonDetail() {
         questionsData = [];
       }
     }
-    
+
     if (questionsData && Array.isArray(questionsData) && questionsData.length > 0) {
       setQuestions(questionsData.map(q => ({
         type: q.type || 'multiple_choice',
@@ -315,7 +315,7 @@ export default function FormateurLessonDetail() {
     <FormateurLayout title={lesson.title || lesson.titre} subtitle="Manage lesson content">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <Link to={`/formateur/formations/${id}`} style={{ color: '#888', textDecoration: 'none', fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
           Back to formation
         </Link>
         <button onClick={() => openCreate('video')} style={{
@@ -348,11 +348,11 @@ export default function FormateurLessonDetail() {
             transition: 'all 0.15s',
             textAlign: 'center',
           }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(200,168,110,0.5)'; e.currentTarget.style.background = 'rgba(200,168,110,0.05)'; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(200,168,110,0.5)'; e.currentTarget.style.background = 'rgba(200,168,110,0.05)'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; }}
           >
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c8a86e" strokeWidth="1.5">
-              <path d={ct.icon}/>
+              <path d={ct.icon} />
             </svg>
             <div style={{ fontSize: 14, color: '#888' }}>{ct.label}</div>
           </div>
@@ -377,7 +377,7 @@ export default function FormateurLessonDetail() {
               }}>
                 <div style={{ width: 40, height: 40, borderRadius: 8, background: 'rgba(200,168,110,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c8a86e" strokeWidth="2">
-                    <path d={CONTENT_TYPES.find(c => c.type === content.type)?.icon || 'M12 2L2 7l10 5 10-5-10-5z'}/>
+                    <path d={CONTENT_TYPES.find(c => c.type === content.type)?.icon || 'M12 2L2 7l10 5 10-5-10-5z'} />
                   </svg>
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -466,19 +466,19 @@ export default function FormateurLessonDetail() {
                     {contentType === 'file' && (
                       <div style={{ padding: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c8a86e" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c8a86e" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
                           <div>
                             <div style={{ fontSize: 14, color: '#e8e4dc' }}>{formData.url.split('/').pop()}</div>
                           </div>
                         </div>
                         {formData.url.toLowerCase().endsWith('.pdf') ? (
-                          <iframe 
-                            src={getFullUrl(formData.url)} 
+                          <iframe
+                            src={getFullUrl(formData.url)}
                             style={{ width: '100%', height: 400, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 }}
                             title="PDF Preview"
                           />
                         ) : (
-                          <button 
+                          <button
                             onClick={() => window.open(getFullUrl(formData.url), '_blank')}
                             style={{ padding: '10px 16px', background: 'rgba(200,168,110,0.1)', border: '1px solid rgba(200,168,110,0.3)', borderRadius: 8, color: '#c8a86e', cursor: 'pointer', fontSize: 13, fontFamily: "'DM Sans', sans-serif" }}
                           >
@@ -542,11 +542,20 @@ export default function FormateurLessonDetail() {
                     </label>
                     {editingContent && formData.url && (
                       <div style={{ marginBottom: 8, padding: '8px 12px', background: 'rgba(255,255,255,0.03)', borderRadius: 6, fontSize: 12, color: '#888', display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
                         Current file: {formData.url.split('/').pop()}
                       </div>
                     )}
-                    <input type="file" onChange={e => setFile(e.target.files[0])} accept={contentType === 'image' ? 'image/*' : contentType === 'video' ? 'video/*' : '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,*'} style={{ width: '100%', padding: '12px 16px', background: 'rgba(255,255,255,0.04)', border: '1px dashed rgba(255,255,255,0.2)', borderRadius: 8, color: '#888', fontSize: 14, fontFamily: "'DM Sans', sans-serif", cursor: 'pointer' }} />
+                    <input 
+                      type="file" 
+                      onChange={e => {
+                        if (e.target.files && e.target.files.length > 0) {
+                          setFile(e.target.files[0]);
+                        }
+                      }} 
+                      accept={contentType === 'image' ? 'image/*' : contentType === 'video' ? 'video/*' : '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx'} 
+                      style={{ width: '100%', padding: '12px 16px', background: 'rgba(255,255,255,0.04)', border: '1px dashed rgba(255,255,255,0.2)', borderRadius: 8, color: '#888', fontSize: 14, fontFamily: "'DM Sans', sans-serif", cursor: 'pointer' }} 
+                    />
                     {file && <div style={{ marginTop: 8, fontSize: 12, color: '#c8a86e' }}>New file selected: {file.name}</div>}
                   </div>
                 )}
