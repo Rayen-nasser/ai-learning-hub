@@ -18,20 +18,24 @@ const QUESTION_TYPES = [
 ];
 
 function QuestionEditor({ question, index, onChange, onDelete }) {
-  const [options, setOptions] = useState(question.options || ['', '', '', '']);
-  const [correctAnswer, setCorrectAnswer] = useState(question.correctAnswer ?? 0);
+  const [options, setOptions] = useState(question?.options || ['', '', '', '']);
+  const [correctAnswer, setCorrectAnswer] = useState(question?.correctAnswer ?? 0);
 
   useEffect(() => {
+    if (!question) return;
     setOptions(question.options || ['', '', '', '']);
     setCorrectAnswer(question.correctAnswer ?? 0);
   }, [question]);
 
   useEffect(() => {
+    if (!question?.type) return;
     if (question.type === 'open') {
       setOptions(['', '', '', '']);
       setCorrectAnswer(0);
     }
-  }, [question.type]);
+  }, [question?.type]);
+
+  if (!question) return null;
 
   const updateOption = (i, value) => {
     const newOptions = [...options];
@@ -536,17 +540,19 @@ export default function FormateurLessonDetail() {
                         Current file: {formData.url.split('/').pop()}
                       </div>
                     )}
-                    <input 
-                      type="file" 
-                      onChange={e => {
-                        if (e.target.files && e.target.files.length > 0) {
-                          setFile(e.target.files[0]);
-                        }
-                      }} 
-                      accept={contentType === 'image' ? 'image/*' : contentType === 'video' ? 'video/*' : '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx'} 
-                      style={{ width: '100%', padding: '12px 16px', background: 'rgba(255,255,255,0.04)', border: '1px dashed rgba(255,255,255,0.2)', borderRadius: 8, color: '#888', fontSize: 14, fontFamily: "'DM Sans', sans-serif", cursor: 'pointer' }} 
-                    />
-                    {file && <div style={{ marginTop: 8, fontSize: 12, color: '#c8a86e' }}>New file selected: {file.name}</div>}
+                    <div style={{ padding: '8px 0' }}>
+                      <input 
+                        type="file" 
+                        onChange={e => {
+                          if (e.target.files && e.target.files.length > 0) {
+                            setFile(e.target.files[0]);
+                          }
+                        }} 
+                        accept={contentType === 'image' ? 'image/*' : contentType === 'video' ? 'video/*' : '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx'} 
+                        style={{ color: '#888', fontSize: 14 }} 
+                      />
+                    </div>
+                    {file && <div style={{ marginTop: 8, fontSize: 12, color: '#c8a86e' }}>Selected: {file.name}</div>}
                   </div>
                 )}
 
