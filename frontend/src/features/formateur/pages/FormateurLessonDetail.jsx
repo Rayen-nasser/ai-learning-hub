@@ -318,19 +318,9 @@ export default function FormateurLessonDetail() {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
           Back to formation
         </Link>
-        <button onClick={() => openCreate('video')} style={{
-          padding: '10px 20px',
-          background: 'linear-gradient(135deg, #c8a86e, #b4915a)',
-          color: '#0c0c0e',
-          border: 'none',
-          borderRadius: 8,
-          fontSize: 14,
-          fontWeight: 500,
-          cursor: 'pointer',
-          fontFamily: "'DM Sans', sans-serif",
-        }}>
-          + Add Content
-        </button>
+        <div style={{ fontSize: 14, color: '#666', fontStyle: 'italic' }}>
+          Select a content type below to add new material
+        </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
