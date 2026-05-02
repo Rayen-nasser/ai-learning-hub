@@ -318,7 +318,7 @@ export default function FormateurLessonDetail() {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
           Back to formation
         </Link>
-        <button onClick={openCreate} style={{
+        <button onClick={() => openCreate('video')} style={{
           padding: '10px 20px',
           background: 'linear-gradient(135deg, #c8a86e, #b4915a)',
           color: '#0c0c0e',
