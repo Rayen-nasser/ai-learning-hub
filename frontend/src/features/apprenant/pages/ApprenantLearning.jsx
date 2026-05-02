@@ -54,6 +54,55 @@ export default function ApprenantLearning() {
     }
   };
 
+  const renderFormattedText = (text) => {
+    if (!text) return null;
+    
+    // Split by lines to handle blocks
+    const lines = text.split('\n');
+    return lines.map((line, i) => {
+      let content = line;
+      
+      // Handle bold: **text**
+      const boldRegex = /\*\*(.*?)\*\*/g;
+      const parts = [];
+      let lastIndex = 0;
+      let match;
+      
+      while ((match = boldRegex.exec(content)) !== null) {
+        if (match.index > lastIndex) {
+          parts.push(content.substring(lastIndex, match.index));
+        }
+        parts.push(<strong key={match.index} style={{ color: '#c8a86e', fontWeight: 600 }}>{match[1]}</strong>);
+        lastIndex = boldRegex.lastIndex;
+      }
+      if (lastIndex < content.length) {
+        parts.push(content.substring(lastIndex));
+      }
+      
+      const finalContent = parts.length > 0 ? parts : content;
+
+      // Handle bullet points
+      if (line.trim().startsWith('- ') || line.trim().startsWith('* ')) {
+        return (
+          <div key={i} style={{ display: 'flex', gap: '8px', marginBottom: '6px', paddingLeft: '8px' }}>
+            <span style={{ color: '#c8a86e' }}>•</span>
+            <div style={{ flex: 1 }}>{finalContent}</div>
+          </div>
+        );
+      }
+      
+      // Handle empty lines (spacing)
+      if (!line.trim()) return <div key={i} style={{ height: '12px' }} />;
+      
+      return <div key={i} style={{ marginBottom: '8px' }}>{finalContent}</div>;
+    });
+  };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    // Optional: add a temporary "Copied" toast if needed
+  };
+
   useEffect(() => {
     fetchData();
   }, [formationId]);
@@ -890,40 +939,271 @@ export default function ApprenantLearning() {
           .learn-sidebar { display: ${sidebarOpen ? 'block' : 'none'}; }
         }
 
-        /* ── AI Study Buddy Styles ── */
-        .ai-fab { position: fixed; bottom: 30px; right: 30px; width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #7ca8d4, #5a9fd4); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 8px 32px rgba(90,159,212,0.4); z-index: 1000; transition: transform 0.2s, box-shadow 0.2s; }
-        .ai-fab:hover { transform: scale(1.05); box-shadow: 0 12px 40px rgba(90,159,212,0.5); }
-        .ai-fab.open { transform: rotate(90deg); background: #333; }
+        /* ── AI Study Buddy Premium Styles ── */
+        .ai-fab { 
+          position: fixed; 
+          bottom: 30px; 
+          right: 30px; 
+          width: 64px; 
+          height: 64px; 
+          border-radius: 20px; 
+          background: linear-gradient(135deg, #c8a86e, #b4915a); 
+          border: none; 
+          cursor: pointer; 
+          display: flex; 
+          align-items: center; 
+          justify-content: center; 
+          color: #0c0c0e; 
+          box-shadow: 0 10px 40px rgba(200,168,110,0.3); 
+          z-index: 1000; 
+          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          overflow: hidden;
+        }
+        .ai-fab:hover { transform: scale(1.1) translateY(-5px); box-shadow: 0 15px 50px rgba(200,168,110,0.4); }
+        .ai-fab.open { transform: rotate(90deg) scale(0.9); background: #1a1a1e; color: #888; }
+        
+        .ai-fab-glow {
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(circle at center, rgba(255,255,255,0.4) 0%, transparent 70%);
+          opacity: 0;
+          transition: opacity 0.3s;
+        }
+        .ai-fab:hover .ai-fab-glow { opacity: 1; }
 
-        .ai-drawer { position: fixed; right: 0; top: 0; width: 400px; height: 100vh; background: #0c0c0e; border-left: 1px solid rgba(255,255,255,0.08); z-index: 999; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flexDirection: column; }
+        .ai-drawer { 
+          position: fixed; 
+          right: 20px; 
+          top: 20px; 
+          bottom: 20px; 
+          width: 420px; 
+          background: rgba(20, 20, 22, 0.85); 
+          backdrop-filter: blur(20px); 
+          border: 1px solid rgba(255,255,255,0.08); 
+          border-radius: 24px;
+          z-index: 999; 
+          transform: translateX(calc(100% + 40px)); 
+          transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1); 
+          display: flex; 
+          flex-direction: column; 
+          box-shadow: -20px 0 60px rgba(0,0,0,0.5);
+          box-sizing: border-box;
+        }
         .ai-drawer.open { transform: translateX(0); }
-        @media (max-width: 500px) { .ai-drawer { width: 100%; } }
+        @media (max-width: 500px) { .ai-drawer { width: calc(100% - 40px); } }
 
-        .ai-drawer-header { padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); }
-        .ai-drawer-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; color: #f0ebe0; margin: 0; }
-        .ai-drawer-subtitle { font-size: 12px; color: #666; margin-top: 4px; }
+        .ai-drawer-header { 
+          padding: 30px; 
+          border-bottom: 1px solid rgba(255,255,255,0.06); 
+          background: linear-gradient(to bottom, rgba(200,168,110,0.05), transparent);
+          border-top-left-radius: 24px;
+          border-top-right-radius: 24px;
+        }
+        .ai-drawer-title { 
+          font-family: 'Cormorant Garamond', serif; 
+          font-size: 28px; 
+          color: #c8a86e; 
+          margin: 0; 
+          letter-spacing: 0.02em;
+        }
+        .ai-drawer-subtitle { font-size: 13px; color: #666; margin-top: 6px; font-weight: 300; }
 
-        .ai-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
-        .ai-msg { max-width: 85%; padding: 12px 16px; border-radius: 14px; font-size: 14px; line-height: 1.5; }
-        .ai-msg.user { align-self: flex-end; background: rgba(124,168,212,0.1); border: 1px solid rgba(124,168,212,0.2); color: #e8e4dc; border-bottom-right-radius: 2px; }
-        .ai-msg.ai { align-self: flex-start; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #aaa; border-bottom-left-radius: 2px; }
+        .ai-messages { 
+          flex: 1; 
+          overflow-y: auto; 
+          padding: 24px; 
+          display: flex; 
+          flex-direction: column; 
+          gap: 20px; 
+          scrollbar-width: thin;
+          scrollbar-color: rgba(255,255,255,0.1) transparent;
+        }
+        .ai-messages::-webkit-scrollbar { width: 4px; }
+        .ai-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
 
-        .ai-input-area { padding: 20px; border-top: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.01); }
-        .ai-input-wrapper { display: flex; gap: 8px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 4px 4px 4px 12px; align-items: center; }
-        .ai-input { flex: 1; background: transparent; border: none; color: #e8e4dc; font-family: inherit; font-size: 14px; outline: none; padding: 8px 0; }
-        .ai-send-btn { width: 36px; height: 36px; border-radius: 8px; background: #7ca8d4; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .ai-send-btn:disabled { opacity: 0.3; }
+        .ai-msg-group {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+        
+        .ai-msg-label {
+          font-size: 10px;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          color: #444;
+          margin: 0 12px;
+        }
+        .ai-msg-group.user .ai-msg-label { align-self: flex-end; }
 
-        .ai-quick-btn { background: rgba(124,168,212,0.1); border: 1px solid rgba(124,168,212,0.2); color: #7ca8d4; border-radius: 20px; padding: 4px 12px; font-size: 11px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; margin-top: 10px; }
-        .ai-quick-btn:hover { background: rgba(124,168,212,0.2); }
-        .ai-quick-btn-inline { background: rgba(124,168,212,0.1); border: 1px solid rgba(124,168,212,0.2); color: #7ca8d4; border-radius: 6px; padding: 6px 12px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
-        .ai-quick-btn-inline:hover { background: rgba(124,168,212,0.2); }
+        .ai-msg { 
+          max-width: 88%; 
+          padding: 14px 18px; 
+          border-radius: 18px; 
+          font-size: 14.5px; 
+          line-height: 1.6; 
+          position: relative;
+          animation: msgAppear 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        @keyframes msgAppear {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
 
-        .ai-typing { display: flex; gap: 4px; padding: 12px 16px; background: rgba(255,255,255,0.02); border-radius: 14px; width: fit-content; align-self: flex-start; }
-        .ai-dot { width: 4px; height: 4px; background: #666; border-radius: 50%; animation: ai-bounce 1s infinite; }
+        .ai-msg.user { 
+          align-self: flex-end; 
+          background: #c8a86e; 
+          color: #0c0c0e; 
+          border-bottom-right-radius: 4px; 
+          font-weight: 500;
+          box-shadow: 0 4px 15px rgba(200,168,110,0.2);
+        }
+        
+        .ai-msg.ai { 
+          align-self: flex-start; 
+          background: rgba(255,255,255,0.03); 
+          border: 1px solid rgba(255,255,255,0.08); 
+          color: #f0ebe0; 
+          border-bottom-left-radius: 4px; 
+        }
+        
+        .ai-msg.ai::before {
+          content: '🤖';
+          position: absolute;
+          left: -30px;
+          bottom: 0;
+          font-size: 16px;
+          opacity: 0.5;
+        }
+
+        .ai-input-area { 
+          padding: 24px; 
+          border-top: 1px solid rgba(255,255,255,0.06); 
+          background: rgba(0,0,0,0.2);
+          border-bottom-left-radius: 24px;
+          border-bottom-right-radius: 24px;
+        }
+        .ai-input-wrapper { 
+          display: flex; 
+          gap: 12px; 
+          background: rgba(255,255,255,0.03); 
+          border: 1px solid rgba(255,255,255,0.1); 
+          border-radius: 16px; 
+          padding: 6px 6px 6px 16px; 
+          align-items: center; 
+          transition: all 0.3s;
+        }
+        .ai-input-wrapper:focus-within {
+          border-color: rgba(200,168,110,0.4);
+          background: rgba(255,255,255,0.05);
+          box-shadow: 0 0 20px rgba(200,168,110,0.1);
+        }
+        .ai-input { 
+          flex: 1; 
+          background: transparent; 
+          border: none; 
+          color: #f0ebe0; 
+          font-family: inherit; 
+          font-size: 14px; 
+          outline: none; 
+          padding: 10px 0; 
+        }
+        .ai-input::placeholder { color: #444; }
+        
+        .ai-send-btn { 
+          width: 40px; 
+          height: 40px; 
+          border-radius: 12px; 
+          background: #c8a86e; 
+          border: none; 
+          color: #0c0c0e; 
+          cursor: pointer; 
+          display: flex; 
+          align-items: center; 
+          justify-content: center; 
+          transition: all 0.2s;
+        }
+        .ai-send-btn:hover:not(:disabled) { transform: scale(1.05) rotate(-5deg); }
+        .ai-send-btn:disabled { opacity: 0.2; cursor: not-allowed; filter: grayscale(1); }
+
+        .ai-quick-btn { 
+          background: rgba(200,168,110,0.1); 
+          border: 1px solid rgba(200,168,110,0.2); 
+          color: #c8a86e; 
+          border-radius: 12px; 
+          padding: 8px 16px; 
+          font-size: 12px; 
+          font-weight: 500; 
+          cursor: pointer; 
+          display: flex; 
+          align-items: center; 
+          gap: 8px; 
+          transition: all 0.3s; 
+          margin-top: 12px; 
+        }
+        .ai-quick-btn:hover { background: rgba(200,168,110,0.2); transform: translateY(-2px); }
+        
+        .ai-quick-btn-inline { 
+          background: rgba(200,168,110,0.08); 
+          border: 1px solid rgba(200,168,110,0.15); 
+          color: #c8a86e; 
+          border-radius: 8px; 
+          padding: 8px 14px; 
+          font-size: 12px; 
+          cursor: pointer; 
+          display: flex; 
+          align-items: center; 
+          gap: 8px; 
+          transition: all 0.2s;
+          font-family: 'DM Sans', sans-serif;
+          font-weight: 500;
+        }
+        .ai-quick-btn-inline:hover { background: rgba(200,168,110,0.15); color: #f0ebe0; }
+
+        .ai-typing { 
+          display: flex; 
+          gap: 6px; 
+          padding: 16px 20px; 
+          background: rgba(255,255,255,0.02); 
+          border-radius: 18px; 
+          width: fit-content; 
+          align-self: flex-start;
+          border: 1px solid rgba(255,255,255,0.05);
+        }
+        .ai-dot { width: 6px; height: 6px; background: #c8a86e; border-radius: 50%; animation: ai-bounce 1.4s infinite ease-in-out; opacity: 0.6; }
         .ai-dot:nth-child(2) { animation-delay: 0.2s; }
         .ai-dot:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes ai-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+        @keyframes ai-bounce { 
+          0%, 80%, 100% { transform: scale(0); } 
+          40% { transform: scale(1.0); } 
+        }
+
+        .ai-welcome {
+          text-align: center;
+          padding: 40px 20px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 16px;
+        }
+        .ai-welcome-icon {
+          font-size: 48px;
+          background: rgba(200,168,110,0.1);
+          width: 80px;
+          height: 80px;
+          border-radius: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 8px;
+        }
+        .ai-welcome-text {
+          font-size: 14px;
+          color: #666;
+          line-height: 1.6;
+          max-width: 240px;
+        }
+
       `}</style>
 
       <div className="learn-root">
@@ -1366,17 +1646,19 @@ export default function ApprenantLearning() {
           </main>
         </div>
       </div>
-      {/* AI Study Buddy UI */}
+      {/* AI Study Buddy Premium UI */}
       <button 
         className={`ai-fab ${aiOpen ? 'open' : ''}`} 
         onClick={() => setAiOpen(!aiOpen)}
-        title="Study Buddy AI"
+        title="AI Study Buddy"
       >
+        <div className="ai-fab-glow" />
         {aiOpen ? (
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         ) : (
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            <path d="M8 9h8M8 13h6" strokeOpacity="0.5"/>
           </svg>
         )}
       </button>
@@ -1384,23 +1666,54 @@ export default function ApprenantLearning() {
       <div className={`ai-drawer ${aiOpen ? 'open' : ''}`}>
         <div className="ai-drawer-header">
           <h2 className="ai-drawer-title">Study Buddy</h2>
-          <p className="ai-drawer-subtitle">Je t'aide à comprendre cette leçon en temps réel.</p>
+          <p className="ai-drawer-subtitle">Your intelligent learning companion, powered by AI.</p>
         </div>
 
         <div className="ai-messages">
           {aiMessages.length === 0 && (
-            <div style={{ textAlign: 'center', marginTop: 40, opacity: 0.5 }}>
-              <div style={{ fontSize: 40, marginBottom: 12 }}>🤖</div>
-              <p style={{ fontSize: 13 }}>Pose-moi une question sur cette leçon ou demande-moi un résumé.</p>
-              <button className="ai-quick-btn" style={{ margin: '20px auto 0' }} onClick={() => handleAiAction('summarize')}>
-                ✨ Résumer la leçon
+            <div className="ai-welcome">
+              <div className="ai-welcome-icon">🎓</div>
+              <h3 style={{ margin: 0, color: '#f0ebe0', fontSize: 18, fontWeight: 400 }}>How can I help you?</h3>
+              <p className="ai-welcome-text">I can summarize this lesson, explain complex concepts, or answer your questions based on the course materials.</p>
+              <button className="ai-quick-btn" onClick={() => handleAiAction('summarize')}>
+                ✨ Summarize this lesson
               </button>
             </div>
           )}
           
           {aiMessages.map((msg, idx) => (
-            <div key={idx} className={`ai-msg ${msg.role}`}>
-              {msg.text}
+            <div key={idx} className={`ai-msg-group ${msg.role}`}>
+              <div className="ai-msg-label">
+                {msg.role === 'user' ? 'You' : 'Buddy'}
+              </div>
+              <div className={`ai-msg ${msg.role}`}>
+                {renderFormattedText(msg.text)}
+                
+                {msg.role === 'ai' && (
+                  <button 
+                    onClick={() => copyToClipboard(msg.text)}
+                    style={{ 
+                      position: 'absolute', 
+                      bottom: 8, 
+                      right: 8, 
+                      background: 'none', 
+                      border: 'none', 
+                      color: '#444', 
+                      cursor: 'pointer',
+                      padding: 4,
+                      borderRadius: 4,
+                      transition: 'color 0.2s'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.color = '#c8a86e'}
+                    onMouseLeave={e => e.currentTarget.style.color = '#444'}
+                    title="Copy to clipboard"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                    </svg>
+                  </button>
+                )}
+              </div>
             </div>
           ))}
 
@@ -1427,14 +1740,14 @@ export default function ApprenantLearning() {
           >
             <input 
               className="ai-input" 
-              placeholder="Pose ta question..." 
+              placeholder="Ask me anything..." 
               value={aiInput}
               onChange={(e) => setAiInput(e.target.value)}
               disabled={aiLoading}
             />
             <button className="ai-send-btn" disabled={aiLoading || !aiInput.trim()}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2z"/>
               </svg>
             </button>
           </form>

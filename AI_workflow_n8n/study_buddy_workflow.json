@@ -1,5 +1,5 @@
 {
-  "name": "AI Study Buddy v1",
+  "name": "AI Study Buddy v2 (File Reader)",
   "nodes": [
     {
       "parameters": {
@@ -13,8 +13,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
       "position": [
-        400,
-        100
+        200,
+        200
       ]
     },
     {
@@ -29,8 +29,8 @@
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1,
       "position": [
-        600,
-        100
+        400,
+        200
       ]
     },
     {
@@ -45,29 +45,71 @@
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1,
       "position": [
-        800,
-        100
+        600,
+        200
       ]
     },
     {
       "parameters": {
-        "jsCode": "const lecon = $('Fetch Lecon').first().json;\nconst contents = $('Fetch Contents').all().map(i => i.json);\nconst action = $('Webhook').first().json.body.action || 'explain';\nconst question = $('Webhook').first().json.body.question || '';\n\n// Build a comprehensive knowledge block for the AI\nlet context = `TITRE DE LA LECON: ${lecon.titre}\\n`;\ncontext += `DESCRIPTION: ${lecon.description || 'N/A'}\\n\\n`;\ncontext += `CONTENU DETAILLÉ:\\n`;\n\ncontents.forEach((c, i) => {\n  context += `--- Element ${i+1} (${c.type}) ---\\n`;\n  context += `Titre: ${c.title}\\n`;\n  if (c.description) context += `Description: ${c.description}\\n`;\n  if (c.url) context += `Source: ${c.url}\\n`;\n  context += `\\n`;\n});\n\nreturn [{ json: { context, action, question, leconTitle: lecon.titre } }];"
+        "jsCode": "const contents = $input.all();\nconst files = contents.filter(c => c.json.type === 'file' && c.json.url);\nreturn files.map(f => ({\n  json: f.json,\n  pairedItem: f.pairedItem\n}));"
+      },
+      "id": "node_filter_files",
+      "name": "Filter Files",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=http://host.docker.internal:5000{{ $json.url }}",
+        "responseFormat": "file",
+        "options": {}
+      },
+      "id": "node_download",
+      "name": "Download File",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1000,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "id": "node_extract",
+      "name": "Extract Text",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const lecon = $('Fetch Lecon').first().json;\nconst allContents = $('Fetch Contents').all().map(i => i.json);\nconst action = $('Webhook').first().json.body.action || 'explain';\nconst question = $('Webhook').first().json.body.question || '';\n\n// Get extracted text from files (if any)\nlet extractedText = \"\";\ntry {\n  const fileNodes = $('Extract Text').all();\n  extractedText = fileNodes.map(f => f.json.text).join('\\n\\n---\\n\\n');\n} catch (e) {\n  extractedText = \"No file text extracted.\";\n}\n\nlet context = `LESSON TITLE: ${lecon.titre}\\n`;\ncontext += `DESCRIPTION: ${lecon.description || 'N/A'}\\n\\n`;\n\n// Safety: Truncate extracted text to 15,000 characters to avoid rate limits\nconst safeText = extractedText.substring(0, 15000);\nif (extractedText.length > 15000) {\n  context += `--- FULL TEXT CONTENT (TRUNCATED FOR SPEED) ---\\n${safeText}\\n[...Text truncated due to size...]\\n\\n`;\n} else {\n  context += `--- FULL TEXT CONTENT FROM DOCUMENTS ---\\n${safeText}\\n\\n`;\n}\n\ncontext += `--- ADDITIONAL METADATA ---\\n`;\n\nallContents.forEach((c, i) => {\n  context += `- ${c.type}: ${c.title} (${c.description || ''})\\n`;\n});\n\nreturn [{ json: { context, action, question, leconTitle: lecon.titre } }];"
       },
       "id": "node_merge",
       "name": "Merge Context",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1000,
-        100
+        1450,
+        200
       ]
     },
     {
       "parameters": {
         "promptType": "define",
-        "text": "=ACTION DEMANDÉE: {{ $json.action }}\nQUESTION DE L'ÉTUDIANT: {{ $json.question }}\n\nCONTEXTE DE LA LEÇON:\n{{ $json.context }}\n\nRéponds de manière pédagogique et encourageante en utilisant uniquement le contexte fourni ci-dessus.",
+        "text": "=ACTION: {{ $json.action }}\\nSTUDENT QUESTION: {{ $json.question }}\\n\\nLESSON KNOWLEDGE BASE:\\n{{ $json.context }}\\n\\nInstructions: Use the provided knowledge base to answer the student accurately.",
         "options": {
-          "systemMessage": "=Tu es un assistant d'apprentissage intelligent (Study Buddy) pour la plateforme de formation. Ton rôle est d'aider l'étudiant à comprendre la leçon : \"{{ $json.leconTitle }}\".\n\nCONSIGNES:\n- Si l'action est 'summarize', fais un résumé court et percutant en 3 points clés.\n- Si l'action est 'explain', réponds à la question de l'étudiant de manière claire.\n- Sois toujours poli, utilise un ton motivant.\n- Ne parle jamais de sujets hors de la leçon.\n- Réponds en français."
+          "systemMessage": "=You are 'Study Buddy', a friendly and brilliant AI tutor. \\n\\nTONE & STYLE:\\n- Be warm, encouraging, and highly professional.\\n- Use **bold** for all key terms and technologies.\\n- Use bullet points to break down complex ideas.\\n- Never start with disclaimers or 'I am an AI'. Just dive into the knowledge!\\n- If the lesson title seems different from the content, focus on explaining the content of the PDF clearly.\\n- Structure your response like a high-end AI assistant (Gemini/ChatGPT)."
         }
       },
       "id": "node_agent",
@@ -75,106 +117,49 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1,
       "position": [
-        1200,
-        100
+        1700,
+        200
       ]
     },
     {
       "parameters": {
-        "model": "llama3-70b-8192",
+        "model": "llama-3.3-70b-versatile",
         "options": {
-          "temperature": 0.5
+          "temperature": 0.4
         }
       },
       "id": "node_groq",
-      "name": "Groq Chat Model",
+      "name": "Groq",
       "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
       "typeVersion": 1,
       "position": [
-        1200,
-        260
+        1700,
+        360
       ]
     },
     {
       "parameters": {
-        "jsCode": "const output = $input.first().json.output || $input.first().json.text || \"Désolé, je n'ai pas pu générer de réponse.\";\n\nreturn [{\n  json: {\n    success: true,\n    answer: output,\n    action: $('Merge Context').first().json.action\n  }\n}];"
+        "jsCode": "const output = $input.first().json.output || \"Désolé, je n'ai pas pu lire les fichiers.\";\nreturn [{ json: { success: true, answer: output } }];"
       },
-      "id": "node_format_response",
+      "id": "node_format",
       "name": "Format Response",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1400,
-        100
+        1950,
+        200
       ]
     }
   ],
   "connections": {
-    "Webhook": {
-      "main": [
-        [
-          {
-            "node": "Fetch Lecon",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Fetch Lecon": {
-      "main": [
-        [
-          {
-            "node": "Fetch Contents",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Fetch Contents": {
-      "main": [
-        [
-          {
-            "node": "Merge Context",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Merge Context": {
-      "main": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Groq Chat Model": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "AI Agent": {
-      "main": [
-        [
-          {
-            "node": "Format Response",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    }
+    "Webhook": { "main": [[{ "node": "Fetch Lecon", "type": "main", "index": 0 }]] },
+    "Fetch Lecon": { "main": [[{ "node": "Fetch Contents", "type": "main", "index": 0 }]] },
+    "Fetch Contents": { "main": [[{ "node": "Filter Files", "type": "main", "index": 0 }, { "node": "Merge Context", "type": "main", "index": 0 }]] },
+    "Filter Files": { "main": [[{ "node": "Download File", "type": "main", "index": 0 }]] },
+    "Download File": { "main": [[{ "node": "Extract Text", "type": "main", "index": 0 }]] },
+    "Extract Text": { "main": [[{ "node": "Merge Context", "type": "main", "index": 0 }]] },
+    "Merge Context": { "main": [[{ "node": "AI Agent", "type": "main", "index": 0 }]] },
+    "Groq": { "ai_languageModel": [[{ "node": "AI Agent", "type": "ai_languageModel", "index": 0 }]] },
+    "AI Agent": { "main": [[{ "node": "Format Response", "type": "main", "index": 0 }]] }
   }
 }
