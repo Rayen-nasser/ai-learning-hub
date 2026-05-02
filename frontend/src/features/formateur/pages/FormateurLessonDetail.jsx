@@ -548,7 +548,7 @@ export default function FormateurLessonDetail() {
                             setFile(e.target.files[0]);
                           }
                         }} 
-                        accept={contentType === 'image' ? 'image/*' : contentType === 'video' ? 'video/*' : '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx'} 
+                        accept="" 
                         style={{ color: '#888', fontSize: 14 }} 
                       />
                     </div>
