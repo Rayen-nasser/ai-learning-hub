@@ -6,7 +6,29 @@ import client from '../../../services/client';
 import { useAuth } from '../../../shared/context/AuthContext';
 import AICourseRecommender from '../../../shared/components/AICourseRecommender';
 
-const CATEGORY_ICONS = ['✦', '◈', '⊕', '◉', '⬡', '⟁', '⊞', '⬖'];
+const getCategoryIcon = (name = '') => {
+  const n = name.toLowerCase();
+  if (/info|tech|digit|logiciel|software|web|code|program|dev|cyber|data|ia|ai|intelligence|machine|robot/.test(n)) return '💻';
+  if (/design|graph|art|créat|creat|ui|ux|illust|photo|video|film|media|visual/.test(n)) return '🎨';
+  if (/market|vente|commerce|business|entrepreneur|startup|digital marketing/.test(n)) return '📈';
+  if (/langue|langu|english|français|arab|espagn|chinese|translat|communicat/.test(n)) return '🌐';
+  if (/music|musiq|piano|guitar|chant|audio|son|sound/.test(n)) return '🎵';
+  if (/math|physiq|chimie|science|biolog|géograph|géo|astro/.test(n)) return '🔬';
+  if (/santé|health|médecin|medical|nutri|sport|fitness|bien.être|yoga|psycho/.test(n)) return '🏥';
+  if (/droit|law|juridiq|legal|fiscal|comptab|finance|économi|audit/.test(n)) return '⚖️';
+  if (/cuisine|cook|patisser|chef|food|alimentation/.test(n)) return '🍳';
+  if (/enfant|child|kid|école|primar|secondair|bac/.test(n)) return '🎒';
+  if (/photo|photographi/.test(n)) return '📷';
+  if (/architecture|bâtiment|construction|civil|géni/.test(n)) return '🏗️';
+  if (/mode|fashion|coutur|textile|beauté|coiffur/.test(n)) return '👗';
+  if (/agricultur|agro|nature|environnement|écologi/.test(n)) return '🌿';
+  if (/gestion|manag|leadership|rh|ressource|human|team/.test(n)) return '🤝';
+  if (/électricité|électroniq|mechanic|mécanic|industri|énergié|énergi/.test(n)) return '⚙️';
+  if (/tourisme|voyage|hôtellerie|hospitality|restaur/.test(n)) return '✈️';
+  if (/immobilier|real estate|propert/.test(n)) return '🏠';
+  if (/jeu|game|anim|3d|unity|unreal/.test(n)) return '🎮';
+  return '📚'; // default fallback
+};
 
 const Home = () => {
   const { user } = useAuth();
@@ -459,7 +481,7 @@ const Home = () => {
             <div className="cats-grid">
               {categories.map((cat, i) => (
                 <Link key={cat._id} to={`/formations?categorieId=${cat._id}`} className="cat-card">
-                  <div className="cat-icon">{CATEGORY_ICONS[i % CATEGORY_ICONS.length]}</div>
+                  <div className="cat-icon">{getCategoryIcon(cat.nom || cat.name)}</div>
                   <div className="cat-name">{cat.nom || cat.name}</div>
                 </Link>
               ))}
