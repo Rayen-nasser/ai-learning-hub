@@ -1,7 +1,7 @@
 const userModel = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const { parseJsonIfString } = require("../utils/parser");
-const { validateUser } = require("../validations/user.validation");
+const { validateUser, validateUserUpdate } = require("../validations/user.validation");
 
 const maxage = 3 * 24 * 60 * 60;
 const secretKey = process.env.JWT_SECRET;
@@ -53,7 +53,7 @@ const sanitizePublicUser = (user) => {
 };
 
 const ALLOWED_UPDATE_FIELDS = [
-  "nom", "prenom", "telephone", "user_image",
+  "nom", "prenom", "email", "telephone", "user_image",
   "niveauEtude", "dateNaissance", "adresse",
   "specialite", "experience", "statut",
   "centreIds", "skills",
@@ -152,6 +152,14 @@ module.exports.createUser = async (req, res) => {
       centreIds: parseJsonIfString(centreIds),
       skills: parseJsonIfString(skills),
     });
+
+    if (newUser.role === "admin") {
+      const adminExists = await userModel.findOne({ role: "admin" });
+      if (adminExists) {
+        return res.status(400).json({ message: "An admin account already exists. Only one admin is allowed." });
+      }
+    }
+
     await newUser.save();
     const populatedUser = await userModel.findById(newUser._id).populate(POPULATE_CONFIG);
     const token = createToken(newUser._id);
@@ -211,6 +219,14 @@ module.exports.createUserWithImage = async (req, res) => {
       centreIds: parseJsonIfString(centreIds),
       skills: parseJsonIfString(skills),
     });
+
+    if (newUser.role === "admin") {
+      const adminExists = await userModel.findOne({ role: "admin" });
+      if (adminExists) {
+        return res.status(400).json({ message: "An admin account already exists. Only one admin is allowed." });
+      }
+    }
+
     await newUser.save();
     const populatedUser = await userModel.findById(newUser._id).populate(POPULATE_CONFIG);
     const token = createToken(newUser._id);
@@ -250,7 +266,7 @@ module.exports.updateUser = async (req, res) => {
     }
 
     // Validate updates
-    const { error } = validateUser(updates);
+    const { error } = validateUserUpdate(updates);
     if (error) {
       return res.status(400).json({ message: error.details[0].message, details: error.details });
     }
@@ -276,6 +292,18 @@ module.exports.updateUser = async (req, res) => {
 module.exports.deleteUser = async (req, res) => {
   try {
     const userId = req.params.id;
+    const currentUser = req.user;
+
+    // Admin cannot delete themselves
+    if (currentUser.role === 'admin' && currentUser._id.toString() === userId) {
+      return res.status(400).json({ message: "Admin cannot delete their own account." });
+    }
+
+    // Only admin can delete users (unless a user is deleting themselves, but prompt says admin can't delete self)
+    if (currentUser.role !== 'admin' && currentUser._id.toString() !== userId) {
+        return res.status(403).json({ message: "You do not have permission to delete this user." });
+    }
+
     const deletedUser = await userModel.findByIdAndDelete(userId);
     if (!deletedUser) {
       return res.status(404).json({ message: "User not found" });

@@ -377,7 +377,7 @@ const Profile = () => {
   const [changingPw, setChangingPw] = useState(false);
 
   const [formData, setFormData] = useState({
-    nom: '', prenom: '', telephone: '',
+    nom: '', prenom: '', email: '', telephone: '',
     niveauEtude: '', dateNaissance: '', adresse: '',
     specialite: '', experience: '', user_image: null,
     skills: [],
@@ -417,6 +417,7 @@ const Profile = () => {
       setFormData({
         nom: d.nom || '',
         prenom: d.prenom || '',
+        email: d.email || '',
         telephone: d.telephone || '',
         niveauEtude: d.niveauEtude || '',
         dateNaissance: d.dateNaissance ? d.dateNaissance.split('T')[0] : '',
@@ -465,8 +466,14 @@ const Profile = () => {
       if (formData.user_image instanceof File) {
         dataToSend = new FormData();
         Object.keys(formData).forEach(key => {
-          if (formData[key] !== null && formData[key] !== undefined)
-            dataToSend.append(key, formData[key]);
+          if (formData[key] !== null && formData[key] !== undefined) {
+            if (Array.isArray(formData[key])) {
+              // Append arrays as JSON string for the parser to handle
+              dataToSend.append(key, JSON.stringify(formData[key]));
+            } else {
+              dataToSend.append(key, formData[key]);
+            }
+          }
         });
       } else {
         const { user_image: _u, ...rest } = formData;
@@ -489,6 +496,7 @@ const Profile = () => {
       setFormData({
         nom: profile.nom || '',
         prenom: profile.prenom || '',
+        email: profile.email || '',
         telephone: profile.telephone || '',
         niveauEtude: profile.niveauEtude || '',
         dateNaissance: profile.dateNaissance ? profile.dateNaissance.split('T')[0] : '',
@@ -729,7 +737,7 @@ const Profile = () => {
                 </div>
                 <InfoRow label="First Name" value={profile?.prenom} name="prenom" editing={editing} formData={formData} onChange={handleChange} />
                 <InfoRow label="Last Name" value={profile?.nom} name="nom" editing={editing} formData={formData} onChange={handleChange} />
-                <InfoRow label="Email" value={profile?.email} name="email" editing={false} formData={formData} onChange={handleChange} />
+                <InfoRow label="Email" value={profile?.email} name="email" editing={editing} formData={formData} onChange={handleChange} />
                 <InfoRow label="Phone" value={profile?.telephone} name="telephone" editing={editing} formData={formData} onChange={handleChange} type="tel" />
               </div>
 
@@ -889,24 +897,26 @@ const Profile = () => {
             </div>
 
             {/* ── Danger Zone ── */}
-            <div className="pf-danger-zone">
-              <div className="pf-danger-header">
-                <div className="pf-danger-header-dot" />
-                <span className="pf-danger-header-label">Danger Zone</span>
-              </div>
-              <div className="pf-danger-body">
-                <div className="pf-danger-info">
-                  <div className="pf-danger-title">Delete Account</div>
-                  <div className="pf-danger-desc">Permanently remove your account and all associated data. This cannot be undone.</div>
+            {profile?.role !== 'admin' && (
+              <div className="pf-danger-zone">
+                <div className="pf-danger-header">
+                  <div className="pf-danger-header-dot" />
+                  <span className="pf-danger-header-label">Danger Zone</span>
                 </div>
-                <button className="pf-btn-open-delete" onClick={() => setShowDeleteModal(true)}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2" />
-                  </svg>
-                  Delete
-                </button>
+                <div className="pf-danger-body">
+                  <div className="pf-danger-info">
+                    <div className="pf-danger-title">Delete Account</div>
+                    <div className="pf-danger-desc">Permanently remove your account and all associated data. This cannot be undone.</div>
+                  </div>
+                  <button className="pf-btn-open-delete" onClick={() => setShowDeleteModal(true)}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2" />
+                    </svg>
+                    Delete
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
           </div>
         </div>

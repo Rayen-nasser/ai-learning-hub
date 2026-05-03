@@ -1,14 +1,21 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { formationService } from '../services/formation';
 import { leconService } from '../services/lecon';
+import { avisService } from '../../../services/api';
 import FormateurLayout from '../components/FormateurLayout';
 
 export default function FormateurFormationDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [formation, setFormation] = useState(null);
   const [lessons, setLessons] = useState([]);
+  const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('tab') || 'lessons';
+  }); // 'lessons' or 'reviews'
   const [showModal, setShowModal] = useState(false);
   const [editingLesson, setEditingLesson] = useState(null);
   const [formData, setFormData] = useState({ titre: '', description: '', ordre: 0 });
@@ -22,8 +29,13 @@ export default function FormateurFormationDetail() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const formationRes = await formationService.getById(id);
+      const [formationRes, reviewsRes] = await Promise.all([
+        formationService.getById(id),
+        avisService.getByFormation(id)
+      ]);
+      
       setFormation(formationRes.data.data);
+      setReviews(reviewsRes.data?.data || []);
       
       try {
         const lessonsRes = await leconService.getAll({ formationId: id });
@@ -37,6 +49,19 @@ export default function FormateurFormationDetail() {
       }
     } catch (e) {
       console.error('Failed to fetch data', e);
+      // FALLBACK: Maybe the ID is an Avis ID (from old notifications)
+      try {
+        const res = await avisService.getById(id);
+        const avisData = res.data.data || res.data;
+        if (avisData && avisData.formationId) {
+          const realFormationId = avisData.formationId;
+          // Redirect to the correct formation URL and switch to reviews tab
+          navigate(`/formateur/formations/${realFormationId}?tab=reviews`, { replace: true });
+          return;
+        }
+      } catch (avisErr) {
+        console.log('Not an avis ID fallback:', avisErr.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -116,6 +141,40 @@ export default function FormateurFormationDetail() {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
           Back to formations
         </Link>
+        <div style={{ display: 'flex', background: 'rgba(255,255,255,0.03)', padding: 4, borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)' }}>
+          <button 
+            onClick={() => setActiveTab('lessons')}
+            style={{
+              padding: '8px 16px',
+              borderRadius: 8,
+              border: 'none',
+              background: activeTab === 'lessons' ? 'rgba(200,168,110,0.1)' : 'transparent',
+              color: activeTab === 'lessons' ? '#c8a86e' : '#666',
+              fontSize: 13,
+              fontWeight: 500,
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+            }}
+          >
+            Lessons ({lessons.length})
+          </button>
+          <button 
+            onClick={() => setActiveTab('reviews')}
+            style={{
+              padding: '8px 16px',
+              borderRadius: 8,
+              border: 'none',
+              background: activeTab === 'reviews' ? 'rgba(200,168,110,0.1)' : 'transparent',
+              color: activeTab === 'reviews' ? '#c8a86e' : '#666',
+              fontSize: 13,
+              fontWeight: 500,
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+            }}
+          >
+            Student Feedback ({reviews.length})
+          </button>
+        </div>
         <button onClick={openCreate} style={{
           padding: '10px 20px',
           background: 'linear-gradient(135deg, #c8a86e, #b4915a)',
@@ -131,71 +190,121 @@ export default function FormateurFormationDetail() {
         </button>
       </div>
 
-      {lessons.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: 60, background: 'rgba(255,255,255,0.02)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.06)' }}>
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.5" style={{ marginBottom: 16 }}>
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-          </svg>
-          <div style={{ fontSize: 18, color: '#888', marginBottom: 8 }}>No lessons yet</div>
-          <div style={{ fontSize: 14, color: '#555' }}>Create your first lesson to start building content</div>
-        </div>
+      {activeTab === 'lessons' ? (
+        lessons.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: 60, background: 'rgba(255,255,255,0.02)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.06)' }}>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.5" style={{ marginBottom: 16 }}>
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            <div style={{ fontSize: 18, color: '#888', marginBottom: 8 }}>No lessons yet</div>
+            <div style={{ fontSize: 14, color: '#555' }}>Create your first lesson to start building content</div>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {lessons.map((lesson, index) => (
+              <div key={lesson._id} style={{
+                background: 'rgba(255,255,255,0.02)',
+                border: '1px solid rgba(255,255,255,0.06)',
+                borderRadius: 12,
+                padding: 20,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 16,
+                transition: 'all 0.15s',
+              }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(200,168,110,0.3)'}
+              onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'}
+              >
+                <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(200,168,110,0.1)', color: '#c8a86e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 600, flexShrink: 0 }}>
+                  {lesson.ordre || index + 1}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <Link to={`/formateur/formations/${id}/lessons/${lesson._id}`} style={{ textDecoration: 'none' }}>
+                    <div style={{ fontSize: 16, fontWeight: 500, color: '#f0ebe0', marginBottom: 4 }}>{lesson.titre}</div>
+                  </Link>
+                  {lesson.description && (
+                    <div style={{ fontSize: 13, color: '#666', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {lesson.description}
+                    </div>
+                  )}
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button onClick={() => openEdit(lesson)} style={{
+                    padding: '6px 14px',
+                    background: 'transparent',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: 6,
+                    color: '#888',
+                    fontSize: 13,
+                    cursor: 'pointer',
+                  }}>
+                    Edit
+                  </button>
+                  <button onClick={() => setConfirmDelete(lesson)} style={{
+                    padding: '6px 14px',
+                    background: 'transparent',
+                    border: '1px solid rgba(224,112,112,0.3)',
+                    borderRadius: 6,
+                    color: '#e07070',
+                    fontSize: 13,
+                    cursor: 'pointer',
+                  }}>
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {lessons.map((lesson, index) => (
-            <div key={lesson._id} style={{
-              background: 'rgba(255,255,255,0.02)',
-              border: '1px solid rgba(255,255,255,0.06)',
-              borderRadius: 12,
-              padding: 20,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 16,
-              transition: 'all 0.15s',
-            }}
-            onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(200,168,110,0.3)'}
-            onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'}
-            >
-              <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(200,168,110,0.1)', color: '#c8a86e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 600, flexShrink: 0 }}>
-                {lesson.ordre || index + 1}
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <Link to={`/formateur/formations/${id}/lessons/${lesson._id}`} style={{ textDecoration: 'none' }}>
-                  <div style={{ fontSize: 16, fontWeight: 500, color: '#f0ebe0', marginBottom: 4 }}>{lesson.titre}</div>
-                </Link>
-                {lesson.description && (
-                  <div style={{ fontSize: 13, color: '#666', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {lesson.description}
+        /* REVIEWS TAB */
+        reviews.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: 60, background: 'rgba(255,255,255,0.02)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.06)' }}>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.5" style={{ marginBottom: 16 }}>
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <div style={{ fontSize: 18, color: '#888', marginBottom: 8 }}>No reviews yet</div>
+            <div style={{ fontSize: 14, color: '#555' }}>Student feedback will appear here once they start rating your course</div>
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
+            {reviews.map(review => (
+              <div key={review._id} style={{
+                background: 'rgba(255,255,255,0.02)',
+                border: '1px solid rgba(255,255,255,0.06)',
+                borderRadius: 12,
+                padding: 20,
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(124,168,212,0.1)', color: '#7ca8d4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 600 }}>
+                      {review.apprenantId?.prenom?.[0] || 'A'}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 500, color: '#f0ebe0' }}>
+                        {review.apprenantId?.prenom} {review.apprenantId?.nom}
+                      </div>
+                      <div style={{ fontSize: 11, color: '#555' }}>
+                        {new Date(review.createdAt).toLocaleDateString()}
+                      </div>
+                    </div>
                   </div>
-                )}
+                  <div style={{ display: 'flex', gap: 2 }}>
+                    {[...Array(5)].map((_, i) => (
+                      <svg key={i} width="12" height="12" viewBox="0 0 24 24" fill={i < review.note ? '#c8a86e' : 'rgba(255,255,255,0.1)'}>
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                      </svg>
+                    ))}
+                  </div>
+                </div>
+                <p style={{ margin: 0, fontSize: 14, color: '#888', lineHeight: 1.6, fontStyle: review.commentaire ? 'normal' : 'italic' }}>
+                  {review.commentaire || "No written comment provided."}
+                </p>
               </div>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button onClick={() => openEdit(lesson)} style={{
-                  padding: '6px 14px',
-                  background: 'transparent',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: 6,
-                  color: '#888',
-                  fontSize: 13,
-                  cursor: 'pointer',
-                }}>
-                  Edit
-                </button>
-                <button onClick={() => setConfirmDelete(lesson)} style={{
-                  padding: '6px 14px',
-                  background: 'transparent',
-                  border: '1px solid rgba(224,112,112,0.3)',
-                  borderRadius: 6,
-                  color: '#e07070',
-                  fontSize: 13,
-                  cursor: 'pointer',
-                }}>
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )
       )}
 
       {showModal && (

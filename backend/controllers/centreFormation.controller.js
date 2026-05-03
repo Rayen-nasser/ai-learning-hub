@@ -221,13 +221,23 @@ module.exports.createCentre = async (req, res) => {
 
     await newCentre.save();
     
-    // If admin created it, they might already have the role, but we ensure consistency
+    const { createNotification, notifyAdmins } = require("../utils/notification");
+    
     if (isAdmin) {
       const user = await userModel.findById(finalResponsableId);
       if (user && user.role !== 'admin' && user.role !== 'responsableCF') {
         user.role = 'responsableCF';
         await user.save();
       }
+    } else {
+      // Notify Admin about new request
+      await notifyAdmins({
+        type: "centre_verification_request",
+        title: "Nouvelle demande de centre",
+        message: `Une nouvelle demande de création de centre "${newCentre.nom}" a été soumise par ${req.user.prenom} ${req.user.nom}.`,
+        relatedId: newCentre._id,
+        relatedModel: "CentreFormation"
+      });
     }
     
     const populatedCentre = await centreFormationModel.findById(newCentre._id)
@@ -306,6 +316,16 @@ module.exports.approveCentre = async (req, res) => {
       await user.save();
     }
 
+    const { createNotification } = require("../utils/notification");
+    await createNotification({
+      userId: centre.responsableId,
+      type: "centre_verified",
+      title: "Centre approuvé ! 🎉",
+      message: `Félicitations ! Votre centre "${centre.nom}" a été approuvé par l'administrateur.`,
+      relatedId: centre._id,
+      relatedModel: "CentreFormation"
+    });
+
     res.status(200).json({ 
       message: "Centre approved successfully and user promoted to responsableCF", 
       data: sanitizeCentre(centre) 
@@ -328,6 +348,16 @@ module.exports.rejectCentre = async (req, res) => {
     centre.status = 'rejected';
     centre.adminMessage = adminMessage || "Your request was rejected after review.";
     await centre.save();
+
+    const { createNotification } = require("../utils/notification");
+    await createNotification({
+      userId: centre.responsableId,
+      type: "centre_rejected",
+      title: "Demande de centre rejetée",
+      message: `Votre demande pour le centre "${centre.nom}" a été rejetée. Motif : ${centre.adminMessage}`,
+      relatedId: centre._id,
+      relatedModel: "CentreFormation"
+    });
 
     res.status(200).json({ message: "Centre request rejected", data: sanitizeCentre(centre) });
   } catch (error) {

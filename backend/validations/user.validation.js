@@ -43,4 +43,10 @@ const validateUser = (data) => {
   return userSchema.validate(data, { abortEarly: false });
 };
 
-module.exports = { validateUser };
+const validateUserUpdate = (data) => {
+  // Make all fields optional for updates
+  const updateSchema = userSchema.fork(Object.keys(userSchema.describe().keys), (schema) => schema.optional());
+  return updateSchema.validate(data, { abortEarly: false });
+};
+
+module.exports = { validateUser, validateUserUpdate };

@@ -18,6 +18,12 @@ const notificationSchema = new mongoose.Schema(
         "report_submitted",
         "report_resolved",
         "new_formation",
+        "new_lesson",
+        "centre_verification_request",
+        "centre_verified",
+        "centre_rejected",
+        "new_enrollment",
+        "new_review",
         "system"
       ], 
       required: true 
@@ -25,9 +31,10 @@ const notificationSchema = new mongoose.Schema(
     title: { type: String, required: true },
     message: { type: String, required: true },
     relatedId: { type: mongoose.Schema.Types.ObjectId },
-    relatedModel: { type: String, enum: ["Paiement", "Inscription", "Formation", "Report", null] },
+    relatedModel: { type: String, enum: ["Paiement", "Inscription", "Formation", "Report", "CentreFormation", "Lecon", null] },
     read: { type: Boolean, default: false },
     emailSent: { type: Boolean, default: false },
+    metadata: { type: mongoose.Schema.Types.Mixed, default: {} },
   },
   { timestamps: true }
 );

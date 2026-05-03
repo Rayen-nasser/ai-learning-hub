@@ -105,7 +105,7 @@ module.exports.createAvis = async (req, res) => {
     const inscription = await inscriptionModel.findOne({
       apprenantId,
       formationId,
-      statut: "acceptée"
+      statut: "acceptee"
     });
     if (!inscription) {
       return res.status(403).json({ message: "You must be enrolled to review this formation" });
@@ -129,6 +129,26 @@ module.exports.createAvis = async (req, res) => {
     };
 
     res.status(201).json({ message: "Review created successfully", data: formattedAvis });
+
+    // Notify formateurs
+    try {
+      const { createNotification } = require("../utils/notification");
+      const formationPopulated = await formationModel.findById(formationId).select("titre formateurIds");
+      
+      const notifyPromises = formationPopulated.formateurIds.map(formateurId => 
+        createNotification({
+          userId: formateurId,
+          type: "new_review",
+          title: "Nouvel avis reçu",
+          message: `${req.user.prenom} ${req.user.nom} a laissé une note de ${note}/5 sur votre formation "${formationPopulated.titre}".`,
+          relatedId: formationId,
+          relatedModel: "Formation"
+        })
+      );
+      await Promise.all(notifyPromises);
+    } catch (notifyError) {
+      console.error("Failed to send review notification:", notifyError);
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -125,20 +125,42 @@ export default function ApprenantLearning() {
       const insRes = await inscriptionService.getMyInscriptions();
       const inscriptions = insRes.data.data || insRes.data || [];
       
-      const myInscription = inscriptions.find(ins => 
-        ins.formationId === formationId || 
-        ins.formation?._id === formationId
-      );
+      let currentFormationId = formationId;
+
+      let myInscription = inscriptions.find(ins => {
+        const insFormationId = String(ins.formationId || (ins.formation?._id) || "");
+        return insFormationId === String(currentFormationId);
+      });
+
+      // FALLBACK: If not found, maybe the ID in the URL is a Lesson ID (from old notifications)
+      if (!myInscription) {
+        try {
+          const lessonRes = await leconService.getById(currentFormationId);
+          const lessonData = lessonRes.data.data || lessonRes.data;
+          if (lessonData && lessonData.formationId) {
+            const realFormationId = typeof lessonData.formationId === 'object' ? lessonData.formationId._id : lessonData.formationId;
+            
+            // Redirect to the correct formation URL
+            navigate(`/apprenant/learn/${realFormationId}?lesson=${currentFormationId}`, { replace: true });
+            return; // Exit and let the next mount handle it
+          }
+        } catch (e) {
+          // Not a lesson ID or other error, proceed to access denied
+          console.log('Not a lesson ID fallback:', e.message);
+        }
+      }
       
-      if (!myInscription || myInscription.statut !== 'acceptee') {
+      console.log('Access Debug:', { formationId: currentFormationId, found: !!myInscription, status: myInscription?.statut });
+
+      if (!myInscription || (myInscription.statut !== 'acceptee' && myInscription.statut !== 'acceptée')) {
         setAccessDenied(true);
         setLoading(false);
         return;
       }
 
       const [formationRes, lessonsRes] = await Promise.all([
-        formationService.getById(formationId),
-        leconService.getByFormation(formationId),
+        formationService.getById(currentFormationId),
+        leconService.getByFormation(currentFormationId),
       ]);
       const formationData = formationRes.data.data || formationRes.data;
       const lessonsData = lessonsRes.data.data || lessonsRes.data || [];
@@ -147,8 +169,18 @@ export default function ApprenantLearning() {
       setLessons(lessonsData);
       
       if (lessonsData.length > 0) {
-        setCurrentLesson(lessonsData[0]);
-        fetchLessonContent(lessonsData[0]._id);
+        // Check for lesson ID in query params
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetLessonId = urlParams.get('lesson');
+        
+        let initialLesson = lessonsData[0];
+        if (targetLessonId) {
+          const found = lessonsData.find(l => l._id === targetLessonId);
+          if (found) initialLesson = found;
+        }
+
+        setCurrentLesson(initialLesson);
+        fetchLessonContent(initialLesson._id);
       }
     } catch (e) {
       console.error('Failed to fetch data', e);

@@ -112,6 +112,33 @@ module.exports.createInscription = async (req, res) => {
     });
     await newInscription.save();
 
+    const { createNotification } = require("../utils/notification");
+    
+    if (statut === "acceptee") {
+      // Notify student of instant approval (free course)
+      await createNotification({
+        userId: apprenantId,
+        type: "inscription_accepted",
+        title: "Inscription confirmée ! 🎉",
+        message: `Votre inscription à "${formation.titre}" a été acceptée. Vous pouvez commencer à apprendre dès maintenant.`,
+        relatedId: newInscription._id,
+        relatedModel: "Inscription"
+      });
+    } else {
+      // Notify Responsable about new request
+      const centre = await centreFormationModel.findById(formation.centreId);
+      if (centre?.responsableId) {
+        await createNotification({
+          userId: centre.responsableId,
+          type: "new_enrollment",
+          title: "Nouvelle demande d'inscription",
+          message: `${req.user.prenom} ${req.user.nom} souhaite s'inscrire à "${formation.titre}".`,
+          relatedId: newInscription._id,
+          relatedModel: "Inscription"
+        });
+      }
+    }
+
     const populatedInscription = await inscriptionModel.findById(newInscription._id)
       .populate("apprenantId", "nom prenom")
       .populate("formationId", "titre");
@@ -189,6 +216,16 @@ module.exports.rejectInscription = async (req, res) => {
       dateAcceptation: Date.now()
     });
 
+    const { createNotification } = require("../utils/notification");
+    await createNotification({
+      userId: inscription.apprenantId,
+      type: "inscription_rejected",
+      title: "Inscription refusée",
+      message: `Votre demande d'inscription pour "${inscription.formationId.titre}" a été refusée.`,
+      relatedId: inscription._id,
+      relatedModel: "Inscription"
+    });
+
     res.status(200).json({ message: "Inscription rejected successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -227,6 +264,16 @@ module.exports.reactivateInscription = async (req, res) => {
     await inscriptionModel.findByIdAndUpdate(req.params.id, {
       statut: "acceptee",
       dateAcceptation: Date.now()
+    });
+
+    const { createNotification } = require("../utils/notification");
+    await createNotification({
+      userId: inscription.apprenantId,
+      type: "inscription_accepted",
+      title: "Inscription acceptée ! 🎉",
+      message: `Votre inscription pour "${inscription.formationId.titre}" a été réactivée.`,
+      relatedId: inscription._id,
+      relatedModel: "Inscription"
     });
 
     res.status(200).json({ message: "Inscription reactivated successfully" });

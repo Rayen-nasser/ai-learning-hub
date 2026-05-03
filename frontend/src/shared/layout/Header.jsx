@@ -115,65 +115,77 @@ const Header = () => {
         .hd-user-chevron.open { transform: rotate(180deg); }
 
         .hd-user-dropdown {
-          position: absolute; top: calc(100% + 8px); right: 0;
-          background: #1a1a1e;
-          border: 1px solid rgba(255,255,255,0.1);
-          border-radius: 12px;
-          min-width: 220px;
-          padding: 8px;
-          box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+          position: absolute; top: calc(100% + 12px); right: 0;
+          background: #16161a;
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 16px;
+          min-width: 260px;
+          padding: 12px;
+          box-shadow: 0 20px 50px rgba(0,0,0,0.5);
           opacity: 0; visibility: hidden;
-          transform: translateY(-8px);
-          transition: all 0.2s ease;
+          transform: translateY(-12px);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           z-index: 150;
         }
         .hd-user-dropdown.open { opacity: 1; visibility: visible; transform: translateY(0); }
 
         .hd-dropdown-header {
-          padding: 12px 12px 16px;
+          padding: 12px 16px 20px;
           border-bottom: 1px solid rgba(255,255,255,0.06);
           margin-bottom: 8px;
         }
-        .hd-dropdown-name { font-size: 14px; font-weight: 500; color: #e8e4dc; margin-bottom: 2px; }
-        .hd-dropdown-email { font-size: 12px; color: #555; }
+        .hd-dropdown-name { font-size: 15px; font-weight: 500; color: #f0ebe0; margin-bottom: 4px; }
+        .hd-dropdown-email { font-size: 12px; color: #555; margin-bottom: 10px; }
         .hd-dropdown-role {
           display: inline-block;
-          padding: 2px 8px;
-          border-radius: 4px;
+          padding: 3px 10px;
+          border-radius: 6px;
           font-size: 10px;
+          font-weight: 600;
           text-transform: uppercase;
-          letter-spacing: 0.05em;
-          margin-top: 6px;
+          letter-spacing: 0.08em;
+          background: rgba(180,145,90,0.15);
+          color: #b4915a;
         }
         .hd-dropdown-role.admin { background: rgba(224,112,112,0.15); color: #e07070; }
         .hd-dropdown-role.respCF { background: rgba(125,191,125,0.15); color: #7dbf7d; }
-        .hd-dropdown-role.formateur { background: rgba(200,168,110,0.15); color: #c8a86e; }
-        .hd-dropdown-role.apprenant { background: rgba(106,159,216,0.15); color: #6a9fd8; }
 
-        .hd-dropdown-section { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: #555; padding: 8px 12px 4px; }
+        .hd-dropdown-section { 
+          font-size: 10px; 
+          font-weight: 600;
+          text-transform: uppercase; 
+          letter-spacing: 0.12em; 
+          color: #444; 
+          padding: 16px 16px 8px; 
+        }
+        
         .hd-dropdown-link {
-          display: flex; align-items: center; gap: 10px;
-          padding: 10px 12px; border-radius: 8px;
-          font-size: 13px; color: #888; text-decoration: none;
-          transition: all 0.15s;
+          display: flex; align-items: center; gap: 12px;
+          padding: 10px 16px; border-radius: 10px;
+          font-size: 14px; color: #999; text-decoration: none;
+          transition: all 0.2s ease;
         }
-        .hd-dropdown-link:hover { background: rgba(255,255,255,0.05); color: #e8e4dc; }
-        .hd-dropdown-link svg { width: 16px; height: 16px; opacity: 0.7; }
-        .hd-dropdown-link.admin-link { color: #e07070; }
-        .hd-dropdown-link.admin-link:hover { background: rgba(224,112,112,0.1); color: #e07070; }
-        .hd-dropdown-link.resp-link { color: #7dbf7d; }
-        .hd-dropdown-link.resp-link:hover { background: rgba(125,191,125,0.1); color: #7dbf7d; }
+        .hd-dropdown-link:hover { background: rgba(255,255,255,0.04); color: #f0ebe0; }
+        .hd-dropdown-link svg { width: 18px; height: 18px; opacity: 0.6; stroke-width: 1.5; }
+        
+        .hd-dropdown-link.admin-link { color: #e07070; opacity: 0.8; }
+        .hd-dropdown-link.admin-link:hover { opacity: 1; background: rgba(224,112,112,0.08); color: #e07070; }
+        
+        .hd-dropdown-link.resp-link { color: #7dbf7d; opacity: 0.8; }
+        .hd-dropdown-link.resp-link:hover { opacity: 1; background: rgba(125,191,125,0.08); color: #7dbf7d; }
 
-        .hd-dropdown-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 8px 0; }
+        .hd-dropdown-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 8px 12px; }
+        
         .hd-dropdown-btn {
-          display: flex; align-items: center; gap: 10px;
-          width: 100%; padding: 10px 12px; border-radius: 8px;
-          font-size: 13px; color: #e07070; background: none; border: none;
-          cursor: pointer; transition: all 0.15s;
+          display: flex; align-items: center; gap: 12px;
+          width: 100%; padding: 12px 16px; border-radius: 10px;
+          font-size: 14px; color: #e07070; background: none; border: none;
+          cursor: pointer; transition: all 0.2s;
           font-family: 'DM Sans', sans-serif;
+          margin-top: 4px;
         }
-        .hd-dropdown-btn:hover { background: rgba(224,112,112,0.1); }
-        .hd-dropdown-btn svg { width: 16px; height: 16px; }
+        .hd-dropdown-btn:hover { background: rgba(224,112,112,0.08); }
+        .hd-dropdown-btn svg { width: 18px; height: 18px; stroke-width: 1.5; }
 
         .hd-signin {
           padding: 7px 16px; border-radius: 8px;
@@ -313,6 +325,10 @@ const Header = () => {
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                             Verify Centers
                           </Link>
+                          <Link to="/admin/categories" className="hd-dropdown-link admin-link">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                            Categories
+                          </Link>
                         </>
 
                       )}
@@ -338,12 +354,12 @@ const Header = () => {
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                             Payments
                           </Link>
+                          <Link to="/admin/categories" className="hd-dropdown-link resp-link">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                            Categories
+                          </Link>
                         </>
                       )}
-                      <Link to="/admin/categories" className="hd-dropdown-link resp-link">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-                        Categories
-                      </Link>
                     </>
                   )}
                   {user.role !== 'admin' && user.role !== 'responsableCF' && (

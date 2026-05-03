@@ -214,6 +214,30 @@ module.exports.createLecon = async (req, res) => {
     });
 
     await newLecon.save();
+
+    // Notify enrolled students
+    if (formationId) {
+      const { createNotification } = require("../utils/notification");
+      const inscriptions = await inscriptionModel.find({ 
+        formationId, 
+        statut: "acceptee" 
+      }).select("apprenantId");
+      
+      const formation = await formationModel.findById(formationId).select("titre");
+      
+      const notifyPromises = inscriptions.map(ins => 
+        createNotification({
+          userId: ins.apprenantId,
+          type: "new_lesson",
+          title: "Nouvelle leçon disponible !",
+          message: `Une nouvelle leçon "${newLecon.titre}" a été ajoutée à votre formation "${formation.titre}".`,
+          relatedId: formationId,
+          relatedModel: "Formation",
+          metadata: { lessonId: newLecon._id }
+        })
+      );
+      await Promise.all(notifyPromises);
+    }
     const populatedLecon = await leconModel.findById(newLecon._id)
       .populate("formationId", "titre description prix duree")
       .populate("formateurId", "nom prenom");

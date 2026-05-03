@@ -5,26 +5,27 @@
  * @returns {Array} - Always returns an array
  */
 const parseJsonIfString = (val) => {
+  let result = [];
   if (typeof val === 'string') {
     try {
       const parsed = JSON.parse(val);
-      return Array.isArray(parsed) ? parsed : [parsed];
+      result = Array.isArray(parsed) ? parsed : [parsed];
     } catch (e) {
-      return [val];
+      result = [val];
     }
-  }
-  
-  // Handle nested stringified JSON in array (common with some frontend libraries/multer)
-  if (Array.isArray(val) && val.length === 1 && typeof val[0] === 'string' && val[0].trim().startsWith('[')) {
+  } else if (Array.isArray(val) && val.length === 1 && typeof val[0] === 'string' && val[0].trim().startsWith('[')) {
     try {
       const parsed = JSON.parse(val[0]);
-      return Array.isArray(parsed) ? parsed : [parsed];
+      result = Array.isArray(parsed) ? parsed : [parsed];
     } catch (e) {}
+  } else if (Array.isArray(val)) {
+    result = val;
+  } else if (val) {
+    result = [val];
   }
-  
-  if (Array.isArray(val)) return val;
-  if (val) return [val];
-  return [];
+
+  // Filter out null, undefined, empty strings, or whitespace-only strings
+  return result.filter(v => v !== null && v !== undefined && String(v).trim() !== "");
 };
 
 module.exports = { parseJsonIfString };
