@@ -1,67 +1,119 @@
 # AI Learning Hub (PFE 2026)
 
-Welcome to the **AI Learning Hub**. This project is a full-stack AI-Powered Learning Management System (LMS) designed to provide a modern, intelligent educational experience.
+Welcome to the **AI Learning Hub** — a full-stack, AI-Powered Learning Management System (LMS) built to deliver a modern, intelligent, and bilingual educational experience.
 
 ### 💡 About the Name
-The name **AI Learning Hub** was chosen to reflect the core identity of the platform:
-*   **AI**: Highlights the integrated **Artificial Intelligence** course recommender system.
-*   **Learning**: Focuses on the primary mission of the platform—**Education** and knowledge sharing.
-*   **Hub**: Represents the **Centralized** nature of the project, bringing together the Frontend, Backend, and AI workflows into one unified environment.
+- **AI** — Reflects the integrated Artificial Intelligence features: course recommender, AI Study Buddy, and smart analytics.
+- **Learning** — The primary mission: accessible, high-quality education for every user.
+- **Hub** — A centralized monorepo uniting the Frontend, Backend, and AI workflows.
+
+---
 
 ## 🏗️ Architecture Overview
 
-The project is split into three main components:
+| Layer | Technology | Role |
+|---|---|---|
+| **Backend** | Node.js + Express + MongoDB | REST API, Auth, Business Logic |
+| **Frontend** | React 18 + Vite | Student, Admin, Formateur & Responsable UIs |
+| **AI Workflows** | n8n (Docker) | Course Recommender & AI Study Buddy |
 
-1.  **Backend**: Express.js & MongoDB API handling authentication, data management, and integrations.
-2.  **Frontend**: A modern React & Tailwind CSS dashboard for learners and administrators.
-3.  **AI Workflow (n8n)**: Automation workflows for course recommendations and AI-driven logic.
+---
 
-## 🚀 Quick Start Guide
+## 🚀 Quick Start
 
-To get the entire system running locally, follow these steps in order:
-
-### 1. Prerequisites
-Ensure you have the following installed:
-- [Node.js](https://nodejs.org/) (v18+)
+### Prerequisites
+- [Node.js](https://nodejs.org/) v18+
 - [MongoDB](https://www.mongodb.com/)
 - [Docker](https://www.docker.com/) (for AI workflows)
 
-### 2. Setup the Backend
+### 1. Backend
 ```bash
 cd backend
 npm install
-cp .env.example .env  # Fill in your MongoDB URL and JWT Secret
-npm run dev
+cp .env.example .env   # Fill in MONGO_URI, JWT_SECRET, etc.
+npm run dev            # Runs on http://localhost:5000
 ```
-*API will be available at `http://localhost:5000`*
 
-### 3. Setup the Frontend
+### 2. Frontend
 ```bash
 cd frontend
 npm install
-npm run dev
+npm run dev            # Runs on http://localhost:5173
 ```
-*App will be available at `http://localhost:5173`*
 
-### 4. Setup AI Workflows (n8n)
+### 3. AI Workflows (n8n)
 ```bash
 cd AI_workflow_n8n
-docker-compose up -d
+docker-compose up -d   # n8n at http://localhost:5678
 ```
-*n8n will be available at `http://localhost:5678`. Import `course_recommender_workflow.json` into n8n.*
+Import `course_recommender_workflow.json` and `study_buddy_workflow.json` into n8n, then activate them.
+
+---
 
 ## 📂 Project Structure
 
 ```text
 .
-├── backend/            # Express API, MongoDB models, Controllers
-├── frontend/           # React App, Tailwind CSS, Vite
-└── AI_workflow_n8n/    # n8n Docker setup and workflow JSON
+├── backend/                  # Express API, MongoDB models, controllers, routes
+│   ├── controllers/
+│   ├── models/
+│   ├── routes/
+│   │   └── public.routes.js  # Public stats endpoint (no auth required)
+│   ├── middlewares/
+│   ├── services/
+│   └── utils/
+├── frontend/                 # React 18 + Vite application
+│   └── src/
+│       ├── features/         # Feature-based modules (admin, apprenant, home…)
+│       ├── shared/           # Shared components, layout, context
+│       └── locales/          # EN & FR translation files (i18next)
+└── AI_workflow_n8n/          # n8n Docker setup + workflow JSON files
 ```
 
-## 📖 Detailed Documentation
+---
 
-For more specific information on each part of the project, please refer to the README files in their respective directories:
+## ✨ Key Features
+
+### 🎓 Learning Experience
+- Course browsing with category filters and AI-powered recommendations
+- Interactive lesson viewer (video, file, image, link, quiz)
+- AI Study Buddy (chat assistant per lesson, context-aware)
+- Progress tracking per course
+
+### 🤖 AI Features
+- **AI Course Recommender** — personalized path based on user goals (n8n webhook)
+- **AI Study Buddy** — per-lesson AI chat assistant with conversation memory
+- **Explain with AI** — instant explanation of attached files & URLs
+- **Summarize with AI** — lesson summary from documents/links
+
+### 🌍 Bilingual (EN / FR)
+- Full i18next integration across all pages
+- Language auto-detection via browser settings
+- Separate `en.json` and `fr.json` locale files under `frontend/src/locales/`
+
+### 📊 Dynamic Statistics (Home Page)
+- Real-time student count, course count, category count and satisfaction rate
+- Served by public `GET /public/stats` endpoint (no auth required)
+- Smart number formatting (auto K+ for thousands)
+
+### 🎨 Premium UI/UX
+- Dark gold theme with animated hero orbs, staggered entry animations
+- Glassmorphism badges and gradient text
+- Course cards with real image support + zoom on hover
+- Smart category icons that match category name keywords
+- Fully responsive (mobile-first breakpoints)
+
+### 🔐 Role-Based Access Control
+| Role | Access |
+|---|---|
+| `admin` | Full platform management, statistics, user control |
+| `responsableCF` | Manage own training centres and their formations |
+| `formateur` | Create and manage lessons/content for assigned formations |
+| `apprenant` | Enroll, learn, review, favorite courses |
+
+---
+
+## 📖 Sub-module Documentation
 
 - [Backend Documentation](./backend/README.md)
 - [Frontend Documentation](./frontend/README.md)
@@ -69,4 +121,4 @@ For more specific information on each part of the project, please refer to the R
 
 ---
 
-Developed for the **PFE 2026** Project.
+> Developed for the **PFE 2026** Project by Rayen Nasser.
