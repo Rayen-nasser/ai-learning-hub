@@ -1197,6 +1197,26 @@ export default function ApprenantLearning() {
           font-weight: 500;
         }
         .ai-quick-btn-inline:hover { background: rgba(200,168,110,0.15); color: #f0ebe0; }
+        
+        .ai-text-link {
+          background: transparent;
+          border: none;
+          color: #c8a86e;
+          font-size: 13px;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 4px 8px;
+          border-radius: 4px;
+          transition: all 0.2s;
+          font-family: 'DM Sans', sans-serif;
+          text-decoration: underline;
+        }
+        .ai-text-link:hover {
+          color: #f0ebe0;
+          background: rgba(200,168,110,0.1);
+        }
 
         .ai-typing { 
           display: flex; 
@@ -1317,9 +1337,11 @@ export default function ApprenantLearning() {
                         <span>Lesson {currentIndex + 1} of {lessons.length}</span>
                         <span>{(currentLesson.duree || currentLesson.duration || 0) * 60} min</span>
                       </div>
-                      <button className="ai-quick-btn-inline" onClick={() => handleAiAction('summarize')}>
-                        <span>✨</span> Résumer avec l'IA
-                      </button>
+                      {contents.some(c => c.type === 'file' || c.type === 'link') && (
+                        <button className="ai-quick-btn-inline" onClick={() => handleAiAction('summarize')}>
+                          <span>✨</span> Résumer avec l'IA
+                        </button>
+                      )}
                     </div>
                   </div>
                   <button
@@ -1420,8 +1442,8 @@ export default function ApprenantLearning() {
                               </svg>
                               Download File
                             </a>
-                            <button className="ai-quick-btn-inline" onClick={() => handleAiAction('explain', '', content._id)}>
-                              ✨ Explain this PDF
+                            <button className="ai-text-link" onClick={() => handleAiAction('explain', '', content._id)}>
+                              Expliquer avec l'IA
                             </button>
                           </div>
                         )}
@@ -1441,10 +1463,10 @@ export default function ApprenantLearning() {
                               </svg>
                               Open Link
                             </a>
-                            <button className="ai-quick-btn-inline" onClick={() => handleAiAction('explain', '', content._id)}>
-                              ✨ Analyze this link
+                            <button className="ai-text-link" onClick={() => handleAiAction('explain', '', content._id)}>
+                              Expliquer avec l'IA
                             </button>
-                          </div>
+                            </div>
                         )}
 
                         {content.type === 'test' && (
@@ -1723,9 +1745,11 @@ export default function ApprenantLearning() {
               <div className="ai-welcome-icon">🎓</div>
               <h3 style={{ margin: 0, color: '#f0ebe0', fontSize: 18, fontWeight: 400 }}>How can I help you?</h3>
               <p className="ai-welcome-text">I can summarize this lesson, explain complex concepts, or answer your questions based on the course materials.</p>
-              <button className="ai-quick-btn" onClick={() => handleAiAction('summarize')}>
-                ✨ Summarize this lesson
-              </button>
+              {contents.some(c => c.type === 'file' || c.type === 'link') && (
+                <button className="ai-quick-btn" onClick={() => handleAiAction('summarize')}>
+                  ✨ Summarize this lesson
+                </button>
+              )}
             </div>
           )}
           
