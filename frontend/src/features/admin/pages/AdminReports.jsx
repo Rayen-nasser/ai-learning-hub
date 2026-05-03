@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import client from '../../../services/client';
 import AdminLayout from '../components/AdminLayout';
 
@@ -16,16 +17,17 @@ const TYPE_LABELS = {
   formateur: 'Formateur',
 };
 
-const ACTIONS = [
-  { value: '', label: 'No action' },
-  { value: 'block', label: 'Block target' },
-  { value: 'delete', label: 'Delete' },
-  { value: 'hide', label: 'Hide' },
-  { value: 'suspend', label: 'Suspend' },
-  { value: 'warn', label: 'Warn user' },
+const getActionOptions = (t) => [
+  { value: '', label: t('admin.noAction') },
+  { value: 'block', label: t('admin.blockTarget') },
+  { value: 'delete', label: t('admin.deleteAction') },
+  { value: 'hide', label: t('admin.hideAction') },
+  { value: 'suspend', label: t('admin.suspendAction') },
+  { value: 'warn', label: t('admin.warnUserAction') },
 ];
 
 export default function AdminReports() {
+  const { t } = useTranslation();
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -53,7 +55,7 @@ export default function AdminReports() {
         total: res.data.pagination?.total || 0,
       });
     } catch {
-      setError('Failed to load reports');
+      setError(t('admin.failedLoadReports'));
     } finally {
       setLoading(false);
     }
@@ -95,7 +97,7 @@ export default function AdminReports() {
       setSelectedReport(res.data.data);
       setReviewData({ status: 'reviewed', action: '', reviewNote: '' });
     } catch {
-      setError('Failed to load report details');
+      setError(t('admin.failedLoadReportDetails'));
     }
   };
 
@@ -112,14 +114,14 @@ export default function AdminReports() {
       fetchReports();
       fetchStats();
     } catch {
-      setError('Failed to review report');
+      setError(t('admin.failedReviewReport'));
     } finally {
       setReviewLoading(false);
     }
   };
 
   return (
-    <AdminLayout title="Reported <em>Content</em>" subtitle="Review and manage user reports">
+    <AdminLayout title={`${t('admin.reported')} <em>${t('admin.content')}</em>`} subtitle={t('admin.reviewManageReports')}>
       <style>{`
         .rp-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 32px; }
         .rp-stat { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s; }
@@ -131,6 +133,7 @@ export default function AdminReports() {
         .rp-filters { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
         .rp-select { padding: 10px 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #e8e4dc; font-size: 14px; cursor: pointer; }
         .rp-select:focus { border-color: #b4915a; outline: none; }
+        .rp-select option, .rp-form-select option { background: #121215; color: #e8e4dc; }
 
         .rp-table-wrap { overflow-x: auto; }
         .rp-table { width: 100%; border-collapse: collapse; }
@@ -192,8 +195,8 @@ export default function AdminReports() {
       <div className="rp-root">
         <div className="max-w-7xl mx-auto">
           <div className="rp-header">
-            <h1 className="rp-title">Reported <em>Content</em></h1>
-            <p className="rp-subtitle">Review and manage user reports</p>
+            <h1 className="rp-title">{t('admin.reported')} <em>{t('admin.content')}</em></h1>
+            <p className="rp-subtitle">{t('admin.reviewManageReports')}</p>
           </div>
 
           {error && <div className="rp-error">{error}</div>}
@@ -206,7 +209,7 @@ export default function AdminReports() {
                 onClick={() => setStatusFilter(status)}
               >
                 <div className="rp-stat-val" style={{ color: STATUS_COLORS[status]?.color }}>{count}</div>
-                <div className="rp-stat-label">{status.charAt(0).toUpperCase() + status.slice(1)}</div>
+                <div className="rp-stat-label">{t(`admin.${status}Status`)}</div>
               </div>
             ))}
           </div>
@@ -217,42 +220,42 @@ export default function AdminReports() {
               value={statusFilter}
               onChange={e => setStatusFilter(e.target.value)}
             >
-              <option value="">All Statuses</option>
-              <option value="pending">Pending</option>
-              <option value="reviewed">Reviewed</option>
-              <option value="resolved">Resolved</option>
-              <option value="dismissed">Dismissed</option>
+              <option value="">{t('admin.allStatuses')}</option>
+              <option value="pending">{t('admin.pendingStatus')}</option>
+              <option value="reviewed">{t('admin.reviewedStatus')}</option>
+              <option value="resolved">{t('admin.resolvedStatus')}</option>
+              <option value="dismissed">{t('admin.dismissedStatus')}</option>
             </select>
             <select
               className="rp-select"
               value={typeFilter}
               onChange={e => setTypeFilter(e.target.value)}
             >
-              <option value="all">All Types</option>
-              <option value="user">Users</option>
-              <option value="formation">Formations</option>
-              <option value="centre">Centres</option>
-              <option value="formateur">Formateurs</option>
+              <option value="all">{t('admin.allTypes')}</option>
+              <option value="user">{t('admin.usersType')}</option>
+              <option value="formation">{t('admin.formationsType')}</option>
+              <option value="centre">{t('admin.centresType')}</option>
+              <option value="formateur">{t('admin.formateursType')}</option>
             </select>
           </div>
 
           {loading ? (
             <div className="rp-spinner" />
           ) : reports.length === 0 ? (
-            <div className="rp-empty">No reports found</div>
+            <div className="rp-empty">{t('admin.noReportsFound')}</div>
           ) : (
             <>
               <div className="rp-table-wrap">
                 <table className="rp-table">
                   <thead>
                     <tr>
-                      <th>Type</th>
-                      <th>Target</th>
-                      <th>Reason</th>
-                      <th>Reports</th>
-                      <th>Status</th>
-                      <th>Date</th>
-                      <th>Action</th>
+                      <th>{t('admin.type')}</th>
+                      <th>{t('admin.target')}</th>
+                      <th>{t('admin.reason')}</th>
+                      <th>{t('admin.reportsCount')}</th>
+                      <th>{t('admin.status')}</th>
+                      <th>{t('admin.date')}</th>
+                      <th>{t('admin.action')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -274,7 +277,7 @@ export default function AdminReports() {
                               </div>
                             </div>
                           ) : (
-                            <span style={{ color: '#555' }}>Unknown</span>
+                            <span style={{ color: '#555' }}>{t('admin.unknown')}</span>
                           )}
                         </td>
                         <td style={{ color: '#888' }}>{report.reason}</td>
@@ -288,7 +291,7 @@ export default function AdminReports() {
                             className="rp-badge"
                             style={{ background: STATUS_COLORS[report.status]?.bg, color: STATUS_COLORS[report.status]?.color }}
                           >
-                            {report.status}
+                            {t(`admin.${report.status}Status`)}
                           </span>
                         </td>
                         <td style={{ color: '#555', fontSize: '13px' }}>
@@ -300,7 +303,7 @@ export default function AdminReports() {
                               className="rp-btn rp-btn-primary"
                               onClick={() => handleViewReport(report._id)}
                             >
-                              Review
+                              {t('admin.review')}
                             </button>
                           )}
                         </td>
@@ -313,7 +316,7 @@ export default function AdminReports() {
               {pagination.totalPages > 1 && (
                 <div className="rp-pagination">
                   <div className="rp-pagination-info">
-                    Showing {reports.length} of {pagination.total} reports
+                    {t('admin.showing')} {reports.length} {t('admin.of')} {pagination.total} {t('admin.reports')}
                   </div>
                   <div className="rp-pagination-controls">
                     <button
@@ -321,7 +324,7 @@ export default function AdminReports() {
                       onClick={() => setPagination(p => ({ ...p, page: p.page - 1 }))}
                       disabled={pagination.page === 1}
                     >
-                      Previous
+                      {t('admin.previous')}
                     </button>
                     {Array.from({ length: Math.min(pagination.totalPages, 5) }, (_, i) => {
                       const page = i + 1;
@@ -340,7 +343,7 @@ export default function AdminReports() {
                       onClick={() => setPagination(p => ({ ...p, page: p.page + 1 }))}
                       disabled={pagination.page === pagination.totalPages}
                     >
-                      Next
+                      {t('admin.next')}
                     </button>
                   </div>
                 </div>
@@ -354,12 +357,12 @@ export default function AdminReports() {
         <div className="rp-modal-overlay" onClick={() => setSelectedReport(null)}>
           <div className="rp-modal" onClick={e => e.stopPropagation()}>
             <div className="rp-modal-header">
-              <h2 className="rp-modal-title">Review Report</h2>
+              <h2 className="rp-modal-title">{t('admin.reviewReport')}</h2>
               <button className="rp-modal-close" onClick={() => setSelectedReport(null)}>&times;</button>
             </div>
             <div className="rp-modal-body">
               <div className="rp-detail-section">
-                <div className="rp-detail-label">Type</div>
+                <div className="rp-detail-label">{t('admin.type')}</div>
                 <div className="rp-detail-value">
                   <span className={`rp-badge rp-type-${selectedReport.type}`}>
                     {TYPE_LABELS[selectedReport.type]}
@@ -368,7 +371,7 @@ export default function AdminReports() {
               </div>
 
               <div className="rp-detail-section">
-                <div className="rp-detail-label">Reported Target</div>
+                <div className="rp-detail-label">{t('admin.reportedTarget')}</div>
                 <div className="rp-detail-value">
                   {selectedReport.targetInfo?.nom ? `${selectedReport.targetInfo.prenom} ${selectedReport.targetInfo.nom}` : selectedReport.targetInfo?.titre || 'N/A'}
                 </div>
@@ -378,7 +381,7 @@ export default function AdminReports() {
               </div>
 
               <div className="rp-detail-section">
-                <div className="rp-detail-label">Reason</div>
+                <div className="rp-detail-label">{t('admin.reason')}</div>
                 <div className="rp-detail-value warning">{selectedReport.reason}</div>
                 {selectedReport.description && (
                   <div style={{ fontSize: '13px', color: '#888', marginTop: '4px' }}>{selectedReport.description}</div>
@@ -386,7 +389,7 @@ export default function AdminReports() {
               </div>
 
               <div className="rp-detail-section">
-                <div className="rp-detail-label">Reporters ({selectedReport.reporters?.length || 0})</div>
+                <div className="rp-detail-label">{t('admin.reporters')} ({selectedReport.reporters?.length || 0})</div>
                 <div className="rp-reporters">
                   {selectedReport.reporters?.map((r, i) => (
                     <div key={i} className="rp-reporter-item">
@@ -407,28 +410,28 @@ export default function AdminReports() {
                 <>
                   <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '20px', marginTop: '20px' }}>
                     <div className="rp-form-group">
-                      <label className="rp-form-label">Action</label>
+                      <label className="rp-form-label">{t('admin.action')}</label>
                       <select
                         className="rp-form-select"
                         value={reviewData.status}
                         onChange={e => setReviewData(d => ({ ...d, status: e.target.value }))}
                       >
-                        <option value="">Select action...</option>
-                        <option value="reviewed">Mark as Reviewed</option>
-                        <option value="resolved">Resolve & Take Action</option>
-                        <option value="dismissed">Dismiss Report</option>
+                        <option value="">{t('admin.selectAction')}</option>
+                        <option value="reviewed">{t('admin.markAsReviewed')}</option>
+                        <option value="resolved">{t('admin.resolveTakeAction')}</option>
+                        <option value="dismissed">{t('admin.dismissReport')}</option>
                       </select>
                     </div>
 
                     {reviewData.status === 'resolved' && (
                       <div className="rp-form-group">
-                        <label className="rp-form-label">Action to Take</label>
+                        <label className="rp-form-label">{t('admin.actionToTake')}</label>
                         <select
                           className="rp-form-select"
                           value={reviewData.action}
                           onChange={e => setReviewData(d => ({ ...d, action: e.target.value }))}
                         >
-                          {ACTIONS.map(a => (
+                          {getActionOptions(t).map(a => (
                             <option key={a.value} value={a.value}>{a.label}</option>
                           ))}
                         </select>
@@ -436,10 +439,10 @@ export default function AdminReports() {
                     )}
 
                     <div className="rp-form-group">
-                      <label className="rp-form-label">Review Note</label>
+                      <label className="rp-form-label">{t('admin.reviewNote')}</label>
                       <textarea
                         className="rp-form-textarea"
-                        placeholder="Add a note about this review..."
+                        placeholder={t('admin.addReviewNote')}
                         value={reviewData.reviewNote}
                         onChange={e => setReviewData(d => ({ ...d, reviewNote: e.target.value }))}
                       />
@@ -451,20 +454,20 @@ export default function AdminReports() {
               {selectedReport.status !== 'pending' && selectedReport.review && (
                 <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '20px', marginTop: '20px' }}>
                   <div className="rp-detail-section">
-                    <div className="rp-detail-label">Reviewed By</div>
+                    <div className="rp-detail-label">{t('admin.reviewedBy')}</div>
                     <div className="rp-detail-value">
                       {selectedReport.review.reviewedBy?.prenom} {selectedReport.review.reviewedBy?.nom}
                     </div>
                   </div>
                   {selectedReport.review.action && (
                     <div className="rp-detail-section">
-                      <div className="rp-detail-label">Action Taken</div>
+                      <div className="rp-detail-label">{t('admin.actionTaken')}</div>
                       <div className="rp-detail-value warning">{selectedReport.review.action}</div>
                     </div>
                   )}
                   {selectedReport.review.reviewNote && (
                     <div className="rp-detail-section">
-                      <div className="rp-detail-label">Review Note</div>
+                      <div className="rp-detail-label">{t('admin.reviewNote')}</div>
                       <div className="rp-detail-value">{selectedReport.review.reviewNote}</div>
                     </div>
                   )}
@@ -473,13 +476,13 @@ export default function AdminReports() {
             </div>
             {selectedReport.status === 'pending' && (
               <div className="rp-modal-footer">
-                <button className="rp-btn" onClick={() => setSelectedReport(null)}>Cancel</button>
+                <button className="rp-btn" onClick={() => setSelectedReport(null)}>{t('common.cancel')}</button>
                 <button
                   className="rp-btn rp-btn-primary"
                   onClick={handleReview}
                   disabled={!reviewData.status || reviewLoading}
                 >
-                  {reviewLoading ? 'Submitting...' : 'Submit Review'}
+                  {reviewLoading ? t('admin.submitting') : t('admin.submitReview')}
                 </button>
               </div>
             )}

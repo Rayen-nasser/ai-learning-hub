@@ -346,7 +346,9 @@ export default function AdminLayout({ children, title, subtitle }) {
                 {group.items.map((item) => {
                   const isActive = item.path === '/admin'
                     ? location.pathname === '/admin'
-                    : location.pathname.startsWith(item.path);
+                    : item.path === '/admin/centres'
+                      ? location.pathname === '/admin/centres' || (location.pathname.startsWith('/admin/centres/') && !location.pathname.startsWith('/admin/centres/verify'))
+                      : location.pathname.startsWith(item.path);
                   
                   return (
                     <Link

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import centreService from '../../centres/services/centres';
 import AdminLayout from '../components/AdminLayout';
 
@@ -11,6 +12,7 @@ const STATUS_STYLES = {
 
 export default function AdminCentres() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [centres, setCentres]         = useState([]);
   const [loading, setLoading]         = useState(true);
   const [error, setError]             = useState('');
@@ -26,7 +28,7 @@ export default function AdminCentres() {
       const res = await centreService.getAdminAll();
       setCentres(res.data.data || []);
     } catch {
-      setError('Failed to load centres.');
+      setError(t('admin.failedLoadCentres'));
     } finally {
       setLoading(false);
     }
@@ -42,7 +44,7 @@ export default function AdminCentres() {
       setCentres(p => p.filter(c => c._id !== deleteId));
       setDeleteId(null);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to delete centre.');
+      setError(err.response?.data?.message || t('admin.failedDeleteCentre'));
     } finally {
       setDeleting(false);
     }
@@ -63,7 +65,7 @@ export default function AdminCentres() {
   };
 
   return (
-    <AdminLayout title="Centre <em>Management</em>" subtitle="View, filter and manage all training centres">
+    <AdminLayout title={`${t('admin.centre')} <em>${t('admin.management')}</em>`} subtitle={t('admin.manageCentresDescAdmin')}>
       <style>{`
         .acm-bar { display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; margin-bottom:28px; }
         .acm-search { flex:1; min-width:200px; position:relative; }
@@ -136,17 +138,17 @@ export default function AdminCentres() {
         <div className="acm-search">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input
-            placeholder="Search by name or address..."
+            placeholder={t('admin.searchCentres')}
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
         </div>
         <div className="acm-filters">
           {[
-            { key: '',         label: 'All',      cls: 'all'      },
-            { key: 'approved', label: 'Approved', cls: 'approved' },
-            { key: 'pending',  label: 'Pending',  cls: 'pending'  },
-            { key: 'rejected', label: 'Rejected', cls: 'rejected' },
+            { key: '',         label: t('common.all'),      cls: 'all'      },
+            { key: 'approved', label: t('admin.approved'), cls: 'approved' },
+            { key: 'pending',  label: t('admin.pending'),  cls: 'pending'  },
+            { key: 'rejected', label: t('admin.rejected'), cls: 'rejected' },
           ].map(f => (
             <button
               key={f.key}
@@ -166,8 +168,8 @@ export default function AdminCentres() {
         <div className="acm-spinner" />
       ) : filtered.length === 0 ? (
         <div className="acm-empty">
-          <h3>No centres found</h3>
-          <p>{search || statusFilter ? 'Try adjusting your filters.' : 'No training centres have been submitted yet.'}</p>
+          <h3>{t('admin.noCentresFound')}</h3>
+          <p>{search || statusFilter ? t('admin.tryAdjustingFilters') : t('admin.noCentresSubmittedYet')}</p>
         </div>
       ) : (
         <div className="acm-grid">
@@ -218,16 +220,16 @@ export default function AdminCentres() {
                     className={`acm-btn ${centre.status === 'pending' ? 'acm-btn-verify' : 'acm-btn-view'}`} 
                     onClick={() => navigate(`/admin/centres/verify/${centre._id}`)}
                   >
-                    {centre.status === 'pending' ? 'Review' : 'View'}
+                    {centre.status === 'pending' ? t('admin.review') : t('admin.view')}
                   </button>
                   <button 
                     className="acm-btn acm-btn-del" 
                     onClick={() => setDeleteId(centre._id)}
                     disabled={centre.status !== 'rejected'}
-                    title={centre.status !== 'rejected' ? 'Only rejected centres can be deleted' : ''}
+                    title={centre.status !== 'rejected' ? t('admin.onlyRejectedCanBeDeleted') : ''}
                     style={centre.status !== 'rejected' ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
                   >
-                    Delete
+                    {t('common.delete')}
                   </button>
                 </div>
               </div>
@@ -241,12 +243,12 @@ export default function AdminCentres() {
         <div className="acm-overlay" onClick={() => setDeleteId(null)}>
           <div className="acm-confirm" onClick={e => e.stopPropagation()}>
             <div className="acm-confirm-icon">⚠</div>
-            <h3>Delete Centre?</h3>
-            <p>This action is permanent and cannot be undone. The centre's data, documents and formations will be removed.</p>
+            <h3>{t('admin.deleteCentreQuestion')}</h3>
+            <p>{t('admin.deleteCentreWarning')}</p>
             <div className="acm-confirm-btns">
-              <button className="acm-btn-cancel-conf" onClick={() => setDeleteId(null)}>Cancel</button>
+              <button className="acm-btn-cancel-conf" onClick={() => setDeleteId(null)}>{t('common.cancel')}</button>
               <button className="acm-btn-del-conf" onClick={handleDelete} disabled={deleting}>
-                {deleting ? 'Deleting...' : 'Delete'}
+                {deleting ? t('admin.deleting') : t('common.delete')}
               </button>
             </div>
           </div>

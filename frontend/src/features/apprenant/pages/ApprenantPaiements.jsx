@@ -1,20 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import ApprenantLayout from '../components/ApprenantLayout';
 import { paiementService } from '../../../services/api';
 import { formatDate } from '../../../shared/utils/format';
-
-/* ─── Status config ──────────────────────────────────────────────── */
-const STATUS = {
-  confirme:  { label: 'Confirmed', color: '#4aa87d', bg: 'rgba(74,168,125,0.12)',  icon: '✓' },
-  en_attente:{ label: 'Pending',   color: '#c8a86e', bg: 'rgba(200,168,110,0.12)', icon: '⏳' },
-  refuse:    { label: 'Rejected',  color: '#e07070', bg: 'rgba(224,112,112,0.12)', icon: '✕' },
-};
-
-const METHOD_LABEL = {
-  carte:    'Card Payment',
-  virement: 'Bank Transfer',
-  especes:  'Cash',
-};
 
 /* ─── Icons ──────────────────────────────────────────────────────── */
 const CardIcon = () => (
@@ -44,12 +32,25 @@ function MethodIcon({ method }) {
 }
 
 export default function ApprenantPaiements() {
+  const { t } = useTranslation();
   const [paiements, setPaiements]   = useState([]);
   const [loading, setLoading]       = useState(true);
   const [filter, setFilter]         = useState('all');
   const [cancelingId, setCancelingId] = useState(null);
   const [error, setError]           = useState(null);
   const [toast, setToast]           = useState(null);
+
+  const STATUS = {
+    confirme:  { label: t('apprenant.confirmed'), color: '#4aa87d', bg: 'rgba(74,168,125,0.12)',  icon: '✓' },
+    en_attente:{ label: t('apprenant.statusPending'),   color: '#c8a86e', bg: 'rgba(200,168,110,0.12)', icon: '⏳' },
+    refuse:    { label: t('apprenant.statusRejected'),  color: '#e07070', bg: 'rgba(224,112,112,0.12)', icon: '✕' },
+  };
+
+  const METHOD_LABEL = {
+    carte:    t('apprenant.cardPayment'),
+    virement: t('apprenant.bankTransfer'),
+    especes:  t('apprenant.cash'),
+  };
 
   useEffect(() => { fetchData(); }, []);
 
@@ -64,7 +65,7 @@ export default function ApprenantPaiements() {
       );
       setPaiements(data);
     } catch (e) {
-      setError('Could not load your payment history. Please try again.');
+      setError(t('apprenant.loadPaymentHistoryError'));
       console.error('Failed to fetch payments', e);
     } finally {
       setLoading(false);
@@ -72,14 +73,14 @@ export default function ApprenantPaiements() {
   };
 
   const handleCancel = async (id) => {
-    if (!window.confirm('Cancel this pending payment?')) return;
+    if (!window.confirm(t('apprenant.confirmCancelPayment'))) return;
     setCancelingId(id);
     try {
       await paiementService.cancel(id);
-      showToast('Payment cancelled successfully.', 'success');
+      showToast(t('apprenant.paymentCancelledSuccess'), 'success');
       await fetchData();
     } catch {
-      showToast('Could not cancel this payment.', 'error');
+      showToast(t('apprenant.paymentCancelError'), 'error');
     } finally {
       setCancelingId(null);
     }
@@ -100,13 +101,13 @@ export default function ApprenantPaiements() {
   const visible = filter === 'all' ? paiements : paiements.filter(p => p.statut === filter);
 
   const FILTERS = [
-    { key: 'all',        label: 'All',       count: paiements.length },
-    { key: 'confirme',   label: 'Confirmed', count: confirmedCount },
-    { key: 'en_attente', label: 'Pending',   count: pendingCount },
+    { key: 'all',        label: t('common.all'),       count: paiements.length },
+    { key: 'confirme',   label: t('apprenant.confirmed'), count: confirmedCount },
+    { key: 'en_attente', label: t('apprenant.statusPending'),   count: pendingCount },
   ];
 
   return (
-    <ApprenantLayout title="Transaction <em>History</em>" subtitle="Your complete payment record">
+    <ApprenantLayout title={`${t('apprenant.transaction')} <em>${t('apprenant.history')}</em>`} subtitle={t('apprenant.paymentRecord')}>
       <style>{`
         .tp-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 32px; }
         .tp-card { border-radius: 16px; padding: 22px 24px; }
@@ -154,30 +155,30 @@ export default function ApprenantPaiements() {
       {/* ── Summary cards ── */}
       <div className="tp-summary">
         <div className="tp-card" style={{ background: 'rgba(124,168,212,0.07)', border: '1px solid rgba(124,168,212,0.18)' }}>
-          <div className="tp-card-label">Total Transactions</div>
+          <div className="tp-card-label">{t('apprenant.totalTransactions')}</div>
           <div className="tp-card-value" style={{ color: '#7ca8d4' }}>{paiements.length}</div>
-          <div className="tp-card-sub">All time</div>
+          <div className="tp-card-sub">{t('apprenant.allTime')}</div>
         </div>
         <div className="tp-card" style={{ background: 'rgba(74,168,125,0.07)', border: '1px solid rgba(74,168,125,0.18)' }}>
-          <div className="tp-card-label">Confirmed Payments</div>
+          <div className="tp-card-label">{t('apprenant.confirmedPayments')}</div>
           <div className="tp-card-value" style={{ color: '#4aa87d' }}>
             {confirmedTotal.toLocaleString()} <span style={{ fontSize: 16 }}>DT</span>
           </div>
-          <div className="tp-card-sub">{confirmedCount} transaction{confirmedCount !== 1 ? 's' : ''}</div>
+          <div className="tp-card-sub">{confirmedCount} {t('apprenant.transactions', { count: confirmedCount })}</div>
         </div>
         <div className="tp-card" style={{ background: 'rgba(200,168,110,0.07)', border: '1px solid rgba(200,168,110,0.18)' }}>
-          <div className="tp-card-label">Pending Payments</div>
+          <div className="tp-card-label">{t('apprenant.pendingPayments')}</div>
           <div className="tp-card-value" style={{ color: '#c8a86e' }}>
             {pendingTotal.toLocaleString()} <span style={{ fontSize: 16 }}>DT</span>
           </div>
-          <div className="tp-card-sub">{pendingCount} awaiting confirmation</div>
+          <div className="tp-card-sub">{pendingCount} {t('apprenant.awaitingConfirmation')}</div>
         </div>
         <div className="tp-card" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}>
-          <div className="tp-card-label">Total Spent</div>
+          <div className="tp-card-label">{t('apprenant.totalSpent')}</div>
           <div className="tp-card-value" style={{ color: '#f0ebe0' }}>
             {(confirmedTotal + pendingTotal).toLocaleString()} <span style={{ fontSize: 16, color: '#555' }}>DT</span>
           </div>
-          <div className="tp-card-sub">Confirmed + pending</div>
+          <div className="tp-card-sub">{t('apprenant.confirmedPlusPending')}</div>
         </div>
       </div>
 
@@ -210,12 +211,12 @@ export default function ApprenantPaiements() {
             </svg>
           </div>
           <div style={{ fontSize: 17, color: '#888', marginBottom: 8 }}>
-            {filter === 'all' ? 'No payments yet' : `No ${filter === 'confirme' ? 'confirmed' : 'pending'} payments`}
+            {filter === 'all' ? t('apprenant.noPaymentsYet') : t('apprenant.noFilteredPayments', { status: filter === 'confirme' ? t('apprenant.confirmed').toLowerCase() : t('apprenant.statusPending').toLowerCase() })}
           </div>
           <div style={{ fontSize: 13, color: '#555' }}>
             {filter === 'all'
-              ? 'Your transaction history will appear here once you enroll in a paid course.'
-              : 'Switch to "All" to see your complete history.'}
+              ? t('apprenant.paymentHistoryDesc')
+              : t('apprenant.switchAllPayments')}
           </div>
         </div>
       ) : (
@@ -223,7 +224,7 @@ export default function ApprenantPaiements() {
           {visible.map(p => {
             const meta   = STATUS[p.statut] || STATUS.en_attente;
             const isPending = p.statut === 'en_attente';
-            const formationTitle = p.formation?.titre || 'Course Payment';
+            const formationTitle = p.formation?.titre || t('apprenant.coursePayment');
             const centre  = p.formation?.centreNom || '';
             const method  = p.methodePaiement || 'carte';
 
@@ -277,7 +278,7 @@ export default function ApprenantPaiements() {
                         disabled={cancelingId === p._id}
                         onClick={() => handleCancel(p._id)}
                       >
-                        {cancelingId === p._id ? 'Cancelling…' : 'Cancel'}
+                        {cancelingId === p._id ? t('apprenant.cancelling') : t('common.cancel')}
                       </button>
                     </div>
                   )}

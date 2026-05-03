@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import adminService from '../services/admin';
 import AdminLayout from '../components/AdminLayout';
 
@@ -10,6 +11,7 @@ const ROLES = {
 };
 
 export default function AdminUsers() {
+  const { t } = useTranslation();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -28,7 +30,8 @@ export default function AdminUsers() {
       const params = { page, limit: 12 };
       if (search) params.search = search;
       if (roleFilter) params.role = roleFilter;
-      if (statusFilter) params.status = statusFilter;
+      if (statusFilter === 'active') params.blocked = false;
+      if (statusFilter === 'blocked') params.blocked = true;
 
       const res = await adminService.getUsers(params);
       const data = res.data;
@@ -36,7 +39,7 @@ export default function AdminUsers() {
       setTotal(data.pagination?.total || 0);
       setTotalPages(data.pagination?.pages || 1);
     } catch {
-      setError('Failed to load users');
+      setError(t('admin.failedLoadUsers'));
     } finally {
       setLoading(false);
     }
@@ -56,14 +59,14 @@ export default function AdminUsers() {
       }
       fetchUsers();
     } catch {
-      setError(`Failed to ${currentBlocked ? 'unblock' : 'block'} user`);
+      setError(currentBlocked ? t('admin.failedUnblock') : t('admin.failedBlock'));
     } finally {
       setActionLoading(null);
     }
   };
 
   return (
-    <AdminLayout title="User <em>Management</em>" subtitle="Manage platform users">
+    <AdminLayout title={`${t('admin.user')} <em>${t('admin.management')}</em>`} subtitle={t('admin.manageUsersDesc')}>
       <style>{`
         .au-controls { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
         .au-search { flex: 1; min-width: 200px; }
@@ -73,6 +76,7 @@ export default function AdminUsers() {
         
         .au-select { padding: 10px 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #e8e4dc; font-size: 14px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
         .au-select:focus { border-color: #b4915a; outline: none; }
+        .au-select option { background: #121215; color: #e8e4dc; }
         
         .au-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
         
@@ -124,23 +128,22 @@ export default function AdminUsers() {
       <div className="au-controls">
         <div className="au-search">
           <input
-            type="text"
-            placeholder="Search by name or email..."
+            placeholder={t('admin.searchUsers')}
             value={search}
             onChange={e => { setSearch(e.target.value); setPage(1); }}
           />
         </div>
         <select className="au-select" value={roleFilter} onChange={e => { setRoleFilter(e.target.value); setPage(1); }}>
-          <option value="">All Roles</option>
-          <option value="apprenant">Apprenant</option>
-          <option value="formateur">Formateur</option>
-          <option value="responsableCF">Responsable CF</option>
-          <option value="admin">Admin</option>
+          <option value="">{t('admin.allRoles')}</option>
+          <option value="apprenant">{t('admin.apprenantRole')}</option>
+          <option value="formateur">{t('admin.formateurRole')}</option>
+          <option value="responsableCF">{t('admin.responsableCFRole')}</option>
+          <option value="admin">{t('admin.adminRole')}</option>
         </select>
         <select className="au-select" value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(1); }}>
-          <option value="">All Status</option>
-          <option value="active">Active</option>
-          <option value="blocked">Blocked</option>
+          <option value="">{t('admin.allStatuses')}</option>
+          <option value="active">{t('admin.active')}</option>
+          <option value="blocked">{t('admin.blocked')}</option>
         </select>
       </div>
 
@@ -149,7 +152,10 @@ export default function AdminUsers() {
       {loading ? (
         <div className="au-spinner" />
       ) : users.length === 0 ? (
-        <div className="au-empty">No users found</div>
+        <div className="au-empty">
+          <h3>{t('admin.noUsersFound')}</h3>
+          <p>{t('admin.tryAdjustingFilters')}</p>
+        </div>
       ) : (
         <>
           <div className="au-grid">
@@ -166,14 +172,14 @@ export default function AdminUsers() {
                 </div>
                 <div className="au-card-badges">
                   <span className="au-badge" style={ROLES[user.role] || ROLES.apprenant}>
-                    {ROLES[user.role]?.label || user.role}
+                    {t(`admin.${user.role}Role`)}
                   </span>
-                  {user.block && <span className="au-badge" style={{ background: 'rgba(224,112,112,.15)', color: '#e07070' }}>Blocked</span>}
+                  {user.block && <span className="au-badge" style={{ background: 'rgba(224,112,112,.15)', color: '#e07070' }}>{t('admin.blocked')}</span>}
                   {user.statut === 'en_attente' && <span className="au-badge" style={{ background: 'rgba(200,168,110,.15)', color: '#c8a86e' }}>Pending</span>}
                 </div>
                 <div className="au-card-meta">
                   {user.telephone && <span>{user.telephone}</span>}
-                  {user.dateCreation && <span> &middot; Joined {new Date(user.dateCreation).toLocaleDateString()}</span>}
+                  {user.dateCreation && <span> &middot; {t('admin.joined')} {new Date(user.dateCreation).toLocaleDateString()}</span>}
                 </div>
                 <div className="au-card-actions">
                   {user.block ? (
@@ -182,7 +188,7 @@ export default function AdminUsers() {
                       onClick={() => handleBlockToggle(user._id, true)}
                       disabled={actionLoading === user._id}
                     >
-                      {actionLoading === user._id ? 'Unblocking...' : 'Unblock'}
+                      {actionLoading === user._id ? '...' : t('admin.unblockBtn')}
                     </button>
                   ) : (
                     <button
@@ -190,7 +196,7 @@ export default function AdminUsers() {
                       onClick={() => handleBlockToggle(user._id, false)}
                       disabled={actionLoading === user._id || user.role === 'admin'}
                     >
-                      {actionLoading === user._id ? 'Blocking...' : 'Block'}
+                      {actionLoading === user._id ? '...' : t('admin.blockBtn')}
                     </button>
                   )}
                 </div>
@@ -201,7 +207,7 @@ export default function AdminUsers() {
           {totalPages > 1 && (
             <div className="au-pagination">
               <div className="au-pagination-info">
-                Showing {users.length} of {total} users
+                {t('admin.showing')} {users.length} {t('admin.of')} {total} {t('admin.users')}
               </div>
               <div className="au-pagination-controls">
                 <button
@@ -209,7 +215,7 @@ export default function AdminUsers() {
                   onClick={() => setPage(p => p - 1)}
                   disabled={page === 1}
                 >
-                  Previous
+                  {t('admin.previous')}
                 </button>
                 {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
                   const pg = i + 1;
@@ -228,7 +234,7 @@ export default function AdminUsers() {
                   onClick={() => setPage(p => p + 1)}
                   disabled={page === totalPages}
                 >
-                  Next
+                  {t('admin.next')}
                 </button>
               </div>
             </div>

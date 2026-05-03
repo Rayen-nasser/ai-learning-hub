@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import ApprenantLayout from '../components/ApprenantLayout';
 import { favoriService } from '../../../services/api';
 import LoadingSpinner from '../../../shared/components/LoadingSpinner';
@@ -7,6 +8,7 @@ import LoadingSpinner from '../../../shared/components/LoadingSpinner';
 export default function ApprenantFavoris() {
   const [favoris, setFavoris] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetchData();
@@ -56,18 +58,18 @@ export default function ApprenantFavoris() {
   };
 
   return (
-    <ApprenantLayout title="My <em>Favorites</em>" subtitle="Items you've saved for later">
+    <ApprenantLayout title={`${t('apprenant.my')} <em>${t('apprenant.favorites')}</em>`} subtitle={t('apprenant.savedForLater')}>
       {loading ? (
         <LoadingSpinner />
       ) : allFavoris.length === 0 ? (
         <div style={{ textAlign: 'center', padding: 60, background: 'rgba(255,255,255,0.02)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.06)' }}>
           <div style={{ fontSize: 48, marginBottom: 16, opacity: 0.3 }}>💙</div>
-          <div style={{ fontSize: 18, color: '#888', marginBottom: 8 }}>No favorites yet</div>
+          <div style={{ fontSize: 18, color: '#888', marginBottom: 8 }}>{t('apprenant.noFavorites')}</div>
           <div style={{ fontSize: 14, color: '#555', marginBottom: 16 }}>
-            Save courses, centers or instructors you like to view them later
+            {t('apprenant.saveCoursesPrompt')}
           </div>
           <Link to="/formations" style={{ color: '#b4915a', textDecoration: 'none', fontSize: 14 }}>
-            Explore Courses →
+            {t('apprenant.exploreCourses')} →
           </Link>
         </div>
       ) : (
@@ -118,11 +120,11 @@ export default function ApprenantFavoris() {
               
               <div style={{ padding: 20, flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <div style={{ display: 'inline-block', padding: '3px 8px', borderRadius: '4px', background: 'rgba(180,145,90,0.1)', color: '#b4915a', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', fontWeight: 600, width: 'fit-content' }}>
-                  {fav.typeCible === 'formation' ? 'Course' : fav.typeCible === 'centreFormation' ? 'Training Center' : fav.typeCible === 'formateur' ? 'Instructor' : fav.typeCible}
+                  {fav.typeCible === 'formation' ? t('apprenant.course') : fav.typeCible === 'centreFormation' ? t('apprenant.trainingCenter') : fav.typeCible === 'formateur' ? t('formateur.formateur') : fav.typeCible}
                 </div>
                 
                 <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 19, color: '#f0ebe0', margin: '0 0 12px', fontWeight: 400, flex: 1 }}>
-                  {fav.cibleTitre || 'Untitled Item'}
+                  {fav.cibleTitre || t('apprenant.untitledItem')}
                 </h3>
                 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
@@ -140,7 +142,7 @@ export default function ApprenantFavoris() {
                     onMouseEnter={e => e.currentTarget.style.background = 'rgba(180,145,90,0.08)'}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                   >
-                    View Details →
+                    {t('apprenant.viewDetails')} →
                   </Link>
                   <span style={{ fontSize: 10, color: '#444' }}>
                     {fav.createdAt && new Date(fav.createdAt).toLocaleDateString()}

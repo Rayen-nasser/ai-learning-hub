@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../shared/context/AuthContext';
 import skillService from '../../profile/services/skill';
 import AdminLayout from '../components/AdminLayout';
 
 export default function AdminSkills() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [skills, setSkills] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -24,7 +26,7 @@ export default function AdminSkills() {
       const res = await skillService.getAll();
       setSkills(res.data.data || res.data || []);
     } catch {
-      setError('Failed to load skills');
+      setError(t('admin.failedLoadSkills'));
     } finally {
       setLoading(false);
     }
@@ -46,7 +48,7 @@ export default function AdminSkills() {
       setFormData({ name: '', category: '', description: '' });
       fetchSkills();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to save skill');
+      setError(err.response?.data?.message || t('admin.failedSaveSkill'));
     } finally {
       setSubmitting(false);
     }
@@ -63,12 +65,12 @@ export default function AdminSkills() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this skill?')) return;
+    if (!window.confirm(t('admin.confirmDeleteSkill'))) return;
     try {
       await skillService.delete(id);
       fetchSkills();
     } catch {
-      setError('Failed to delete skill');
+      setError(t('admin.failedDeleteSkill'));
     }
   };
 
@@ -79,7 +81,7 @@ export default function AdminSkills() {
   };
 
   return (
-    <AdminLayout title="Skill <em>Registry</em>" subtitle="Manage official skills for teacher matching">
+    <AdminLayout title={`${t('admin.skill')} <em>${t('admin.registry')}</em>`} subtitle={t('admin.manageSkillsDesc')}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=DM+Sans:wght@300;400;500&display=swap');
 
@@ -149,7 +151,7 @@ export default function AdminSkills() {
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '24px' }}>
         <button className="skill-add-btn" onClick={openCreateModal}>
-          + New Skill
+          + {t('admin.newSkill')}
         </button>
       </div>
 
@@ -159,19 +161,19 @@ export default function AdminSkills() {
         <div className="skill-spinner" />
       ) : skills.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '60px 20px', color: '#555' }}>
-          <div style={{ fontSize: '20px', marginBottom: '8px' }}>No skills cataloged</div>
-          <p>Add the first specialized skill to enable teacher matching.</p>
+          <div style={{ fontSize: '20px', marginBottom: '8px' }}>{t('admin.noSkillsCataloged')}</div>
+          <p>{t('admin.addFirstSkill')}</p>
         </div>
       ) : (
         <div className="skill-grid">
           {skills.map(skill => (
             <div key={skill._id} className="skill-card">
-              <div className="skill-cat">{skill.category || 'General'}</div>
+              <div className="skill-cat">{skill.category || t('admin.general')}</div>
               <h3 className="skill-name">{skill.name}</h3>
-              <p className="skill-desc">{skill.description || 'No description provided.'}</p>
+              <p className="skill-desc">{skill.description || t('admin.noDescriptionProvided')}</p>
               <div className="skill-actions">
-                <button className="skill-btn skill-btn-edit" onClick={() => handleEdit(skill)}>Edit</button>
-                <button className="skill-btn skill-btn-delete" onClick={() => handleDelete(skill._id)}>Delete</button>
+                <button className="skill-btn skill-btn-edit" onClick={() => handleEdit(skill)}>{t('common.edit')}</button>
+                <button className="skill-btn skill-btn-delete" onClick={() => handleDelete(skill._id)}>{t('common.delete')}</button>
               </div>
             </div>
           ))}
@@ -182,7 +184,7 @@ export default function AdminSkills() {
         <div className="skill-modal-overlay" onClick={() => setShowModal(false)}>
           <div className="skill-modal" onClick={e => e.stopPropagation()}>
             <div className="skill-modal-header">
-              <h2 className="skill-modal-title">{editingSkill ? 'Update Skill' : 'Register New Skill'}</h2>
+              <h2 className="skill-modal-title">{editingSkill ? t('admin.updateSkill') : t('admin.registerNewSkill')}</h2>
               <button style={{ background: 'none', border: 'none', color: '#555', cursor: 'pointer', fontSize: '20px' }} onClick={() => setShowModal(false)}>&times;</button>
             </div>
             <form onSubmit={handleSubmit}>
@@ -220,9 +222,9 @@ export default function AdminSkills() {
                 </div>
               </div>
               <div className="skill-modal-footer">
-                <button type="button" className="skill-btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
+                <button type="button" className="skill-btn-cancel" onClick={() => setShowModal(false)}>{t('common.cancel')}</button>
                 <button type="submit" className="skill-btn-submit" disabled={submitting || !formData.name.trim()}>
-                  {submitting ? 'Processing...' : (editingSkill ? 'Save Changes' : 'Create Skill')}
+                  {submitting ? t('admin.processing') : (editingSkill ? t('admin.saveChanges') : t('admin.createSkill'))}
                 </button>
               </div>
             </form>

@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { formationService } from '../services/formation';
 import FormateurLayout from '../components/FormateurLayout';
 
 export default function FormateurFormations() {
+  const { t } = useTranslation();
   const [formations, setFormations] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -24,14 +26,14 @@ export default function FormateurFormations() {
   };
 
   return (
-    <FormateurLayout title="My <em>Formations</em>" subtitle="Manage your assigned training courses">
+    <FormateurLayout title={`${t('formateur.my')} <em>${t('formateur.formations')}</em>`} subtitle={t('formateur.manageFormationsDesc2')}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 24 }}>
         {loading ? (
-          <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: 60, color: '#555' }}>Loading...</div>
+          <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: 60, color: '#555' }}>{t('common.loading')}</div>
         ) : formations.length === 0 ? (
           <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: 60, background: 'rgba(255,255,255,0.02)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.06)' }}>
-            <div style={{ fontSize: 18, color: '#888', marginBottom: 8 }}>No formations assigned</div>
-            <div style={{ fontSize: 14, color: '#555' }}>Contact your centre manager to get assigned to formations</div>
+            <div style={{ fontSize: 18, color: '#888', marginBottom: 8 }}>{t('formateur.noFormationsAssigned')}</div>
+            <div style={{ fontSize: 14, color: '#555' }}>{t('formateur.contactCentreManager')}</div>
           </div>
         ) : (
           formations.map(f => (
@@ -61,7 +63,7 @@ export default function FormateurFormations() {
                   )}
                   <div style={{ position: 'absolute', top: 12, right: 12 }}>
                     <span style={{ fontSize: 12, padding: '4px 10px', background: 'rgba(12,12,14,0.9)', borderRadius: 6, color: f.prix === 0 ? '#4aa87d' : '#c8a86e', fontWeight: 500 }}>
-                      {f.prix === 0 ? 'Free' : `${f.prix} DT`}
+                      {f.prix === 0 ? t('formateur.free') : `${f.prix} DT`}
                     </span>
                   </div>
                 </div>
@@ -70,7 +72,7 @@ export default function FormateurFormations() {
                     {f.titre}
                   </h3>
                   <div style={{ fontSize: 13, color: '#555', marginBottom: 8 }}>
-                    {f.centreId?.nom || 'No centre'}
+                    {f.centreId?.nom || t('formateur.noCentre')}
                   </div>
                   <div style={{ display: 'flex', gap: 12, fontSize: 12, color: '#666', marginBottom: 12 }}>
                     <span>{f.duree || 0}h</span>
@@ -86,7 +88,7 @@ export default function FormateurFormations() {
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                       <polyline points="14 2 14 8 20 8"/>
                     </svg>
-                    Manage Lessons
+                    {t('formateur.manageLessons')}
                   </div>
                 </div>
               </div>

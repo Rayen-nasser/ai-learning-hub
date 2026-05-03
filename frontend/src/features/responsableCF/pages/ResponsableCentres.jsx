@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { centreService } from '../services/centre';
 import ResponsableCFLayout from '../components/ResponsableCFLayout';
 
 export default function ResponsableCentres() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [centres, setCentres] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -25,7 +27,7 @@ export default function ResponsableCentres() {
       const res = await centreService.getMyCentres();
       setCentres(res.data.data || []);
     } catch {
-      setError('Failed to load centres');
+      setError(t('responsable.failedLoadCentres'));
     } finally {
       setLoading(false);
     }
@@ -52,7 +54,7 @@ export default function ResponsableCentres() {
       setLogoPreview('');
       fetchCentres();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to save centre');
+      setError(err.response?.data?.message || t('responsable.failedSaveCentre'));
     } finally {
       setSubmitting(false);
     }
@@ -72,19 +74,19 @@ export default function ResponsableCentres() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this centre?')) return;
+    if (!window.confirm(t('responsable.confirmDeleteCentre'))) return;
     try {
       await centreService.delete(id);
       fetchCentres();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to delete centre');
+      setError(err.response?.data?.message || t('responsable.failedDeleteCentre'));
     }
   };
 
 
 
   return (
-    <ResponsableCFLayout title="My <em>Centres</em>" subtitle="Manage your training centres">
+    <ResponsableCFLayout title={`${t('responsable.my')} <em>${t('responsable.centres')}</em>`} subtitle={t('responsable.manageTrainingCentres')}>
       <style>{`
         .rc-add-btn { padding: 10px 20px; background: linear-gradient(135deg, #7dbf7d, #4aa87d); color: #0c0c0e; font-size: 14px; font-weight: 500; border: none; border-radius: 8px; cursor: pointer; transition: opacity 0.2s; font-family: 'DM Sans', sans-serif; }
         .rc-add-btn:hover { opacity: 0.9; }
@@ -137,7 +139,7 @@ export default function ResponsableCentres() {
       `}</style>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '24px' }}>
-        <button className="rc-add-btn" onClick={() => navigate('/centres/apply')}>+ Apply for New Centre</button>
+        <button className="rc-add-btn" onClick={() => navigate('/centres/apply')}>+ {t('responsable.applyNewCentre')}</button>
       </div>
 
       {error && <div className="rc-error">{error}</div>}
@@ -146,8 +148,8 @@ export default function ResponsableCentres() {
         <div className="rc-spinner" />
       ) : centres.length === 0 ? (
         <div className="rc-empty">
-          <div className="rc-empty-title">No centres yet</div>
-          <p>Create your first training centre to get started</p>
+          <div className="rc-empty-title">{t('responsable.noCentresYet')}</div>
+          <p>{t('responsable.createFirstCentre')}</p>
         </div>
       ) : (
         <div className="rc-grid">
@@ -164,19 +166,19 @@ export default function ResponsableCentres() {
                 <h3 className="rc-card-name">{centre.nom}</h3>
                 <div className="rc-card-address">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ width: 14, height: 14 }}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                  {centre.adresse || 'No address'}
+                  {centre.adresse || t('responsable.noAddress')}
                 </div>
-                <p className="rc-card-desc">{centre.description || 'No description'}</p>
+                <p className="rc-card-desc">{centre.description || t('responsable.noDescription')}</p>
                 <div className="rc-card-actions">
-                  <button className="rc-btn rc-btn-edit" onClick={() => handleEdit(centre)}>Edit</button>
+                  <button className="rc-btn rc-btn-edit" onClick={() => handleEdit(centre)}>{t('common.edit')}</button>
                   <button 
                     className="rc-btn rc-btn-delete" 
                     onClick={() => handleDelete(centre._id)}
                     disabled={centre.status !== 'rejected'}
-                    title={centre.status !== 'rejected' ? 'Only rejected centres can be deleted' : ''}
+                    title={centre.status !== 'rejected' ? t('responsable.onlyRejectedCanBeDeleted') : ''}
                     style={centre.status !== 'rejected' ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
                   >
-                    Delete
+                    {t('common.delete')}
                   </button>
                 </div>
               </div>
@@ -189,7 +191,7 @@ export default function ResponsableCentres() {
         <div className="rc-modal-overlay" onClick={() => setShowModal(false)}>
           <div className="rc-modal" onClick={e => e.stopPropagation()}>
             <div className="rc-modal-header">
-              <h2 className="rc-modal-title">{editingCentre ? 'Edit Centre' : 'Add Centre'}</h2>
+              <h2 className="rc-modal-title">{editingCentre ? t('responsable.editCentre') : t('responsable.addCentre')}</h2>
               <button className="rc-modal-close" onClick={() => setShowModal(false)}>&times;</button>
             </div>
             <form onSubmit={handleSubmit}>
@@ -223,9 +225,9 @@ export default function ResponsableCentres() {
                 </div>
               </div>
               <div className="rc-modal-footer">
-                <button type="button" className="rc-btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
+                <button type="button" className="rc-btn-cancel" onClick={() => setShowModal(false)}>{t('common.cancel')}</button>
                 <button type="submit" className="rc-btn-submit" disabled={submitting || !formData.nom.trim()}>
-                  {submitting ? 'Saving...' : (editingCentre ? 'Update' : 'Create')}
+                  {submitting ? t('responsable.saving') : (editingCentre ? t('common.update') : t('common.create'))}
                 </button>
               </div>
             </form>

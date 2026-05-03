@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../shared/context/AuthContext';
 import categorieService from '../../formations/services/categories';
 import AdminLayout from '../components/AdminLayout';
@@ -8,6 +9,7 @@ import ResponsableCFLayout from '../../responsableCF/components/ResponsableCFLay
 export default function AdminCategories() {
   const { user } = useAuth();
   const location = useLocation();
+  const { t } = useTranslation();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -30,7 +32,7 @@ export default function AdminCategories() {
       const res = await categorieService.getAll();
       setCategories(res.data.data || []);
     } catch {
-      setError('Failed to load categories');
+      setError(t('admin.failedLoadCategories'));
     } finally {
       setLoading(false);
     }
@@ -62,7 +64,7 @@ export default function AdminCategories() {
       setImagePreview('');
       fetchCategories();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to save category');
+      setError(err.response?.data?.message || t('admin.failedSaveCategory'));
     } finally {
       setSubmitting(false);
     }
@@ -76,12 +78,12 @@ export default function AdminCategories() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this category?')) return;
+    if (!window.confirm(t('admin.confirmDeleteCategory'))) return;
     try {
       await categorieService.delete(id);
       fetchCategories();
     } catch {
-      setError('Failed to delete category');
+      setError(t('admin.failedDeleteCategory'));
     }
   };
 
@@ -96,7 +98,7 @@ export default function AdminCategories() {
   const Layout = isResponsable ? ResponsableCFLayout : AdminLayout;
 
   return (
-    <Layout title="Course <em>Categories</em>" subtitle="Manage training course categories">
+    <Layout title={`${t('admin.course')} <em>${t('admin.categories')}</em>`} subtitle={t('admin.manageCategoriesDesc')}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=DM+Sans:wght@300;400;500&display=swap');
 
@@ -150,7 +152,7 @@ export default function AdminCategories() {
       <div className="cat-header" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '24px' }}>
         {canManage && (
           <button className="cat-add-btn" onClick={openCreateModal}>
-            + Add Category
+            + {t('admin.addCategory')}
           </button>
         )}
       </div>
@@ -161,8 +163,8 @@ export default function AdminCategories() {
         <div className="cat-spinner" />
       ) : categories.length === 0 ? (
         <div className="cat-empty">
-          <div className="cat-empty-title">No categories yet</div>
-          <p>Create your first category to organize your courses</p>
+          <div className="cat-empty-title">{t('admin.noCategoriesYet')}</div>
+          <p>{t('admin.createFirstCategory')}</p>
         </div>
       ) : (
         <div className="cat-grid">
@@ -177,12 +179,12 @@ export default function AdminCategories() {
               )}
               <div className="cat-card-body">
                 <h3 className="cat-card-name">{category.nom}</h3>
-                <p className="cat-card-desc">{category.description || 'No description'}</p>
+                <p className="cat-card-desc">{category.description || t('admin.noDescription')}</p>
                 {/* Authorization: Only owner or admin can edit/delete */}
                 {(user?.role === 'admin' || category.ownerId === user?._id) && (
                   <div className="cat-card-actions">
-                    <button className="cat-btn cat-btn-edit" onClick={() => handleEdit(category)}>Edit</button>
-                    <button className="cat-btn cat-btn-delete" onClick={() => handleDelete(category._id)}>Delete</button>
+                    <button className="cat-btn cat-btn-edit" onClick={() => handleEdit(category)}>{t('common.edit')}</button>
+                    <button className="cat-btn cat-btn-delete" onClick={() => handleDelete(category._id)}>{t('common.delete')}</button>
                   </div>
                 )}
               </div>
@@ -195,7 +197,7 @@ export default function AdminCategories() {
         <div className="cat-modal-overlay" onClick={() => setShowModal(false)}>
           <div className="cat-modal" onClick={e => e.stopPropagation()}>
             <div className="cat-modal-header">
-              <h2 className="cat-modal-title">{editingCategory ? 'Edit Category' : 'Add Category'}</h2>
+              <h2 className="cat-modal-title">{editingCategory ? t('admin.editCategory') : t('admin.addCategory')}</h2>
               <button className="cat-modal-close" onClick={() => setShowModal(false)}>&times;</button>
             </div>
             <form onSubmit={handleSubmit}>
@@ -231,21 +233,21 @@ export default function AdminCategories() {
                       }
                     }} />
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ opacity: 0.4 }}><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
-                    <span style={{ fontSize: 13, color: '#666', marginLeft: 8 }}>Click to upload image</span>
+                    <span style={{ fontSize: 13, color: '#666', marginLeft: 8 }}>{t('admin.clickToUploadImage')}</span>
                   </label>
                   {imagePreview && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 10 }}>
                       <img src={imagePreview} alt="preview" style={{ width: 64, height: 64, borderRadius: 8, objectFit: 'cover', border: '1px solid rgba(255,255,255,0.1)' }} />
                       <button type="button" style={{ padding: '4px 12px', borderRadius: 6, background: 'rgba(224,112,112,0.1)', border: '1px solid rgba(224,112,112,0.2)', color: '#e07070', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}
-                        onClick={() => { setFormData(d => ({ ...d, image: null })); setImagePreview(''); }}>Remove</button>
+                        onClick={() => { setFormData(d => ({ ...d, image: null })); setImagePreview(''); }}>{t('common.remove')}</button>
                     </div>
                   )}
                 </div>
               </div>
               <div className="cat-modal-footer">
-                <button type="button" className="cat-btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
+                <button type="button" className="cat-btn-cancel" onClick={() => setShowModal(false)}>{t('common.cancel')}</button>
                 <button type="submit" className="cat-btn-submit" disabled={submitting || !formData.nom.trim()}>
-                  {submitting ? 'Saving...' : (editingCategory ? 'Update' : 'Create')}
+                  {submitting ? t('admin.saving') : (editingCategory ? t('common.update') : t('common.create'))}
                 </button>
               </div>
             </form>

@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import centreService from '../../centres/services/centres';
 import AdminLayout from '../components/AdminLayout';
 
 export default function AdminPendingCentres() {
+  const { t } = useTranslation();
   const [centres, setCentres] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -15,7 +17,7 @@ export default function AdminPendingCentres() {
       const res = await centreService.getPending('pending,rejected');
       setCentres(res.data.data || []);
     } catch (err) {
-      setError('Failed to load pending centers');
+      setError(t('admin.failedLoadPending'));
     } finally {
       setLoading(false);
     }
@@ -26,7 +28,7 @@ export default function AdminPendingCentres() {
   }, []);
 
   return (
-    <AdminLayout title="Center <em>Verification</em>" subtitle="Review and approve training center applications">
+    <AdminLayout title={`${t('admin.center')} <em>${t('admin.verification')}</em>`} subtitle={t('admin.reviewCenterApplications')}>
       <style>{`
         .ap-list { display: flex; flex-direction: column; gap: 16px; }
         .ap-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 24px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 24px; transition: all 0.2s; }
@@ -61,8 +63,8 @@ export default function AdminPendingCentres() {
       ) : centres.length === 0 ? (
         <div className="ap-empty">
           <div className="ap-empty-icon">📂</div>
-          <h3>No pending applications</h3>
-          <p>All training center requests have been processed.</p>
+          <h3>{t('admin.noPendingApplications')}</h3>
+          <p>{t('admin.allRequestsProcessed')}</p>
         </div>
       ) : (
         <div className="ap-list">
@@ -94,7 +96,7 @@ export default function AdminPendingCentres() {
                 </div>
               </div>
               <button className="ap-btn-review" onClick={() => navigate(`/admin/centres/verify/${centre._id}`)}>
-                Review Application
+                {t('admin.reviewApplication')}
               </button>
             </div>
           ))}

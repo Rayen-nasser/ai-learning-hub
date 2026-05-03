@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import centreService from '../../centres/services/centres';
 import client from '../../../services/client';
 import AdminLayout from '../components/AdminLayout';
@@ -7,6 +8,7 @@ import AdminLayout from '../components/AdminLayout';
 export default function AdminVerifyCentreDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [centre, setCentre]                   = useState(null);
   const [loading, setLoading]                 = useState(true);
   const [error, setError]                     = useState('');
@@ -32,7 +34,7 @@ export default function AdminVerifyCentreDetail() {
         setCentre(res2.data.data);
       }
     } catch (err) {
-      setError('Failed to load centre details.');
+      setError(t('admin.failedLoadCentreDetails'));
     } finally {
       setLoading(false);
     }
@@ -49,34 +51,34 @@ export default function AdminVerifyCentreDetail() {
         documents: prev.documents.map(d => d._id === docId ? { ...d, status } : d),
       }));
     } catch {
-      setActionError('Failed to update document status.');
+      setActionError(t('admin.failedUpdateDocStatus'));
     } finally {
       setReviewLoading(prev => { const n = { ...prev }; delete n[docId]; return n; });
     }
   };
 
   const handleApprove = async () => {
-    if (!window.confirm('Approve this centre? The applicant will be promoted to ResponsableCF.')) return;
+    if (!window.confirm(t('admin.confirmApproveCentre'))) return;
     setFinalActionLoading(true);
     setActionError('');
     try {
       await centreService.approve(id);
       navigate('/admin/centres/verify');
     } catch (err) {
-      setActionError(err.response?.data?.message || 'Failed to approve.');
+      setActionError(err.response?.data?.message || t('admin.failedApprove'));
       setFinalActionLoading(false);
     }
   };
 
   const handleReject = async () => {
-    if (!adminMessage.trim()) { setActionError('Please write a reason for rejection.'); return; }
+    if (!adminMessage.trim()) { setActionError(t('admin.reasonRequired')); return; }
     setFinalActionLoading(true);
     setActionError('');
     try {
       await centreService.reject(id, adminMessage);
       navigate('/admin/centres/verify');
     } catch (err) {
-      setActionError(err.response?.data?.message || 'Failed to reject.');
+      setActionError(err.response?.data?.message || t('admin.failedReject'));
       setFinalActionLoading(false);
     }
   };
@@ -87,22 +89,22 @@ export default function AdminVerifyCentreDetail() {
       const url = window.URL.createObjectURL(new Blob([res.data], { type: res.headers['content-type'] || 'application/octet-stream' }));
       window.open(url, '_blank');
     } catch {
-      alert('Could not load document. It may have been deleted or moved.');
+      alert(t('admin.couldNotLoadDoc'));
     }
   };
 
   const DOC_LABELS = {
-    registration:  'Trade Register (Registre de Commerce)',
-    tax_id:        'Tax ID Card (Matricule Fiscal)',
-    identity:      'Manager ID (CIN / Passport)',
-    authorization: 'Ministry Authorization',
-    lease:         'Lease Agreement / Ownership',
+    registration:  t('admin.tradeRegister'),
+    tax_id:        t('admin.taxIdCard'),
+    identity:      t('admin.managerId'),
+    authorization: t('admin.ministryAuthorization'),
+    lease:         t('admin.leaseAgreement'),
   };
 
   const STATUS_CONFIG = {
-    valid:   { color: '#7dbf7d', bg: 'rgba(125,191,125,0.12)', label: 'Valid'    },
-    invalid: { color: '#e07070', bg: 'rgba(224,112,112,0.12)', label: 'Invalid'  },
-    pending: { color: '#c8a86e', bg: 'rgba(200,168,110,0.12)', label: 'Pending'  },
+    valid:   { color: '#7dbf7d', bg: 'rgba(125,191,125,0.12)', label: t('admin.validStatus')    },
+    invalid: { color: '#e07070', bg: 'rgba(224,112,112,0.12)', label: t('admin.invalidStatus')  },
+    pending: { color: '#c8a86e', bg: 'rgba(200,168,110,0.12)', label: t('admin.pendingStatus')  },
   };
 
   if (loading) return (
@@ -114,7 +116,7 @@ export default function AdminVerifyCentreDetail() {
 
   if (error || !centre) return (
     <AdminLayout>
-      <div style={{ textAlign: 'center', padding: 60, color: '#e07070' }}>{error || 'Centre not found.'}</div>
+      <div style={{ textAlign: 'center', padding: 60, color: '#e07070' }}>{error || t('admin.centreNotFound')}</div>
     </AdminLayout>
   );
 
@@ -123,7 +125,7 @@ export default function AdminVerifyCentreDetail() {
   const allValid       = centre.documents?.length > 0 && centre.documents?.every(d => d.status === 'valid');
 
   return (
-    <AdminLayout title="Application <em>Review</em>" subtitle={`Reviewing: ${centre.nom}`}>
+    <AdminLayout title={`${t('admin.application')} <em>${t('admin.review')}</em>`} subtitle={`${t('admin.reviewing')}: ${centre.nom}`}>
       <style>{`
         .av-back { display:inline-flex; align-items:center; gap:8px; color:#555; font-size:13px; cursor:pointer; background:none; border:none; margin-bottom:24px; transition:color .2s; }
         .av-back:hover { color:#b4915a; }
@@ -197,7 +199,7 @@ export default function AdminVerifyCentreDetail() {
 
       <button className="av-back" onClick={() => navigate('/admin/centres/verify')}>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-        Back to Pending List
+        {t('admin.backToPendingList')}
       </button>
 
       <div className="av-grid">
@@ -207,39 +209,39 @@ export default function AdminVerifyCentreDetail() {
           <div className="av-section">
             <h2 className="av-section-title">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 3v18M16 3v18M2 9h20M2 15h20"/></svg>
-              Centre Information
+              {t('admin.centreInfo')}
             </h2>
-            <div className="av-row"><span className="av-row-label">Name</span><span className="av-row-value">{centre.nom}</span></div>
-            <div className="av-row"><span className="av-row-label">Address</span><span className="av-row-value">{centre.adresse || '—'}</span></div>
-            <div className="av-row"><span className="av-row-label">Phone</span><span className="av-row-value">{centre.telephone || '—'}</span></div>
-            <div className="av-row"><span className="av-row-label">Description</span><span className="av-row-value" style={{ maxWidth: 300 }}>{centre.description || '—'}</span></div>
-            <div className="av-row"><span className="av-row-label">Submitted</span><span className="av-row-value">{new Date(centre.createdAt).toLocaleDateString()}</span></div>
+            <div className="av-row"><span className="av-row-label">{t('common.name')}</span><span className="av-row-value">{centre.nom}</span></div>
+            <div className="av-row"><span className="av-row-label">{t('common.address')}</span><span className="av-row-value">{centre.adresse || '—'}</span></div>
+            <div className="av-row"><span className="av-row-label">{t('common.phone')}</span><span className="av-row-value">{centre.telephone || '—'}</span></div>
+            <div className="av-row"><span className="av-row-label">{t('common.description')}</span><span className="av-row-value" style={{ maxWidth: 300 }}>{centre.description || '—'}</span></div>
+            <div className="av-row"><span className="av-row-label">{t('admin.submitted')}</span><span className="av-row-value">{new Date(centre.createdAt).toLocaleDateString()}</span></div>
           </div>
 
           {/* Applicant Info */}
           <div className="av-section">
             <h2 className="av-section-title">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              Applicant
+              {t('admin.applicant')}
             </h2>
-            <div className="av-row"><span className="av-row-label">Name</span><span className="av-row-value">{centre.responsableId?.prenom} {centre.responsableId?.nom}</span></div>
-            <div className="av-row"><span className="av-row-label">Email</span><span className="av-row-value">{centre.responsableId?.email}</span></div>
-            <div className="av-row"><span className="av-row-label">Current Role</span><span className="av-row-value">{centre.responsableId?.role || '—'}</span></div>
+            <div className="av-row"><span className="av-row-label">{t('common.name')}</span><span className="av-row-value">{centre.responsableId?.prenom} {centre.responsableId?.nom}</span></div>
+            <div className="av-row"><span className="av-row-label">{t('common.email')}</span><span className="av-row-value">{centre.responsableId?.email}</span></div>
+            <div className="av-row"><span className="av-row-label">{t('admin.currentRole')}</span><span className="av-row-value">{centre.responsableId?.role || '—'}</span></div>
           </div>
 
           {/* Documents */}
           <div className="av-section">
             <h2 className="av-section-title">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-              Verification Documents
+              {t('admin.verificationDocuments')}
               <span style={{ fontSize: 13, color: '#555', fontFamily: 'DM Sans', marginLeft: 'auto' }}>
-                {centre.documents?.length || 0} files
+                {centre.documents?.length || 0} {t('admin.files')}
               </span>
             </h2>
 
             {(!centre.documents || centre.documents.length === 0) ? (
               <div style={{ color: '#555', fontSize: 14, textAlign: 'center', padding: '32px 0' }}>
-                No documents were uploaded with this application.
+                {t('admin.noDocumentsUploaded')}
               </div>
             ) : (
               <div className="av-docs">
@@ -262,21 +264,21 @@ export default function AdminVerifyCentreDetail() {
                       </div>
                       <div className="av-doc-actions">
                         <button className="av-doc-btn av-doc-btn-view" onClick={() => handleViewDoc(doc._id)}>
-                          👁 View File
+                          👁 {t('admin.viewFile')}
                         </button>
                         <button
                           className={`av-doc-btn av-doc-btn-valid ${doc.status === 'valid' ? 'is-active' : ''}`}
                           onClick={() => handleDocumentStatus(doc._id, 'valid')}
                           disabled={isLoading}
                         >
-                          {isLoading && reviewLoading[doc._id] === 'valid' ? <span className="av-mini-spin" /> : '✓'} Valid
+                          {isLoading && reviewLoading[doc._id] === 'valid' ? <span className="av-mini-spin" /> : '✓'} {t('admin.validStatus')}
                         </button>
                         <button
                           className={`av-doc-btn av-doc-btn-invalid ${doc.status === 'invalid' ? 'is-active' : ''}`}
                           onClick={() => handleDocumentStatus(doc._id, 'invalid')}
                           disabled={isLoading}
                         >
-                          {isLoading && reviewLoading[doc._id] === 'invalid' ? <span className="av-mini-spin" /> : '✕'} Invalid
+                          {isLoading && reviewLoading[doc._id] === 'invalid' ? <span className="av-mini-spin" /> : '✕'} {t('admin.invalidStatus')}
                         </button>
                       </div>
                     </div>
@@ -290,47 +292,43 @@ export default function AdminVerifyCentreDetail() {
         {/* ── Sidebar: Decision ── */}
         <div className="av-sidebar">
           <div className="av-decision">
-            <h3 className="av-decision-title">Final Decision</h3>
-            <p className="av-decision-hint">Review all documents carefully before making a decision.</p>
+            <h3 className="av-decision-title">{t('admin.finalDecision')}</h3>
+            <p className="av-decision-hint">{t('admin.reviewDocsCarefully')}</p>
 
             {/* Summary */}
             <div className="av-summary">
               <div className="av-summary-row">
-                <span>Total Documents</span>
+                <span>{t('admin.totalDocuments')}</span>
                 <span className="av-summary-val">{centre.documents?.length || 0}</span>
               </div>
               <div className="av-summary-row">
-                <span style={{ color: '#7dbf7d' }}>✓ Valid</span>
+                <span style={{ color: '#7dbf7d' }}>✓ {t('admin.validStatus')}</span>
                 <span className="av-summary-val" style={{ color: '#7dbf7d' }}>{centre.documents?.filter(d => d.status === 'valid').length || 0}</span>
               </div>
               <div className="av-summary-row">
-                <span style={{ color: '#e07070' }}>✕ Invalid</span>
+                <span style={{ color: '#e07070' }}>✕ {t('admin.invalidStatus')}</span>
                 <span className="av-summary-val" style={{ color: '#e07070' }}>{centre.documents?.filter(d => d.status === 'invalid').length || 0}</span>
               </div>
               <div className="av-summary-row">
-                <span style={{ color: '#c8a86e' }}>⏳ Pending</span>
+                <span style={{ color: '#c8a86e' }}>⏳ {t('admin.pendingStatus')}</span>
                 <span className="av-summary-val" style={{ color: '#c8a86e' }}>{centre.documents?.filter(d => d.status === 'pending').length || 0}</span>
               </div>
             </div>
 
             {allDocsPending && (
-              <div className="av-warn">⚠ No documents have been reviewed yet. Please mark each document as Valid or Invalid before deciding.</div>
+              <div className="av-warn">⚠ {t('admin.noDocsReviewedYet')}</div>
             )}
             {hasInvalid && !allDocsPending && (
-              <div className="av-warn">⚠ Some documents are marked Invalid. Approving will still promote the user.</div>
+              <div className="av-warn">⚠ {t('admin.someDocsInvalid')}</div>
             )}
 
             {/* Centre is approved — show status only */}
             {centre.status === 'approved' ? (
-              <div className="av-action-ok">
-                This application has already been <strong>approved</strong>.
-              </div>
+              <div className="av-action-ok" dangerouslySetInnerHTML={{ __html: t('admin.applicationAlreadyApproved') }} />
             ) : (
               <>
                 {centre.status === 'rejected' && (
-                  <div className="av-action-error" style={{ marginBottom: 16 }}>
-                    This application was <strong>rejected</strong>. You can reconsider and approve it below.
-                  </div>
+                  <div className="av-action-error" style={{ marginBottom: 16 }} dangerouslySetInnerHTML={{ __html: t('admin.applicationRejectedReconsider') }} />
                 )}
                 
                 <button
@@ -339,8 +337,8 @@ export default function AdminVerifyCentreDetail() {
                   disabled={finalActionLoading}
                 >
                   {finalActionLoading && !showRejectBox
-                    ? <><span className="av-mini-spin" /> Processing...</>
-                    : '✓ Approve & Promote User'}
+                    ? <><span className="av-mini-spin" /> {t('admin.processing')}</>
+                    : `✓ ${t('admin.approvePromote')}`}
                 </button>
 
                 {centre.status === 'pending' && (
@@ -349,7 +347,7 @@ export default function AdminVerifyCentreDetail() {
                     onClick={() => { setShowRejectBox(b => !b); setActionError(''); }}
                     disabled={finalActionLoading}
                   >
-                    {showRejectBox ? '✕ Cancel Rejection' : '✕ Reject Application'}
+                    {showRejectBox ? `✕ ${t('admin.cancelRejection')}` : `✕ ${t('admin.rejectApplication')}`}
                   </button>
                 )}
 
@@ -357,7 +355,7 @@ export default function AdminVerifyCentreDetail() {
                   <div className="av-reject-box">
                     <textarea
                       className="av-textarea"
-                      placeholder="Explain why the application was rejected. The applicant will see this message and can fix their documents..."
+                      placeholder={t('admin.explainRejection')}
                       value={adminMessage}
                       onChange={e => setAdminMessage(e.target.value)}
                     />
@@ -367,8 +365,8 @@ export default function AdminVerifyCentreDetail() {
                       disabled={finalActionLoading}
                     >
                       {finalActionLoading
-                        ? <><span className="av-mini-spin" /> Processing...</>
-                        : 'Confirm Rejection'}
+                        ? <><span className="av-mini-spin" /> {t('admin.processing')}</>
+                        : t('admin.confirmRejection')}
                     </button>
                   </div>
                 )}

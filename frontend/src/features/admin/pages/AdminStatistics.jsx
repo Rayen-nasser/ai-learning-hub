@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import adminService from '../services/admin';
 import AdminLayout from '../components/AdminLayout';
 
 export default function AdminStatistics() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
   const [formationStats, setFormationStats] = useState(null);
@@ -29,14 +31,14 @@ export default function AdminStatistics() {
       setPaymentStats(paymentRes.data.data);
       setBlockHistory(blockRes.data);
     } catch {
-      setError('Failed to load statistics');
+      setError(t('admin.failedLoadStatistics'));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <AdminLayout title="Platform <em>Statistics</em>" subtitle="Overview of platform performance">
+    <AdminLayout title={`${t('admin.platform')} <em>${t('admin.statistics')}</em>`} subtitle={t('admin.platformPerformanceDesc')}>
       <style>{`
         .st-section { margin-bottom: 40px; }
         .st-section-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 400; color: #f0ebe0; margin: 0 0 16px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.06); }
@@ -71,33 +73,33 @@ export default function AdminStatistics() {
           ) : (
             <>
               <div className="st-section">
-                <h2 className="st-section-title">Overview</h2>
+                <h2 className="st-section-title">{t('admin.overview')}</h2>
                 <div className="st-grid">
                   <div className="st-card">
-                    <div className="st-card-label">Total Users</div>
+                    <div className="st-card-label">{t('admin.totalUsers')}</div>
                     <div className="st-card-value">{stats?.users?.total || 0}</div>
-                    <div className="st-card-sub">{stats?.users?.active || 0} active · {stats?.users?.blocked || 0} blocked</div>
+                    <div className="st-card-sub">{stats?.users?.active || 0} {t('admin.active')} · {stats?.users?.blocked || 0} {t('admin.blocked')}</div>
                   </div>
                   <div className="st-card">
-                    <div className="st-card-label">Total Formations</div>
+                    <div className="st-card-label">{t('admin.totalFormations')}</div>
                     <div className="st-card-value">{stats?.formations?.total || 0}</div>
-                    <div className="st-card-sub">Available courses</div>
+                    <div className="st-card-sub">{t('admin.availableCourses')}</div>
                   </div>
                   <div className="st-card">
-                    <div className="st-card-label">Total Enrollments</div>
+                    <div className="st-card-label">{t('admin.totalEnrollments')}</div>
                     <div className="st-card-value">{stats?.enrollments?.total || 0}</div>
-                    <div className="st-card-sub">Course enrollments</div>
+                    <div className="st-card-sub">{t('admin.courseEnrollments')}</div>
                   </div>
                   <div className="st-card">
-                    <div className="st-card-label">Total Revenue</div>
+                    <div className="st-card-label">{t('admin.totalRevenue')}</div>
                     <div className="st-card-value">{stats?.revenue?.total?.toLocaleString() || 0} DT</div>
-                    <div className="st-card-sub">Confirmed payments</div>
+                    <div className="st-card-sub">{t('admin.confirmedPayments')}</div>
                   </div>
                 </div>
               </div>
 
               <div className="st-section">
-                <h2 className="st-section-title">Users by Role</h2>
+                <h2 className="st-section-title">{t('admin.usersByRole')}</h2>
                 <div className="st-grid">
                   {Object.entries(stats?.users?.byRole || {}).map(([role, count]) => (
                     <div key={role} className="st-card">
@@ -109,14 +111,14 @@ export default function AdminStatistics() {
               </div>
 
               <div className="st-section">
-                <h2 className="st-section-title">Block History</h2>
+                <h2 className="st-section-title">{t('admin.blockHistory')}</h2>
                 <div className="st-grid" style={{ marginBottom: '16px' }}>
                   <div className="st-card">
-                    <div className="st-card-label">Total Blocks</div>
+                    <div className="st-card-label">{t('admin.totalBlocks')}</div>
                     <div className="st-card-value" style={{ color: '#e07070' }}>{blockHistory?.stats?.blocked || 0}</div>
                   </div>
                   <div className="st-card">
-                    <div className="st-card-label">Total Unblocks</div>
+                    <div className="st-card-label">{t('admin.totalUnblocks')}</div>
                     <div className="st-card-value">{blockHistory?.stats?.unblocked || 0}</div>
                   </div>
                 </div>
@@ -125,24 +127,24 @@ export default function AdminStatistics() {
                     <table className="st-table">
                       <thead>
                         <tr>
-                          <th>User</th>
-                          <th>Action</th>
-                          <th>Reason</th>
-                          <th>By Admin</th>
-                          <th>Date</th>
+                          <th>{t('admin.user')}</th>
+                          <th>{t('admin.action')}</th>
+                          <th>{t('admin.reason')}</th>
+                          <th>{t('admin.byAdmin')}</th>
+                          <th>{t('admin.date')}</th>
                         </tr>
                       </thead>
                       <tbody>
                         {blockHistory.data.slice(0, 5).map((h) => (
                           <tr key={h._id}>
-                            <td>{h.user ? `${h.user.prenom} ${h.user.nom}` : 'Unknown'}</td>
+                            <td>{h.user ? `${h.user.prenom} ${h.user.nom}` : t('admin.unknown')}</td>
                             <td>
                               <span className={`st-badge ${h.action === 'blocked' ? 'st-badge-danger' : 'st-badge-success'}`}>
                                 {h.action}
                               </span>
                             </td>
                             <td style={{ color: '#888', fontSize: '13px' }}>{h.reason || '-'}</td>
-                            <td>{h.admin ? `${h.admin.prenom} ${h.admin.nom}` : 'Unknown'}</td>
+                            <td>{h.admin ? `${h.admin.prenom} ${h.admin.nom}` : t('admin.unknown')}</td>
                             <td style={{ color: '#555', fontSize: '13px' }}>{new Date(h.createdAt).toLocaleDateString()}</td>
                           </tr>
                         ))}
@@ -153,15 +155,15 @@ export default function AdminStatistics() {
               </div>
 
               <div className="st-section">
-                <h2 className="st-section-title">Top Earning Formations</h2>
+                <h2 className="st-section-title">{t('admin.topEarningFormations')}</h2>
                 {formationStats?.topEarningFormations?.length > 0 ? (
                   <div className="st-table-wrap">
                     <table className="st-table">
                       <thead>
                         <tr>
-                          <th>Formation</th>
-                          <th>Price</th>
-                          <th>Revenue</th>
+                          <th>{t('admin.formation')}</th>
+                          <th>{t('admin.price')}</th>
+                          <th>{t('admin.revenue')}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -176,25 +178,25 @@ export default function AdminStatistics() {
                     </table>
                   </div>
                 ) : (
-                  <div className="st-empty">No data available</div>
+                  <div className="st-empty">{t('admin.noDataAvailable')}</div>
                 )}
               </div>
 
               <div className="st-section">
-                <h2 className="st-section-title">Formations by Centre</h2>
+                <h2 className="st-section-title">{t('admin.formationsByCentre')}</h2>
                 {formationStats?.formationsPerCentre?.length > 0 ? (
                   <div className="st-table-wrap">
                     <table className="st-table">
                       <thead>
                         <tr>
-                          <th>Centre</th>
-                          <th>Formations Count</th>
+                          <th>{t('admin.centre')}</th>
+                          <th>{t('admin.formationsCount')}</th>
                         </tr>
                       </thead>
                       <tbody>
                         {formationStats.formationsPerCentre.map((c, i) => (
                           <tr key={i}>
-                            <td>{c.centreNom || 'Unknown'}</td>
+                            <td>{c.centreNom || t('admin.unknown')}</td>
                             <td><span className="st-badge st-badge-info">{c.count}</span></td>
                           </tr>
                         ))}
@@ -202,25 +204,25 @@ export default function AdminStatistics() {
                     </table>
                   </div>
                 ) : (
-                  <div className="st-empty">No data available</div>
+                  <div className="st-empty">{t('admin.noDataAvailable')}</div>
                 )}
               </div>
 
               <div className="st-section">
-                <h2 className="st-section-title">Formations by Category</h2>
+                <h2 className="st-section-title">{t('admin.formationsByCategory')}</h2>
                 {formationStats?.categoriesDistribution?.length > 0 ? (
                   <div className="st-table-wrap">
                     <table className="st-table">
                       <thead>
                         <tr>
-                          <th>Category</th>
-                          <th>Formations Count</th>
+                          <th>{t('admin.category')}</th>
+                          <th>{t('admin.formationsCount')}</th>
                         </tr>
                       </thead>
                       <tbody>
                         {formationStats.categoriesDistribution.map((c, i) => (
                           <tr key={i}>
-                            <td>{c.categorieNom || 'Unknown'}</td>
+                            <td>{c.categorieNom || t('admin.unknown')}</td>
                             <td><span className="st-badge st-badge-info">{c.count}</span></td>
                           </tr>
                         ))}
@@ -228,25 +230,25 @@ export default function AdminStatistics() {
                     </table>
                   </div>
                 ) : (
-                  <div className="st-empty">No data available</div>
+                  <div className="st-empty">{t('admin.noDataAvailable')}</div>
                 )}
               </div>
 
               <div className="st-section">
-                <h2 className="st-section-title">Top Enrolled Formations</h2>
+                <h2 className="st-section-title">{t('admin.topEnrolledFormations')}</h2>
                 {formationStats?.enrollmentsPerFormation?.length > 0 ? (
                   <div className="st-table-wrap">
                     <table className="st-table">
                       <thead>
                         <tr>
-                          <th>Formation</th>
-                          <th>Enrollments</th>
+                          <th>{t('admin.formation')}</th>
+                          <th>{t('admin.enrollments')}</th>
                         </tr>
                       </thead>
                       <tbody>
                         {formationStats.enrollmentsPerFormation.map((f, i) => (
                           <tr key={i}>
-                            <td>{f.formationTitre || 'Unknown'}</td>
+                            <td>{f.formationTitre || t('admin.unknown')}</td>
                             <td><span className="st-badge st-badge-warning">{f.count}</span></td>
                           </tr>
                         ))}
@@ -254,42 +256,42 @@ export default function AdminStatistics() {
                     </table>
                   </div>
                 ) : (
-                  <div className="st-empty">No data available</div>
+                  <div className="st-empty">{t('admin.noDataAvailable')}</div>
                 )}
               </div>
 
               <div className="st-section">
-                <h2 className="st-section-title">Payment Statistics</h2>
+                <h2 className="st-section-title">{t('admin.paymentStatistics')}</h2>
                 <div className="st-grid">
                   <div className="st-card">
-                    <div className="st-card-label">Total Revenue</div>
+                    <div className="st-card-label">{t('admin.totalRevenue')}</div>
                     <div className="st-card-value">{paymentStats?.totalRevenue?.total?.toLocaleString() || 0} DT</div>
-                    <div className="st-card-sub">{paymentStats?.totalRevenue?.count || 0} confirmed payments</div>
+                    <div className="st-card-sub">{paymentStats?.totalRevenue?.count || 0} {t('admin.confirmedPaymentsLC')}</div>
                   </div>
                   <div className="st-card">
-                    <div className="st-card-label">Pending Payments</div>
+                    <div className="st-card-label">{t('admin.pendingPayments')}</div>
                     <div className="st-card-value" style={{color: '#c8a86e'}}>{paymentStats?.pendingPayments?.total?.toLocaleString() || 0} DT</div>
-                    <div className="st-card-sub">{paymentStats?.pendingPayments?.count || 0} pending payments</div>
+                    <div className="st-card-sub">{paymentStats?.pendingPayments?.count || 0} {t('admin.pendingPaymentsLC')}</div>
                   </div>
                 </div>
               </div>
 
               <div className="st-section">
-                <h2 className="st-section-title">Revenue by Centre</h2>
+                <h2 className="st-section-title">{t('admin.revenueByCentre')}</h2>
                 {paymentStats?.revenueByCentre?.length > 0 ? (
                   <div className="st-table-wrap">
                     <table className="st-table">
                       <thead>
                         <tr>
-                          <th>Centre</th>
-                          <th>Revenue</th>
-                          <th>Transactions</th>
+                          <th>{t('admin.centre')}</th>
+                          <th>{t('admin.revenue')}</th>
+                          <th>{t('admin.transactions')}</th>
                         </tr>
                       </thead>
                       <tbody>
                         {paymentStats.revenueByCentre.map((c, i) => (
                           <tr key={i}>
-                            <td>{c.centreNom || 'Unknown'}</td>
+                            <td>{c.centreNom || t('admin.unknown')}</td>
                             <td><span className="st-badge st-badge-success">{c.total?.toLocaleString() || 0} DT</span></td>
                             <td>{c.count}</td>
                           </tr>
@@ -298,21 +300,21 @@ export default function AdminStatistics() {
                     </table>
                   </div>
                 ) : (
-                  <div className="st-empty">No data available</div>
+                  <div className="st-empty">{t('admin.noDataAvailable')}</div>
                 )}
               </div>
 
               <div className="st-section">
-                <h2 className="st-section-title">Recent Payments</h2>
+                <h2 className="st-section-title">{t('admin.recentPayments')}</h2>
                 {paymentStats?.recentPayments?.length > 0 ? (
                   <div className="st-table-wrap">
                     <table className="st-table">
                       <thead>
                         <tr>
-                          <th>Apprenant</th>
-                          <th>Amount</th>
-                          <th>Status</th>
-                          <th>Date</th>
+                          <th>{t('admin.apprenant')}</th>
+                          <th>{t('admin.amount')}</th>
+                          <th>{t('admin.status')}</th>
+                          <th>{t('admin.date')}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -322,7 +324,7 @@ export default function AdminStatistics() {
                             <td>{p.montant} DT</td>
                             <td>
                               <span className={`st-badge ${p.statut === 'confirmé' ? 'st-badge-success' : 'st-badge-warning'}`}>
-                                {p.statut === 'confirmé' ? 'Confirmed' : 'Pending'}
+                                {p.statut === 'confirmé' ? t('admin.confirmedStatus') : t('admin.pendingStatus')}
                               </span>
                             </td>
                             <td>{new Date(p.createdAt).toLocaleDateString()}</td>
@@ -332,7 +334,7 @@ export default function AdminStatistics() {
                     </table>
                   </div>
                 ) : (
-                  <div className="st-empty">No recent payments</div>
+                  <div className="st-empty">{t('admin.noRecentPayments')}</div>
                 )}
               </div>
             </>
