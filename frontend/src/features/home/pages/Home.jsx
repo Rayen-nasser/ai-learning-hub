@@ -302,13 +302,17 @@ const Home = () => {
         }
         .course-card:hover .course-thumb-glow { transform: scale(1.4); }
         .course-thumb-label {
-          position: absolute; top: 12px; left: 12px;
+          position: absolute; top: 12px; right: 12px;
           padding: 4px 10px; border-radius: 6px;
-          background: rgba(180,145,90,0.15);
+          background: rgba(12,12,14,0.75);
           border: 1px solid rgba(180,145,90,0.3);
           font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
           color: #c8a86e; backdrop-filter: blur(8px);
+          z-index: 2; max-width: 130px;
+          white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
+        .course-thumb-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.45s ease; z-index: 1; }
+        .course-card:hover .course-thumb-img { transform: scale(1.06); }
         .course-glyph {
           font-size: 44px; opacity: 0.12; color: #b4915a;
           font-family: 'Cormorant Garamond', serif;
@@ -474,9 +478,22 @@ const Home = () => {
               {formations.slice(0, 8).map((f, i) => (
                 <Link key={f._id} to={`/formations/${f._id}`} className="course-card">
                   <div className="course-thumb">
-                    <div className="course-thumb-glow" />
-                    <span className="course-thumb-label">{f.categorie?.nom || 'Course'}</span>
-                    <div className="course-glyph">{String.fromCharCode(65 + (i % 26))}</div>
+                    {f.image ? (
+                      <img
+                        src={f.image}
+                        alt={f.titre || f.title}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0, transition: 'transform 0.4s' }}
+                        className="course-thumb-img"
+                      />
+                    ) : (
+                      <>
+                        <div className="course-thumb-glow" />
+                        <div className="course-glyph">{String.fromCharCode(65 + (i % 26))}</div>
+                      </>
+                    )}
+                    <span className="course-thumb-label">
+                      {f.categorieId?.nom || f.categorie?.nom || f.categorieNom || 'Course'}
+                    </span>
                   </div>
                   <div className="course-body">
                     <div className="course-title">{f.titre || f.title}</div>
