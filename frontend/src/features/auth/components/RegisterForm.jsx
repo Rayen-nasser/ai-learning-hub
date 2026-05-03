@@ -1,6 +1,7 @@
 import { useState, useCallback, Fragment } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../shared/context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 /* ─── icons ─── */
 const EyeIcon = ({ open }) => (
@@ -28,8 +29,8 @@ const getStrength = (pw) => {
   if (/[^A-Za-z0-9]/.test(pw)) score++;
   return score; // 0-4
 };
-const strengthLabel = ['', 'Weak', 'Fair', 'Good', 'Strong'];
 const strengthColor = ['', '#e07070', '#e09a40', '#7dbf7d', '#4aa87d'];
+// Labels handled via i18n inside component
 
 /* ─── roles config ─── */
 const ROLES = [
@@ -106,6 +107,8 @@ const RegisterForm = () => {
 
   const { register } = useAuth();
   const navigate     = useNavigate();
+  const { t }        = useTranslation();
+  const strengthLabel = ['', t('register.pwWeak'), t('register.pwFair'), t('register.pwGood'), t('register.pwStrong')];
 
   const change = useCallback((e) => {
     const { name, value, type, files } = e.target;
@@ -123,35 +126,35 @@ const RegisterForm = () => {
   /* ─── per-step validation ─── */
   const validate0 = () => {
     const e = {};
-    if (!formData.nom.trim())                       e.nom     = 'Required';
-    else if (formData.nom.trim().length < 2)        e.nom     = 'Min 2 characters';
-    if (!formData.prenom.trim())                    e.prenom  = 'Required';
-    else if (formData.prenom.trim().length < 2)     e.prenom  = 'Min 2 characters';
-    if (!formData.email)                            e.email   = 'Required';
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) e.email   = 'Invalid email';
-    if (!formData.password)                         e.password = 'Required';
-    else if (formData.password.length < 8)          e.password = 'Min 8 characters';
-    if (!formData.confirmPassword)                  e.confirmPassword = 'Required';
-    else if (formData.password !== formData.confirmPassword) e.confirmPassword = 'Passwords do not match';
+    if (!formData.nom.trim())                       e.nom     = t('register.required');
+    else if (formData.nom.trim().length < 2)        e.nom     = t('register.min2');
+    if (!formData.prenom.trim())                    e.prenom  = t('register.required');
+    else if (formData.prenom.trim().length < 2)     e.prenom  = t('register.min2');
+    if (!formData.email)                            e.email   = t('register.required');
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) e.email   = t('auth.emailInvalid');
+    if (!formData.password)                         e.password = t('register.required');
+    else if (formData.password.length < 8)          e.password = t('register.min8');
+    if (!formData.confirmPassword)                  e.confirmPassword = t('register.required');
+    else if (formData.password !== formData.confirmPassword) e.confirmPassword = t('register.passwordsMismatch');
     
     if (formData.telephone && !/^(?:\+216|00216)?[ ]?[24579][0-9]{7}$/.test(formData.telephone)) {
-      e.telephone = 'Invalid Tunisian phone number format';
+      e.telephone = t('register.invalidPhone');
     }
     return e;
   };
   const validate1 = () => ({});
   const validate2 = () => {
     const e = {};
-    if (!formData.role) e.role = 'Please select a role';
+    if (!formData.role) e.role = t('register.selectRole');
     if (formData.dateNaissance) {
       const birth = new Date(formData.dateNaissance);
       const now = new Date();
-      if (birth >= now) {
-        e.dateNaissance = 'Birth date must be in the past';
-      } else {
-        const age = now.getFullYear() - birth.getFullYear();
-        if (age < 13) e.dateNaissance = 'You must be at least 13 years old';
-      }
+        if (birth >= now) {
+          e.dateNaissance = t('register.birthPast');
+        } else {
+          const age = now.getFullYear() - birth.getFullYear();
+          if (age < 13) e.dateNaissance = t('register.minAge');
+        }
     }
     return e;
   };
@@ -183,12 +186,14 @@ const RegisterForm = () => {
       await register(data);
       navigate('/profile');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      setError(err.response?.data?.message || t('register.failed'));
       setStep(0);
     } finally {
       setLoading(false);
     }
   };
+
+  const STEPS = [t('register.step1'), t('register.step2'), t('register.step3')];
 
   const strength = getStrength(formData.password);
 
@@ -197,15 +202,15 @@ const RegisterForm = () => {
     if (step === 0) return (
       <>
         <div className="rf-row-2">
-          <Field name="prenom" label="First Name" placeholder="Jane" autoComplete="given-name" formData={formData} touched={touched} fieldErrors={fieldErrors} change={change} blur={blur} />
-          <Field name="nom"    label="Last Name"  placeholder="Doe"  autoComplete="family-name" formData={formData} touched={touched} fieldErrors={fieldErrors} change={change} blur={blur} />
+          <Field name="prenom" label={t('auth.firstName')} placeholder="Jane" autoComplete="given-name" formData={formData} touched={touched} fieldErrors={fieldErrors} change={change} blur={blur} />
+          <Field name="nom"    label={t('auth.lastName')}  placeholder="Doe"  autoComplete="family-name" formData={formData} touched={touched} fieldErrors={fieldErrors} change={change} blur={blur} />
         </div>
-        <Field name="email" label="Email" type="email" placeholder="you@example.com" autoComplete="email" formData={formData} touched={touched} fieldErrors={fieldErrors} change={change} blur={blur} />
-        <Field name="telephone" label="Phone (optional)" type="tel" placeholder="+216 00 000 000" formData={formData} touched={touched} fieldErrors={fieldErrors} change={change} blur={blur} />
+        <Field name="email" label={t('auth.email')} type="email" placeholder="you@example.com" autoComplete="email" formData={formData} touched={touched} fieldErrors={fieldErrors} change={change} blur={blur} />
+        <Field name="telephone" label={t('register.phone')} type="tel" placeholder="+216 00 000 000" formData={formData} touched={touched} fieldErrors={fieldErrors} change={change} blur={blur} />
 
         {/* password */}
         <div className="rf-field">
-          <label className="rf-label">Password</label>
+          <label className="rf-label">{t('auth.password')}</label>
           <div className="rf-input-wrap">
             <input
               name="password"
@@ -236,7 +241,7 @@ const RegisterForm = () => {
         </div>
 
         <div className="rf-field">
-          <label className="rf-label">Confirm Password</label>
+          <label className="rf-label">{t('auth.confirmPassword')}</label>
           <div className="rf-input-wrap">
             <input
               name="confirmPassword"
@@ -253,7 +258,7 @@ const RegisterForm = () => {
           </div>
           {touched.confirmPassword && fieldErrors.confirmPassword && <p className="rf-field-error">{fieldErrors.confirmPassword}</p>}
           {!fieldErrors.confirmPassword && formData.confirmPassword && formData.password === formData.confirmPassword && (
-            <p className="rf-field-ok">✓ Passwords match</p>
+            <p className="rf-field-ok">✓ {t('register.passwordsMatch')}</p>
           )}
         </div>
       </>
@@ -268,7 +273,7 @@ const RegisterForm = () => {
               ? <img src={imagePreview} alt="Preview" className="rf-avatar-img" />
               : <div className="rf-avatar-placeholder">
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                  <span>Add photo</span>
+                  <span>{t('register.addPhoto')}</span>
                 </div>
             }
             <div className="rf-avatar-overlay">
@@ -277,18 +282,18 @@ const RegisterForm = () => {
           </div>
           <input id="rf-file" type="file" name="user_image" accept="image/*" onChange={change} style={{ display: 'none' }} />
           <div>
-            <p className="rf-avatar-hint">Profile photo (optional)</p>
-            <p className="rf-avatar-sub">JPG, PNG up to 5MB</p>
+            <p className="rf-avatar-hint">{t('register.photoOptional')}</p>
+            <p className="rf-avatar-sub">{t('register.photoFormat')}</p>
           </div>
         </div>
 
-        <p className="rf-step-note">These details are optional — you can update them later in your profile.</p>
+        <p className="rf-step-note">{t('register.profileOptional')}</p>
       </>
     );
 
     if (step === 2) return (
       <>
-        <p className="rf-step-note" style={{ marginBottom: 20 }}>Choose your role to personalise your experience.</p>
+        <p className="rf-step-note" style={{ marginBottom: 20 }}>{t('register.chooseRoleNote')}</p>
         <div className="rf-role-grid">
           {ROLES.map(r => (
             <button
@@ -310,21 +315,21 @@ const RegisterForm = () => {
           <div className="rf-role-fields">
             <div className="rf-row-2">
               <div className="rf-field">
-                <label className="rf-label">Education Level</label>
+                <label className="rf-label">{t('register.educationLevel')}</label>
                 <div className="rf-input-wrap">
                   <select name="niveauEtude" value={formData.niveauEtude} onChange={change} className="rf-input rf-select">
-                    <option value="">Select level</option>
-                    <option value="primaire">Primary</option>
-                    <option value="secondaire">Secondary</option>
-                    <option value="bac">Baccalaureate</option>
-                    <option value="licence">Bachelor</option>
-                    <option value="master">Master</option>
-                    <option value="doctorat">PhD</option>
+                    <option value="">{t('register.selectLevel')}</option>
+                    <option value="primaire">{t('register.levelPrimary')}</option>
+                    <option value="secondaire">{t('register.levelSecondary')}</option>
+                    <option value="bac">{t('register.levelBac')}</option>
+                    <option value="licence">{t('register.levelBachelor')}</option>
+                    <option value="master">{t('register.levelMaster')}</option>
+                    <option value="doctorat">{t('register.levelPhd')}</option>
                   </select>
                 </div>
               </div>
               <div className="rf-field">
-                <label className="rf-label">Date of Birth</label>
+                <label className="rf-label">{t('register.dateOfBirth')}</label>
                 <div className="rf-input-wrap">
                   <input type="date" name="dateNaissance" value={formData.dateNaissance} onChange={change} onBlur={() => blur('dateNaissance')} className={`rf-input${touched.dateNaissance && fieldErrors.dateNaissance ? ' err' : ''}`} />
                 </div>
@@ -332,9 +337,9 @@ const RegisterForm = () => {
               </div>
             </div>
             <div className="rf-field">
-              <label className="rf-label">Address</label>
+              <label className="rf-label">{t('register.address')}</label>
               <div className="rf-input-wrap">
-                <input type="text" name="adresse" placeholder="Your address" value={formData.adresse} onChange={change} className="rf-input" />
+                <input type="text" name="adresse" placeholder={t('register.yourAddress')} value={formData.adresse} onChange={change} className="rf-input" />
               </div>
             </div>
           </div>
@@ -342,13 +347,13 @@ const RegisterForm = () => {
         {formData.role === 'formateur' && (
           <div className="rf-role-fields rf-row-2">
             <div className="rf-field">
-              <label className="rf-label">Specialty</label>
+              <label className="rf-label">{t('register.specialty')}</label>
               <div className="rf-input-wrap">
-                <input type="text" name="specialite" placeholder="Your specialty" value={formData.specialite} onChange={change} className="rf-input" />
+                <input type="text" name="specialite" placeholder={t('register.yourSpecialty')} value={formData.specialite} onChange={change} className="rf-input" />
               </div>
             </div>
             <div className="rf-field">
-              <label className="rf-label">Years of Experience</label>
+              <label className="rf-label">{t('register.experience')}</label>
               <div className="rf-input-wrap">
                 <input type="number" name="experience" placeholder="0" min="0" value={formData.experience} onChange={change} className="rf-input" />
               </div>
@@ -566,12 +571,12 @@ const RegisterForm = () => {
           </div>
 
           <h1 className="rf-title">
-            {step === 0 ? 'Create your account' : step === 1 ? 'Complete your profile' : 'Choose your role'}
+            {step === 0 ? t('register.titleAccount') : step === 1 ? t('register.titleProfile') : t('register.titleRole')}
           </h1>
           <p className="rf-subtitle">
-            {step === 0 ? 'Fill in your credentials to get started'
-              : step === 1 ? 'Add a photo to personalize your experience'
-              : 'How will you be using Forma?'}
+            {step === 0 ? t('register.subtitleAccount')
+              : step === 1 ? t('register.subtitleProfile')
+              : t('register.subtitleRole')}
           </p>
 
           {error && (
@@ -587,23 +592,23 @@ const RegisterForm = () => {
             <div className="rf-nav" style={{ marginTop: 28 }}>
               {step > 0 && (
                 <button type="button" className="rf-btn-back" onClick={() => setStep(s => s - 1)}>
-                  Back
+                  {t('common.back')}
                 </button>
               )}
               {step < STEPS.length - 1 ? (
                 <button type="button" className="rf-btn-next" onClick={nextStep}>
-                  Continue →
+                  {t('register.continue')} →
                 </button>
               ) : (
                 <button type="submit" className="rf-btn-next" disabled={loading}>
-                  {loading ? <><Spinner /> Creating account…</> : 'Create Account'}
+                  {loading ? <><Spinner /> {t('register.creatingAccount')}</> : t('auth.signup')}
                 </button>
               )}
             </div>
           </form>
 
           <p className="rf-footer">
-            Already have an account? <Link to="/login">Sign in</Link>
+            {t('register.alreadyHaveAccount')} <Link to="/login">{t('auth.login')}</Link>
           </p>
         </div>
       </div>

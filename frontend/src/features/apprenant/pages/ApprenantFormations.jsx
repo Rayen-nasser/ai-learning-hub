@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import ApprenantLayout from '../components/ApprenantLayout';
 import { inscriptionService } from '../../../services/api';
 import LoadingSpinner from '../../../shared/components/LoadingSpinner';
@@ -8,6 +9,7 @@ export default function ApprenantFormations() {
   const [inscriptions, setInscriptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetchData();
@@ -38,14 +40,14 @@ export default function ApprenantFormations() {
   };
 
   const filterTabs = [
-    { key: 'all', label: 'All' },
-    { key: 'acceptee', label: 'Active' },
-    { key: 'en_attente', label: 'Pending' },
-    { key: 'refusee', label: 'Rejected' },
+    { key: 'all',       label: t('apprenant.filterAll') },
+    { key: 'acceptee',  label: t('apprenant.statusActive') },
+    { key: 'en_attente',label: t('apprenant.statusPending') },
+    { key: 'refusee',   label: t('apprenant.statusRejected') },
   ];
 
   return (
-    <ApprenantLayout title="My <em>Courses</em>" subtitle="Manage your enrolled courses">
+    <ApprenantLayout title={`${t('nav.myCourses').replace('Mes ','')} <em>${t('apprenant.coursesEm')}</em>`} subtitle={t('apprenant.manageEnrollments')}>
       <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
         {filterTabs.map(tab => (
           <button
@@ -71,13 +73,13 @@ export default function ApprenantFormations() {
         <LoadingSpinner />
       ) : filteredInscriptions.length === 0 ? (
         <div style={{ textAlign: 'center', padding: 60, background: 'rgba(255,255,255,0.02)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.06)' }}>
-          <div style={{ fontSize: 18, color: '#888', marginBottom: 8 }}>No courses found</div>
+          <div style={{ fontSize: 18, color: '#888', marginBottom: 8 }}>{t('apprenant.noCoursesFound')}</div>
           <div style={{ fontSize: 14, color: '#555', marginBottom: 16 }}>
-            {filter !== 'all' ? 'Try selecting a different filter' : 'Start learning by enrolling in a course'}
+            {filter !== 'all' ? t('apprenant.tryDifferentFilter') : t('apprenant.startLearning')}
           </div>
           {filter === 'all' && (
             <Link to="/formations" style={{ color: '#7ca8d4', textDecoration: 'none', fontSize: 14 }}>
-              Explore Courses →
+              {t('home.exploreCourses')} →
             </Link>
           )}
         </div>
@@ -125,7 +127,7 @@ export default function ApprenantFormations() {
                       {ins.duree || 0}h total
                     </span>
                     <span style={{ color: '#7ca8d4', fontSize: 12 }}>
-                      {ins.statut === 'acceptee' ? 'Continue Learning →' : 'View Payment →'}
+                      {ins.statut === 'acceptee' ? t('apprenant.continueLearning') : t('apprenant.viewPayment')} →
                     </span>
                   </div>
                 </div>
@@ -139,10 +141,11 @@ export default function ApprenantFormations() {
 }
 
 function StatusBadge({ status }) {
+  const { t } = useTranslation();
   const statusMeta = {
-    acceptee: { label: 'Active', color: '#4aa87d', bg: 'rgba(74,168,125,0.15)' },
-    en_attente: { label: 'Pending', color: '#c8a86e', bg: 'rgba(200,168,110,0.15)' },
-    refusee: { label: 'Rejected', color: '#e07070', bg: 'rgba(220,110,110,0.15)' },
+    acceptee:   { label: t('apprenant.statusActive'),   color: '#4aa87d', bg: 'rgba(74,168,125,0.15)' },
+    en_attente: { label: t('apprenant.statusPending'),  color: '#c8a86e', bg: 'rgba(200,168,110,0.15)' },
+    refusee:    { label: t('apprenant.statusRejected'), color: '#e07070', bg: 'rgba(220,110,110,0.15)' },
   };
   
   const meta = statusMeta[status] || statusMeta.en_attente;
