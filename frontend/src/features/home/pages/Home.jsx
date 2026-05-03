@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { formationService, categorieService } from '../../../services/api';
 import { useAuth } from '../../../shared/context/AuthContext';
 import AICourseRecommender from '../../../shared/components/AICourseRecommender';
@@ -8,6 +9,7 @@ const CATEGORY_ICONS = ['✦', '◈', '⊕', '◉', '⬡', '⟁', '⊞', '⬖'];
 
 const Home = () => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [formations, setFormations] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,10 +31,10 @@ const Home = () => {
   );
 
   const stats = [
-    { value: formations.length || '200+', label: 'Courses' },
-    { value: categories.length || '20+', label: 'Categories' },
-    { value: '5K+', label: 'Students' },
-    { value: '98%', label: 'Satisfaction' },
+    { value: formations.length || '200+', label: t('home.stats.courses') },
+    { value: categories.length || '20+', label: t('home.stats.categories') },
+    { value: '5K+', label: t('home.stats.students') },
+    { value: '98%', label: t('home.stats.satisfaction') },
   ];
 
   return (
@@ -321,21 +323,20 @@ const Home = () => {
           <div className="hero-content">
             <div className="hero-eyebrow">
               <span className="hero-eyebrow-dot" />
-              Professional Learning Platform
+              {t('home.badge')}
             </div>
             <h1 className="hero-title">
-              Knowledge that<br/><em>shapes</em> futures
+              {t('home.heroTitle')}<br/><em>{t('home.heroTitleEm')}</em> {t('home.heroTitleSuffix')}
             </h1>
             <p className="hero-desc">
-              Discover expertly curated courses taught by industry professionals.
-              Learn at your own pace and unlock your full potential.
+              {t('home.heroDesc')}
             </p>
-              <div className="hero-cta">
+            <div className="hero-cta">
               <Link to="/formations" className="btn-primary">
-                Explore Courses
+                {t('home.exploreCourses')}
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
               </Link>
-              {!user && <Link to="/register" className="btn-ghost">Create Account</Link>}
+              {!user && <Link to="/register" className="btn-ghost">{t('home.createAccount')}</Link>}
             </div>
 
             {/* Stats */}
@@ -357,13 +358,13 @@ const Home = () => {
         {/* FEATURES */}
         <section className="section">
           <div className="section-header">
-            <h2 className="section-title">Why choose <span>Forma</span></h2>
+            <h2 className="section-title">{t('home.whyChoose')} <span>Forma</span></h2>
           </div>
           <div className="features-grid">
             {[
-              { icon: '🎓', title: 'Expert Instructors', desc: 'Learn from industry professionals with decades of real-world experience across diverse fields.' },
-              { icon: '⏱', title: 'Flexible Learning', desc: 'Study at your own pace, on any device. No schedules, no pressure — your journey, your timeline.' },
-              { icon: '🏅', title: 'Certificates', desc: 'Earn recognized certificates upon completion to showcase your skills to employers worldwide.' },
+              { icon: '🎓', title: t('home.features.instructors'), desc: t('home.features.instructorsDesc') },
+              { icon: '⏱', title: t('home.features.flexible'), desc: t('home.features.flexibleDesc') },
+              { icon: '🏅', title: t('home.features.certificates'), desc: t('home.features.certificatesDesc') },
             ].map((f, i) => (
               <div key={i} className="feature-card">
                 <div className="feature-icon">{f.icon}</div>
@@ -378,8 +379,8 @@ const Home = () => {
         {categories.length > 0 && (
           <section className="section">
             <div className="section-header">
-              <h2 className="section-title">Browse by <span>Category</span></h2>
-              <Link to="/formations" className="section-link">All courses →</Link>
+              <h2 className="section-title">{t('home.browseByCategory')} <span>{t('home.categoryEm')}</span></h2>
+              <Link to="/formations" className="section-link">{t('home.allCourses')}</Link>
             </div>
             <div className="cats-grid">
               {categories.map((cat, i) => (
@@ -396,8 +397,8 @@ const Home = () => {
         {formations.length > 0 && (
           <section className="section">
             <div className="section-header">
-              <h2 className="section-title">Featured <span>Courses</span></h2>
-              <Link to="/formations" className="section-link">View all →</Link>
+              <h2 className="section-title">{t('home.featuredCourses')} <span>{t('home.featuredCoursesEm')}</span></h2>
+              <Link to="/formations" className="section-link">{t('home.viewAll')}</Link>
             </div>
             <div className="courses-grid">
               {formations.slice(0, 8).map((f, i) => (
@@ -434,11 +435,11 @@ const Home = () => {
         <div className="cta-banner">
           <div className="cta-banner-bg" />
           <div className="cta-banner-content">
-            <h2 className="cta-banner-title">Ready to start learning?</h2>
-            <p className="cta-banner-desc">Join thousands of students already building their future with Forma.</p>
+            <h2 className="cta-banner-title">{t('home.ctaTitle')}</h2>
+            <p className="cta-banner-desc">{t('home.ctaDesc')}</p>
             <div className="cta-banner-btns">
-              {!user && <Link to="/register" className="btn-primary">Start for free</Link>}
-              <Link to="/formations" className="btn-ghost">Browse courses</Link>
+              {!user && <Link to="/register" className="btn-primary">{t('home.startFree')}</Link>}
+              <Link to="/formations" className="btn-ghost">{t('home.browseCourses')}</Link>
             </div>
           </div>
         </div>

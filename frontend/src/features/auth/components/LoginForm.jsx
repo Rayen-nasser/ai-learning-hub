@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../shared/context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 /* ─── tiny inline primitives (no external deps beyond react-router) ─── */
 const EyeIcon = ({ open }) => (
@@ -39,12 +40,13 @@ const LoginForm = () => {
   const navigate  = useNavigate();
   const location  = useLocation();
   const from      = location.state?.from?.pathname || '/';
+  const { t }     = useTranslation();
 
   const validate = () => {
     const errs = {};
-    if (!email)                          errs.email    = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(email)) errs.email   = 'Enter a valid email';
-    if (!password)                       errs.password  = 'Password is required';
+    if (!email)                          errs.email    = t('auth.emailRequired');
+    else if (!/\S+@\S+\.\S+/.test(email)) errs.email   = t('auth.emailInvalid');
+    if (!password)                       errs.password  = t('auth.passwordRequired');
     return errs;
   };
 
@@ -64,7 +66,7 @@ const LoginForm = () => {
       await login(email, password);
       navigate(from, { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid email or password. Please try again.');
+      setError(err.response?.data?.message || t('auth.loginFailed'));
     } finally {
       setLoading(false);
     }
@@ -231,12 +233,12 @@ const LoginForm = () => {
           <div className="lf-panel-bg" />
           <div className="lf-panel-lines" />
           <div className="lf-panel-content">
-            <p className="lf-panel-label">Learning Platform</p>
+            <p className="lf-panel-label">{t('auth.platformLabel')}</p>
             <h2 className="lf-panel-headline">
-              Knowledge<br/>that <em>shapes</em><br/>futures.
+              {t('auth.panelHeadline1')}<br/>{t('auth.panelHeadline2')} <em>{t('auth.panelHeadlineEm')}</em><br/>{t('auth.panelHeadline3')}
             </h2>
             <p className="lf-panel-body">
-              Access your courses, track your progress, and connect with expert trainers — all in one place.
+              {t('auth.panelBody')}
             </p>
           </div>
         </div>
@@ -245,12 +247,12 @@ const LoginForm = () => {
         <div className="lf-form-wrapper">
           <div className="lf-card">
             <div className="lf-logo">Forma</div>
-            <h1 className="lf-title">Welcome back</h1>
-            <p className="lf-subtitle">Sign in to continue your journey</p>
+            <h1 className="lf-title">{t('auth.welcomeBack')}</h1>
+            <p className="lf-subtitle">{t('auth.loginSubtitle')}</p>
 
             {from !== '/' && (
               <div className="lf-redirect-note">
-                Please sign in to access that page.
+                {t('auth.redirectNote')}
               </div>
             )}
 
@@ -264,7 +266,7 @@ const LoginForm = () => {
             <form onSubmit={handleSubmit} noValidate>
               {/* Email */}
               <div className="lf-field">
-                <label className="lf-label">Email</label>
+                <label className="lf-label">{t('auth.email')}</label>
                 <div className="lf-input-wrap">
                   <input
                     className={`lf-input${touched.email && fieldErrors.email ? ' err' : ''}`}
@@ -282,7 +284,7 @@ const LoginForm = () => {
 
               {/* Password */}
               <div className="lf-field">
-                <label className="lf-label">Password</label>
+                <label className="lf-label">{t('auth.password')}</label>
                 <div className="lf-input-wrap">
                   <input
                     className={`lf-input has-icon${touched.password && fieldErrors.password ? ' err' : ''}`}
@@ -306,21 +308,21 @@ const LoginForm = () => {
               <div className="lf-options">
                 <label className="lf-remember">
                   <input type="checkbox" className="lf-checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} />
-                  <span className="lf-remember-label">Remember me</span>
+                  <span className="lf-remember-label">{t('auth.rememberMe')}</span>
                 </label>
-                <Link to="/forgot-password" className="lf-forgot">Forgot password?</Link>
+                <Link to="/forgot-password" className="lf-forgot">{t('auth.forgot_password')}</Link>
               </div>
 
               <button type="submit" className="lf-btn" disabled={loading}>
-                {loading ? <><Spinner /> Signing in…</> : 'Sign In'}
+                {loading ? <><Spinner /> {t('auth.signingIn')}</> : t('auth.login')}
               </button>
             </form>
 
-            <div className="lf-divider">or</div>
+            <div className="lf-divider">{t('auth.or')}</div>
 
             <p className="lf-footer">
-              Don't have an account?{' '}
-              <Link to="/register">Create one</Link>
+              {t('auth.noAccount')}{' '}
+              <Link to="/register">{t('auth.createOne')}</Link>
             </p>
           </div>
         </div>

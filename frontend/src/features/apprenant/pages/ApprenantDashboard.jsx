@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import ApprenantLayout from '../components/ApprenantLayout';
 import { inscriptionService, favoriService, paiementService } from '../../../services/api';
 import AICourseRecommender from '../../../shared/components/AICourseRecommender';
@@ -9,6 +10,7 @@ export default function ApprenantDashboard() {
   const [favoris, setFavoris] = useState([]);
   const [paiements, setPaiements] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetchData();
@@ -35,7 +37,7 @@ export default function ApprenantDashboard() {
 
   const stats = [
     {
-      label: 'Enrolled Courses',
+      label: t('apprenant.enrolledCourses'),
       value: inscriptions.length,
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -48,7 +50,7 @@ export default function ApprenantDashboard() {
       link: '/apprenant/formations',
     },
     {
-      label: 'Favorites',
+      label: t('common.favorites'),
       value: favoris.length,
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -60,7 +62,7 @@ export default function ApprenantDashboard() {
       link: '/apprenant/favoris',
     },
     {
-      label: 'Total Spent',
+      label: t('apprenant.totalSpent'),
       value: `${paiements.reduce((s, p) => s + (p.montant || 0), 0)} DT`,
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -77,7 +79,7 @@ export default function ApprenantDashboard() {
   const recentFormations = inscriptions.slice(0, 3);
 
   return (
-    <ApprenantLayout title="Welcome back, <em>Learner</em>" subtitle="Track your learning journey">
+    <ApprenantLayout title={`${t('dashboard.welcome')}, <em>${t('apprenant.learner')}</em>`} subtitle={t('apprenant.trackJourney')}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 20, marginBottom: 40 }}>
         {stats.map((stat, i) => (
           <Link key={i} to={stat.link} style={{ textDecoration: 'none' }}>
@@ -110,17 +112,17 @@ export default function ApprenantDashboard() {
       <AICourseRecommender />
 
       <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 24, fontWeight: 400, color: '#f0ebe0', marginBottom: 20, marginTop: 40 }}>
-        Recent Enrollments
+        {t('apprenant.recentEnrollments')}
       </h2>
       
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 40, color: '#555' }}>Loading...</div>
+        <div style={{ textAlign: 'center', padding: 40, color: '#555' }}>{t('common.loading')}</div>
       ) : recentFormations.length === 0 ? (
         <div style={{ textAlign: 'center', padding: 60, background: 'rgba(255,255,255,0.02)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.06)' }}>
-          <div style={{ fontSize: 18, color: '#888', marginBottom: 8 }}>No enrollments yet</div>
-          <div style={{ fontSize: 14, color: '#555', marginBottom: 16 }}>Start learning by enrolling in a course</div>
+          <div style={{ fontSize: 18, color: '#888', marginBottom: 8 }}>{t('apprenant.noEnrollments')}</div>
+          <div style={{ fontSize: 14, color: '#555', marginBottom: 16 }}>{t('apprenant.startLearning')}</div>
           <Link to="/formations" style={{ color: '#7ca8d4', textDecoration: 'none', fontSize: 14 }}>
-            Explore Courses →
+            {t('home.exploreCourses')} →
           </Link>
         </div>
       ) : (
@@ -166,7 +168,7 @@ export default function ApprenantDashboard() {
       {inscriptions.length > 3 && (
         <div style={{ marginTop: 20, textAlign: 'center' }}>
           <Link to="/apprenant/formations" style={{ color: '#7ca8d4', textDecoration: 'none', fontSize: 14 }}>
-            View All Courses →
+            {t('apprenant.viewAllCourses')} →
           </Link>
         </div>
       )}
@@ -175,10 +177,11 @@ export default function ApprenantDashboard() {
 }
 
 function StatusBadge({ status }) {
+  const { t } = useTranslation();
   const statusMeta = {
-    acceptee: { label: 'Active', color: '#4aa87d', bg: 'rgba(74,168,125,0.1)' },
-    en_attente: { label: 'Pending', color: '#c8a86e', bg: 'rgba(200,168,110,0.1)' },
-    refusee: { label: 'Rejected', color: '#e07070', bg: 'rgba(220,110,110,0.1)' },
+    acceptee:   { label: t('apprenant.statusActive'),    color: '#4aa87d', bg: 'rgba(74,168,125,0.1)' },
+    en_attente: { label: t('apprenant.statusPending'),   color: '#c8a86e', bg: 'rgba(200,168,110,0.1)' },
+    refusee:    { label: t('apprenant.statusRejected'),  color: '#e07070', bg: 'rgba(220,110,110,0.1)' },
   };
   
   const meta = statusMeta[status] || statusMeta.en_attente;

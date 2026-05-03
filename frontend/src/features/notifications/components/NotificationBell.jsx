@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { notificationService } from '../services/notifications';
 
 export default function NotificationBell() {
+  const { t } = useTranslation();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -263,10 +265,10 @@ export default function NotificationBell() {
     const now = new Date();
     const seconds = Math.floor((now - date) / 1000);
 
-    if (seconds < 60) return 'Just now';
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-    if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+    if (seconds < 60) return t('notifications.justNow');
+    if (seconds < 3600) return t('notifications.minutesAgo', { count: Math.floor(seconds / 60) });
+    if (seconds < 86400) return t('notifications.hoursAgo', { count: Math.floor(seconds / 3600) });
+    if (seconds < 604800) return t('notifications.daysAgo', { count: Math.floor(seconds / 86400) });
     return date.toLocaleDateString();
   };
 
@@ -348,9 +350,9 @@ export default function NotificationBell() {
             justifyContent: 'space-between',
           }}>
             <h3 style={{ margin: 0, fontSize: 14, fontWeight: 500, color: '#e8e4dc', fontFamily: "'DM Sans', sans-serif" }}>
-              Notifications
+              {t('notifications.title')}
               {unreadCount > 0 && (
-                <span style={{ marginLeft: 8, fontSize: 12, color: '#666' }}>({unreadCount} new)</span>
+                <span style={{ marginLeft: 8, fontSize: 12, color: '#666' }}>({unreadCount} {t('notifications.new')})</span>
               )}
             </h3>
             <div style={{ display: 'flex', gap: 8 }}>
@@ -370,7 +372,7 @@ export default function NotificationBell() {
                   onMouseEnter={e => e.currentTarget.style.background = 'rgba(124,168,212,0.1)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'none'}
                 >
-                  Mark all read
+                  {t('notifications.markAllRead')}
                 </button>
               )}
               {displayNotifications.length > 0 && (
@@ -389,7 +391,7 @@ export default function NotificationBell() {
                   onMouseEnter={e => e.currentTarget.style.background = 'rgba(224,112,112,0.1)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'none'}
                 >
-                  Clear all
+                  {t('notifications.clearAll')}
                 </button>
               )}
             </div>
@@ -407,7 +409,7 @@ export default function NotificationBell() {
                   animation: 'spin 0.8s linear infinite',
                   margin: '0 auto 12px',
                 }} />
-                <p style={{ margin: 0, color: '#666', fontSize: 13 }}>Loading...</p>
+                <p style={{ margin: 0, color: '#666', fontSize: 13 }}>{t('notifications.loading')}</p>
               </div>
             ) : displayNotifications.length === 0 ? (
               <div style={{ padding: 40, textAlign: 'center' }}>
@@ -415,7 +417,7 @@ export default function NotificationBell() {
                   <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                   <path d="M13.73 21a2 2 0 01-3.46 0"/>
                 </svg>
-                <p style={{ margin: 0, color: '#666', fontSize: 13 }}>No notifications yet</p>
+                <p style={{ margin: 0, color: '#666', fontSize: 13 }}>{t('notifications.empty')}</p>
               </div>
             ) : (
               displayNotifications.map(notification => (
@@ -508,7 +510,7 @@ export default function NotificationBell() {
                           onMouseEnter={e => e.currentTarget.style.background = 'rgba(124,168,212,0.1)'}
                           onMouseLeave={e => e.currentTarget.style.background = 'none'}
                         >
-                          Mark read
+                          {t('notifications.markRead')}
                         </button>
                       )}
                     </div>

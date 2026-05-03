@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { authService } from '../../../services/api';
 
 const Spinner = () => (
@@ -14,6 +15,7 @@ const ForgotPassword = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const [resetToken, setResetToken] = useState('');
+  const { t } = useTranslation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,7 +28,7 @@ const ForgotPassword = () => {
       setResetToken(token);
       setSuccess(true);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to send reset email');
+      setError(err.response?.data?.message || t('auth.failedReset'));
     } finally {
       setLoading(false);
     }
@@ -104,9 +106,9 @@ const ForgotPassword = () => {
           {success ? (
             <>
               <div className="fp-icon fp-icon-success">✓</div>
-              <h1 className="fp-title">Check Your Email</h1>
+              <h1 className="fp-title">{t('auth.checkEmail')}</h1>
               <p className="fp-subtitle">
-                We've sent password reset instructions to <strong style={{color:'#e8e4dc'}}>{email}</strong>
+                {t('auth.resetSent')} <strong style={{color:'#e8e4dc'}}>{email}</strong>
               </p>
               
               {resetToken && (
@@ -120,14 +122,14 @@ const ForgotPassword = () => {
               )}
 
               <Link to="/login" style={{textDecoration:'none'}}>
-                <button className="fp-btn fp-btn-outline">Back to Login</button>
+                <button className="fp-btn fp-btn-outline">{t('auth.backToLogin')}</button>
               </Link>
             </>
           ) : (
             <>
               <div className="fp-icon">🔐</div>
-              <h1 className="fp-title">Forgot Password?</h1>
-              <p className="fp-subtitle">Enter your email and we'll send you reset instructions</p>
+              <h1 className="fp-title">{t('auth.forgotTitle')}</h1>
+              <p className="fp-subtitle">{t('auth.forgotSubtitle')}</p>
 
               {error && (
                 <div className="fp-error">
@@ -146,12 +148,12 @@ const ForgotPassword = () => {
                   required
                 />
                 <button type="submit" className="fp-btn" disabled={loading}>
-                  {loading ? <><Spinner /> Sending...</> : 'Send Reset Link'}
+                  {loading ? <><Spinner /> {t('auth.sending')}</> : t('auth.sendResetLink')}
                 </button>
               </form>
 
               <div className="fp-footer">
-                Remember your password? <Link to="/login">Sign in</Link>
+                {t('auth.rememberPassword')} <Link to="/login">{t('auth.login')}</Link>
               </div>
             </>
           )}

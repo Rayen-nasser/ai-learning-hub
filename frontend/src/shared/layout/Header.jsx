@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import NotificationBell from '../../features/notifications/components/NotificationBell';
 
 const Header = () => {
   const { user, logout } = useAuth();
+  const { t, i18n } = useTranslation();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -203,6 +205,21 @@ const Header = () => {
         }
         .hd-register:hover { opacity: 0.9; transform: translateY(-1px); }
 
+        .hd-lang-toggle {
+          display: flex; align-items: center; gap: 4px;
+          padding: 4px 8px; border-radius: 6px;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
+          cursor: pointer; transition: all 0.2s;
+        }
+        .hd-lang-toggle:hover { border-color: rgba(180,145,90,0.3); }
+        .hd-lang-btn {
+          font-size: 11px; font-weight: 600; color: #555;
+          padding: 2px 4px; border-radius: 4px;
+          transition: all 0.2s;
+        }
+        .hd-lang-btn.active { color: #b4915a; background: rgba(180,145,90,0.1); }
+
         .hd-burger {
           display: none;
           background: none; border: none; cursor: pointer;
@@ -263,18 +280,23 @@ const Header = () => {
           </Link>
 
           <nav className="hd-nav">
-            <Link to="/" className={`hd-nav-link${isActive('/') ? ' active' : ''}`}>Home</Link>
-            <Link to="/formations" className={`hd-nav-link${isActive('/formations') ? ' active' : ''}`}>Courses</Link>
-            <Link to="/centres" className={`hd-nav-link${isActive('/centres') ? ' active' : ''}`}>Centers</Link>
+            <Link to="/" className={`hd-nav-link${isActive('/') ? ' active' : ''}`}>{t('common.home')}</Link>
+            <Link to="/formations" className={`hd-nav-link${isActive('/formations') ? ' active' : ''}`}>{t('common.courses')}</Link>
+            <Link to="/centres" className={`hd-nav-link${isActive('/centres') ? ' active' : ''}`}>{t('nav.centers')}</Link>
             {user && user.role === 'apprenant' && (
               <>
-                <Link to="/apprenant/formations" className={`hd-nav-link${isActive('/apprenant/formations') ? ' active' : ''}`}>My Courses</Link>
-                <Link to="/apprenant/favoris" className={`hd-nav-link${isActive('/apprenant/favoris') ? ' active' : ''}`}>Favorites</Link>
+                <Link to="/apprenant/formations" className={`hd-nav-link${isActive('/apprenant/formations') ? ' active' : ''}`}>{t('common.courses')}</Link>
+                <Link to="/apprenant/favoris" className={`hd-nav-link${isActive('/apprenant/favoris') ? ' active' : ''}`}>{t('common.favorites')}</Link>
               </>
             )}
           </nav>
 
           <div className="hd-right">
+            <div className="hd-lang-toggle" onClick={() => i18n.changeLanguage(i18n.language === 'en' ? 'fr' : 'en')}>
+              <span className={`hd-lang-btn ${i18n.language === 'en' ? 'active' : ''}`}>EN</span>
+              <span style={{ width: 1, height: 10, background: 'rgba(255,255,255,0.1)' }} />
+              <span className={`hd-lang-btn ${i18n.language === 'fr' ? 'active' : ''}`}>FR</span>
+            </div>
             {user && <NotificationBell />}
             {user ? (
               <div className="hd-user-wrapper" ref={userMenuRef}>
@@ -301,33 +323,33 @@ const Header = () => {
 
                   <Link to="/profile" className="hd-dropdown-link">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    My Profile
+                    {t('common.profile')}
                   </Link>
 
                   {(user.role === 'admin' || user.role === 'responsableCF') && (
                     <>
-                      <div className="hd-dropdown-section">Management</div>
+                      <div className="hd-dropdown-section">{t('nav.management')}</div>
                       {user.role === 'admin' && (
                         <>
                           <Link to="/admin" className="hd-dropdown-link admin-link">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                            User Management
+                            {t('nav.userManagement')}
                           </Link>
                           <Link to="/admin/reports" className="hd-dropdown-link admin-link">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                            Reported Content
+                            {t('nav.reportedContent')}
                           </Link>
                           <Link to="/admin/statistics" className="hd-dropdown-link admin-link">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                            Platform Statistics
+                            {t('nav.statistics')}
                           </Link>
                           <Link to="/admin/centres/verify" className="hd-dropdown-link admin-link">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-                            Verify Centers
+                            {t('nav.verifyCenters')}
                           </Link>
                           <Link to="/admin/categories" className="hd-dropdown-link admin-link">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-                            Categories
+                            {t('nav.categories')}
                           </Link>
                         </>
 
@@ -336,27 +358,27 @@ const Header = () => {
                         <>
                           <Link to="/responsable" className="hd-dropdown-link resp-link">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                            Dashboard
+                            {t('common.dashboard')}
                           </Link>
                           <Link to="/responsable/centres" className="hd-dropdown-link resp-link">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                            My Centres
+                            {t('nav.myCentres')}
                           </Link>
                           <Link to="/responsable/formations" className="hd-dropdown-link resp-link">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-                            My Formations
+                            {t('nav.myFormations')}
                           </Link>
                           <Link to="/responsable/inscriptions" className="hd-dropdown-link resp-link">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
-                            Enrollments
+                            {t('nav.enrollments')}
                           </Link>
                           <Link to="/responsable/payments" className="hd-dropdown-link resp-link">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                            Payments
+                            {t('common.payments')}
                           </Link>
                           <Link to="/admin/categories" className="hd-dropdown-link resp-link">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-                            Categories
+                            {t('nav.categories')}
                           </Link>
                         </>
                       )}
@@ -364,49 +386,49 @@ const Header = () => {
                   )}
                   {user.role !== 'admin' && user.role !== 'responsableCF' && (
                     <>
-                      <div className="hd-dropdown-section">Partnership</div>
+                      <div className="hd-dropdown-section">{t('nav.partnership')}</div>
                       <Link to="/centres/apply" className="hd-dropdown-link" style={{ color: '#b4915a' }}>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                        Apply for Center
+                        {t('nav.applyCentre')}
                       </Link>
                       <Link to="/centres/my-requests" className="hd-dropdown-link">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                        My Applications
+                        {t('nav.myApplications')}
                       </Link>
                     </>
                   )}
 
                   {user.role === 'formateur' && (
                     <>
-                      <div className="hd-dropdown-section">Formateur</div>
+                      <div className="hd-dropdown-section">{t('nav.formateur')}</div>
                       <Link to="/formateur" className="hd-dropdown-link" style={{ color: '#7ca8d4' }}>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                        Dashboard
+                        {t('common.dashboard')}
                       </Link>
                       <Link to="/formateur/formations" className="hd-dropdown-link" style={{ color: '#7ca8d4' }}>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-                        My Formations
+                        {t('nav.myFormations')}
                       </Link>
                     </>
                   )}
                   {user.role === 'apprenant' && (
                     <>
-                      <div className="hd-dropdown-section">My Learning</div>
+                      <div className="hd-dropdown-section">{t('nav.myLearning')}</div>
                       <Link to="/apprenant" className="hd-dropdown-link" style={{ color: '#6a9fd8' }}>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                        Dashboard
+                        {t('common.dashboard')}
                       </Link>
                       <Link to="/apprenant/formations" className="hd-dropdown-link" style={{ color: '#6a9fd8' }}>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-                        My Courses
+                        {t('nav.myCourses')}
                       </Link>
                       <Link to="/apprenant/favoris" className="hd-dropdown-link" style={{ color: '#6a9fd8' }}>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                        Favorites
+                        {t('common.favorites')}
                       </Link>
                       <Link to="/apprenant/paiements" className="hd-dropdown-link" style={{ color: '#6a9fd8' }}>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                        Payments
+                        {t('common.payments')}
                       </Link>
                     </>
                   )}
@@ -414,14 +436,14 @@ const Header = () => {
                   <div className="hd-dropdown-divider" />
                   <button className="hd-dropdown-btn" onClick={logout}>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                    Sign out
+                    {t('common.logout')}
                   </button>
                 </div>
               </div>
             ) : (
               <>
-                <Link to="/login" className="hd-signin">Sign In</Link>
-                <Link to="/register" className="hd-register">Get Started</Link>
+                <Link to="/login" className="hd-signin">{t('auth.login')}</Link>
+                <Link to="/register" className="hd-register">{t('auth.signup')}</Link>
               </>
             )}
             <button className="hd-burger" onClick={() => setMenuOpen(o => !o)} aria-label="Menu">
@@ -438,68 +460,68 @@ const Header = () => {
       </header>
 
       <div className="hd-drawer">
-        <Link to="/" className={`hd-drawer-link${isActive('/') ? ' active' : ''}`}>Home</Link>
-        <Link to="/formations" className={`hd-drawer-link${isActive('/formations') ? ' active' : ''}`}>Courses</Link>
-        <Link to="/centres" className={`hd-drawer-link${isActive('/centres') ? ' active' : ''}`}>Centers</Link>
+        <Link to="/" className={`hd-drawer-link${isActive('/') ? ' active' : ''}`}>{t('common.home')}</Link>
+        <Link to="/formations" className={`hd-drawer-link${isActive('/formations') ? ' active' : ''}`}>{t('common.courses')}</Link>
+        <Link to="/centres" className={`hd-drawer-link${isActive('/centres') ? ' active' : ''}`}>{t('nav.centers')}</Link>
         {user && (
           <>
-            <Link to="/profile" className={`hd-drawer-link${isActive('/profile') ? ' active' : ''}`}>My Profile</Link>
+            <Link to="/profile" className={`hd-drawer-link${isActive('/profile') ? ' active' : ''}`}>{t('common.profile')}</Link>
             <div className="hd-drawer-divider" />
             {user.role === 'apprenant' && (
               <>
-                <div className="hd-drawer-section">My Learning</div>
-                <Link to="/apprenant" className={`hd-drawer-link${isActive('/apprenant') && !isActive('/apprenant/') ? ' active' : ''}`} style={{ color: '#6a9fd8' }}>Dashboard</Link>
-                <Link to="/apprenant/formations" className={`hd-drawer-link${isActive('/apprenant/formations') ? ' active' : ''}`} style={{ color: '#6a9fd8' }}>My Courses</Link>
-                <Link to="/apprenant/favoris" className={`hd-drawer-link${isActive('/apprenant/favoris') ? ' active' : ''}`} style={{ color: '#6a9fd8' }}>Favorites</Link>
-                <Link to="/apprenant/paiements" className={`hd-drawer-link${isActive('/apprenant/paiements') ? ' active' : ''}`} style={{ color: '#6a9fd8' }}>Payments</Link>
+                <div className="hd-drawer-section">{t('nav.myLearning')}</div>
+                <Link to="/apprenant" className={`hd-drawer-link${isActive('/apprenant') && !isActive('/apprenant/') ? ' active' : ''}`} style={{ color: '#6a9fd8' }}>{t('common.dashboard')}</Link>
+                <Link to="/apprenant/formations" className={`hd-drawer-link${isActive('/apprenant/formations') ? ' active' : ''}`} style={{ color: '#6a9fd8' }}>{t('common.courses')}</Link>
+                <Link to="/apprenant/favoris" className={`hd-drawer-link${isActive('/apprenant/favoris') ? ' active' : ''}`} style={{ color: '#6a9fd8' }}>{t('common.favorites')}</Link>
+                <Link to="/apprenant/paiements" className={`hd-drawer-link${isActive('/apprenant/paiements') ? ' active' : ''}`} style={{ color: '#6a9fd8' }}>{t('common.payments')}</Link>
               </>
             )}
             {(user.role === 'admin' || user.role === 'responsableCF') && (
               <>
                 <div className="hd-drawer-divider" />
-                <div className="hd-drawer-section">Management</div>
+                <div className="hd-drawer-section">{t('nav.management')}</div>
                 {user.role === 'admin' && (
                   <>
-                    <Link to="/admin" className={`hd-drawer-link${isActive('/admin') && !isActive('/admin/') ? ' active' : ''}`} style={{ color: '#e07070' }}>User Management</Link>
-                    <Link to="/admin/reports" className={`hd-drawer-link${isActive('/admin/reports') ? ' active' : ''}`} style={{ color: '#e07070' }}>Reported Content</Link>
-                    <Link to="/admin/statistics" className={`hd-drawer-link${isActive('/admin/statistics') ? ' active' : ''}`} style={{ color: '#e07070' }}>Statistics</Link>
-                    <Link to="/admin/centres/verify" className={`hd-drawer-link${isActive('/admin/centres/verify') ? ' active' : ''}`} style={{ color: '#e07070' }}>Verify Centers</Link>
+                    <Link to="/admin" className={`hd-drawer-link${isActive('/admin') && !isActive('/admin/') ? ' active' : ''}`} style={{ color: '#e07070' }}>{t('nav.userManagement')}</Link>
+                    <Link to="/admin/reports" className={`hd-drawer-link${isActive('/admin/reports') ? ' active' : ''}`} style={{ color: '#e07070' }}>{t('nav.reportedContent')}</Link>
+                    <Link to="/admin/statistics" className={`hd-drawer-link${isActive('/admin/statistics') ? ' active' : ''}`} style={{ color: '#e07070' }}>{t('nav.statistics')}</Link>
+                    <Link to="/admin/centres/verify" className={`hd-drawer-link${isActive('/admin/centres/verify') ? ' active' : ''}`} style={{ color: '#e07070' }}>{t('nav.verifyCenters')}</Link>
                   </>
 
                 )}
                 {user.role === 'responsableCF' && (
                   <>
-                    <Link to="/responsable" className={`hd-drawer-link${isActive('/responsable') && !isActive('/responsable/') ? ' active' : ''}`} style={{ color: '#7dbf7d' }}>Dashboard</Link>
-                    <Link to="/responsable/centres" className={`hd-drawer-link${isActive('/responsable/centres') ? ' active' : ''}`} style={{ color: '#7dbf7d' }}>My Centres</Link>
-                    <Link to="/responsable/formations" className={`hd-drawer-link${isActive('/responsable/formations') ? ' active' : ''}`} style={{ color: '#7dbf7d' }}>My Formations</Link>
-                    <Link to="/responsable/inscriptions" className={`hd-drawer-link${isActive('/responsable/inscriptions') ? ' active' : ''}`} style={{ color: '#7dbf7d' }}>Enrollments</Link>
-                    <Link to="/responsable/payments" className={`hd-drawer-link${isActive('/responsable/payments') ? ' active' : ''}`} style={{ color: '#7dbf7d' }}>Payments</Link>
+                    <Link to="/responsable" className={`hd-drawer-link${isActive('/responsable') && !isActive('/responsable/') ? ' active' : ''}`} style={{ color: '#7dbf7d' }}>{t('common.dashboard')}</Link>
+                    <Link to="/responsable/centres" className={`hd-drawer-link${isActive('/responsable/centres') ? ' active' : ''}`} style={{ color: '#7dbf7d' }}>{t('nav.myCentres')}</Link>
+                    <Link to="/responsable/formations" className={`hd-drawer-link${isActive('/responsable/formations') ? ' active' : ''}`} style={{ color: '#7dbf7d' }}>{t('nav.myFormations')}</Link>
+                    <Link to="/responsable/inscriptions" className={`hd-drawer-link${isActive('/responsable/inscriptions') ? ' active' : ''}`} style={{ color: '#7dbf7d' }}>{t('nav.enrollments')}</Link>
+                    <Link to="/responsable/payments" className={`hd-drawer-link${isActive('/responsable/payments') ? ' active' : ''}`} style={{ color: '#7dbf7d' }}>{t('common.payments')}</Link>
                   </>
                 )}
-                <Link to="/admin/categories" className={`hd-drawer-link${isActive('/admin/categories') ? ' active' : ''}`} style={{ color: '#7dbf7d' }}>Categories</Link>
+                <Link to="/admin/categories" className={`hd-drawer-link${isActive('/admin/categories') ? ' active' : ''}`} style={{ color: '#7dbf7d' }}>{t('nav.categories')}</Link>
               </>
             )}
             
             {user.role !== 'admin' && user.role !== 'responsableCF' && (
               <>
                 <div className="hd-drawer-divider" />
-                <div className="hd-drawer-section">Partnership</div>
-                <Link to="/centres/apply" className={`hd-drawer-link${isActive('/centres/apply') ? ' active' : ''}`} style={{ color: '#b4915a' }}>Apply for Center</Link>
-                <Link to="/centres/my-requests" className={`hd-drawer-link${isActive('/centres/my-requests') ? ' active' : ''}`}>My Applications</Link>
+                <div className="hd-drawer-section">{t('nav.partnership')}</div>
+                <Link to="/centres/apply" className={`hd-drawer-link${isActive('/centres/apply') ? ' active' : ''}`} style={{ color: '#b4915a' }}>{t('nav.applyCentre')}</Link>
+                <Link to="/centres/my-requests" className={`hd-drawer-link${isActive('/centres/my-requests') ? ' active' : ''}`}>{t('nav.myApplications')}</Link>
               </>
             )}
 
             
             <div className="hd-drawer-divider" />
             <button onClick={logout} className="hd-drawer-btn outline" style={{ background: 'none', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', color: '#e07070' }}>
-              Sign out
+              {t('common.logout')}
             </button>
           </>
         )}
         {!user && (
           <div className="hd-drawer-cta">
-            <Link to="/login" className="hd-drawer-btn outline">Sign In</Link>
-            <Link to="/register" className="hd-drawer-btn filled">Get Started</Link>
+            <Link to="/login" className="hd-drawer-btn outline">{t('auth.login')}</Link>
+            <Link to="/register" className="hd-drawer-btn filled">{t('auth.signup')}</Link>
           </div>
         )}
       </div>
