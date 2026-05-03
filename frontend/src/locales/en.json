@@ -518,6 +518,19 @@
     "reviewedBy": "Reviewed By",
     "actionTaken": "Action Taken",
     "submitting": "Submitting...",
-    "submitReview": "Submit Review"
+    "submitReview": "Submit Review",
+    "whatIsYourNext": "What is your next ",
+    "masterpiece": "masterpiece",
+    "describeYourAspirations": "Describe your aspirations, and our AI will architect the perfect learning path for you.",
+    "aiRecommenderPlaceholder": "Ex: I want to master digital architecture and sustainable design...",
+    "aiRecalibrating": "Our AI advisor is currently recalibrating. Please try again in a moment.",
+    "aiConnectionLost": "Connection lost. Please ensure the AI service is active.",
+    "synthesizing": "Synthesizing...",
+    "architectMyPath": "Architect My Path",
+    "matchAccuracy": "Match Accuracy",
+    "aiRecommendedPath": "AI Recommended Path",
+    "theReasoning": "The Reasoning",
+    "expertiseEarned": "Expertise Earned",
+    "initializeEnrollment": "Initialize Enrollment"
   }
 }

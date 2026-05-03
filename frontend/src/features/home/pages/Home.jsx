@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { formationService, categorieService } from '../../../services/api';
+import client from '../../../services/client';
 import { useAuth } from '../../../shared/context/AuthContext';
 import AICourseRecommender from '../../../shared/components/AICourseRecommender';
 
@@ -12,13 +13,27 @@ const Home = () => {
   const { t } = useTranslation();
   const [formations, setFormations] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [dynamicStats, setDynamicStats] = useState({
+    students: '0',
+    formations: '0',
+    categories: '0',
+    satisfaction: '0%',
+    enrollments: '0'
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([formationService.getAll(), categorieService.getAll()])
-      .then(([fRes, cRes]) => {
-        setFormations(fRes.data.data || fRes.data);
-        setCategories(cRes.data.data || cRes.data);
+    Promise.all([
+      formationService.getAll(),
+      categorieService.getAll(),
+      client.get('/public/stats').catch(() => ({ data: { data: {} } }))
+    ])
+      .then(([fRes, cRes, statsRes]) => {
+        setFormations(fRes.data?.data || fRes.data || []);
+        setCategories(cRes.data?.data || cRes.data || []);
+        if (statsRes.data?.data && statsRes.data.data.students) {
+          setDynamicStats(statsRes.data.data);
+        }
       })
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -31,10 +46,10 @@ const Home = () => {
   );
 
   const stats = [
-    { value: formations.length || '200+', label: t('home.stats.courses') },
-    { value: categories.length || '20+', label: t('home.stats.categories') },
-    { value: '5K+', label: t('home.stats.students') },
-    { value: '98%', label: t('home.stats.satisfaction') },
+    { value: dynamicStats.formations || formations.length || '200+', label: t('home.stats.courses') },
+    { value: dynamicStats.categories || categories.length || '20+', label: t('home.stats.categories') },
+    { value: dynamicStats.students || '5K+', label: t('home.stats.students') },
+    { value: dynamicStats.satisfaction || '98%', label: t('home.stats.satisfaction') },
   ];
 
   return (

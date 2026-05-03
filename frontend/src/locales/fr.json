@@ -518,6 +518,19 @@
     "reviewedBy": "Examiné par",
     "actionTaken": "Action entreprise",
     "submitting": "Soumission...",
-    "submitReview": "Soumettre l'examen"
+    "submitReview": "Soumettre l'examen",
+    "whatIsYourNext": "Quel est votre prochain ",
+    "masterpiece": "chef-d'œuvre",
+    "describeYourAspirations": "Décrivez vos aspirations, et notre IA concevra le parcours d'apprentissage parfait pour vous.",
+    "aiRecommenderPlaceholder": "Ex : Je veux maîtriser l'architecture numérique et le design durable...",
+    "aiRecalibrating": "Notre conseiller IA est en cours de recalibrage. Veuillez réessayer dans un instant.",
+    "aiConnectionLost": "Connexion perdue. Veuillez vous assurer que le service IA est actif.",
+    "synthesizing": "Synthétisation...",
+    "architectMyPath": "Concevoir mon parcours",
+    "matchAccuracy": "Précision de correspondance",
+    "aiRecommendedPath": "Parcours recommandé par l'IA",
+    "theReasoning": "Le Raisonnement",
+    "expertiseEarned": "Expertise Acquise",
+    "initializeEnrollment": "Initialiser l'inscription"
   }
 }

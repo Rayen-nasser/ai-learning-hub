@@ -59,6 +59,7 @@ var adminRouter           = require('./routes/admin.routes');
 var reportRouter          = require('./routes/report.routes');
 var notificationRouter    = require('./routes/notification.routes');
 var skillRouter           = require('./routes/skill.route');
+var publicRouter          = require('./routes/public.routes');
 
 // ── Enregistrement des routes ────────────────────────────
 app.use('/users',        usersRouter);
@@ -75,6 +76,7 @@ app.use('/admin',        adminRouter);
 app.use('/reports',      reportRouter);
 app.use('/notifications', notificationRouter);
 app.use('/skills',       skillRouter);
+app.use('/public',       publicRouter);
 
 const swaggerOptions = {
   definition: {
