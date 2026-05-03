@@ -1,22 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { centreService } from '../services/centre';
 import ResponsableCFLayout from '../components/ResponsableCFLayout';
 
 export default function ResponsableDashboard() {
   const [stats, setStats] = useState({
-    centres: 0,
-    approvedCentres: 0,
-    pendingCentres: 0,
-    formations: 0,
-    inscriptions: 0,
-    pendingInscriptions: 0,
-    acceptedInscriptions: 0,
-    revenue: 0,
-    pendingPayments: 0,
+    centres: 0, approvedCentres: 0, pendingCentres: 0,
+    formations: 0, inscriptions: 0, pendingInscriptions: 0,
+    acceptedInscriptions: 0, revenue: 0, pendingPayments: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetchStats();
@@ -92,9 +88,9 @@ export default function ResponsableDashboard() {
                 </svg>
               </div>
               <div className="rd-stat-value">{stats.centres}</div>
-              <div className="rd-stat-label">My Centres</div>
+              <div className="rd-stat-label">{t('responsable.myCentres')}</div>
               {stats.pendingCentres > 0 && (
-                <div className="rd-stat-sub">{stats.approvedCentres} approved · {stats.pendingCentres} pending</div>
+                <div className="rd-stat-sub">{stats.approvedCentres} {t('responsable.approved')} · {stats.pendingCentres} {t('responsable.pending')}</div>
               )}
             </div>
             <div className="rd-stat">
@@ -105,7 +101,7 @@ export default function ResponsableDashboard() {
                 </svg>
               </div>
               <div className="rd-stat-value">{stats.formations}</div>
-              <div className="rd-stat-label">Formations</div>
+              <div className="rd-stat-label">{t('nav.myFormations')}</div>
             </div>
             <div className="rd-stat">
               <div className="rd-stat-icon red">
@@ -117,9 +113,9 @@ export default function ResponsableDashboard() {
                 </svg>
               </div>
               <div className="rd-stat-value">{stats.pendingInscriptions}</div>
-              <div className="rd-stat-label">Pending Inscriptions</div>
+              <div className="rd-stat-label">{t('responsable.pendingInscriptions')}</div>
               {stats.acceptedInscriptions > 0 && (
-                <div className="rd-stat-sub">{stats.acceptedInscriptions} accepted · {stats.inscriptions} total</div>
+                <div className="rd-stat-sub">{stats.acceptedInscriptions} {t('responsable.accepted')} · {stats.inscriptions} {t('responsable.total')}</div>
               )}
             </div>
             <div className="rd-stat">
@@ -130,9 +126,9 @@ export default function ResponsableDashboard() {
                 </svg>
               </div>
               <div className="rd-stat-value">{stats.revenue.toLocaleString()} DT</div>
-              <div className="rd-stat-label">Confirmed Revenue</div>
+              <div className="rd-stat-label">{t('responsable.confirmedRevenue')}</div>
               {stats.pendingPayments > 0 && (
-                <div className="rd-stat-sub">{stats.pendingPayments.toLocaleString()} DT pending</div>
+                <div className="rd-stat-sub">{stats.pendingPayments.toLocaleString()} DT {t('responsable.pending')}</div>
               )}
             </div>
           </div>
@@ -144,8 +140,8 @@ export default function ResponsableDashboard() {
                   <path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4M9 9v.01M9 12v.01M9 15v.01M9 18v.01"/>
                 </svg>
               </div>
-              <div className="rd-action-label">Manage Centres</div>
-              <div className="rd-action-desc">Add or edit your training centres</div>
+              <div className="rd-action-label">{t('responsable.manageCentres')}</div>
+              <div className="rd-action-desc">{t('responsable.manageCentresDesc')}</div>
             </Link>
             <Link to="/responsable/formations" className="rd-action">
               <div className="rd-action-icon" style={{ background: 'rgba(200,168,110,.15)', color: '#c8a86e' }}>
@@ -154,8 +150,8 @@ export default function ResponsableDashboard() {
                   <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
                 </svg>
               </div>
-              <div className="rd-action-label">Manage Formations</div>
-              <div className="rd-action-desc">Create and update courses</div>
+              <div className="rd-action-label">{t('responsable.manageFormations')}</div>
+              <div className="rd-action-desc">{t('responsable.manageFormationsDesc')}</div>
             </Link>
             <Link to="/responsable/inscriptions" className="rd-action">
               <div className="rd-action-icon" style={{ background: 'rgba(224,112,112,.15)', color: '#e07070' }}>
@@ -166,8 +162,8 @@ export default function ResponsableDashboard() {
                   <line x1="23" y1="11" x2="17" y2="11"/>
                 </svg>
               </div>
-              <div className="rd-action-label">Review Inscriptions</div>
-              <div className="rd-action-desc">{stats.pendingInscriptions} pending requests</div>
+              <div className="rd-action-label">{t('responsable.reviewInscriptions')}</div>
+              <div className="rd-action-desc">{stats.pendingInscriptions} {t('responsable.pendingRequests')}</div>
             </Link>
             <Link to="/responsable/payments" className="rd-action">
               <div className="rd-action-icon" style={{ background: 'rgba(74,168,125,.15)', color: '#4aa87d' }}>
@@ -176,8 +172,8 @@ export default function ResponsableDashboard() {
                   <line x1="1" y1="10" x2="23" y2="10"/>
                 </svg>
               </div>
-              <div className="rd-action-label">View Payments</div>
-              <div className="rd-action-desc">Track revenue and transactions</div>
+              <div className="rd-action-label">{t('responsable.viewPayments')}</div>
+              <div className="rd-action-desc">{t('responsable.viewPaymentsDesc')}</div>
             </Link>
           </div>
         </>

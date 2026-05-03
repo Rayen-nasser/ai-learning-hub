@@ -1,17 +1,20 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import adminService from '../services/admin';
 import AdminLayout from '../components/AdminLayout';
-
-const ROLES = {
-  apprenant: { label: 'Apprenant', color: '#6a9fd8', bg: 'rgba(106,159,216,.15)' },
-  formateur: { label: 'Formateur', color: '#c8a86e', bg: 'rgba(200,168,110,.15)' },
-  responsableCF: { label: 'Responsable CF', color: '#7dbf7d', bg: 'rgba(125,191,125,.15)' },
-  admin: { label: 'Admin', color: '#e07070', bg: 'rgba(224,112,112,.15)' },
-};
 
 const ITEMS_PER_PAGE = 10;
 
 export default function AdminDashboard() {
+  const { t } = useTranslation();
+  
+  const ROLES = {
+    apprenant: { label: t('admin.apprenantRole'), color: '#6a9fd8', bg: 'rgba(106,159,216,.15)' },
+    formateur: { label: t('admin.formateurRole'), color: '#c8a86e', bg: 'rgba(200,168,110,.15)' },
+    responsableCF: { label: t('admin.responsableCFRole'), color: '#7dbf7d', bg: 'rgba(125,191,125,.15)' },
+    admin: { label: t('admin.adminRole'), color: '#e07070', bg: 'rgba(224,112,112,.15)' },
+  };
+
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -58,7 +61,7 @@ export default function AdminDashboard() {
         total: data.pagination?.total || 0,
       });
     } catch {
-      setError('Failed to load users');
+      setError(t('admin.failedLoadUsers'));
     } finally {
       setLoading(false);
     }
@@ -83,7 +86,7 @@ export default function AdminDashboard() {
       setUsers(users.map(u => u._id === userId ? { ...u, block: true } : u));
       fetchStats();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to block user');
+      setError(err.response?.data?.message || t('admin.failedBlock'));
     } finally {
       setActionLoading(null);
     }
@@ -96,7 +99,7 @@ export default function AdminDashboard() {
       setUsers(users.map(u => u._id === userId ? { ...u, block: false } : u));
       fetchStats();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to unblock user');
+      setError(err.response?.data?.message || t('admin.failedUnblock'));
     } finally {
       setActionLoading(null);
     }
@@ -105,7 +108,7 @@ export default function AdminDashboard() {
   const filteredUsers = users;
 
   return (
-    <AdminLayout title="User <em>Management</em>" subtitle="Manage platform users, roles, and access permissions">
+    <AdminLayout title={`${t('admin.user')} <em>${t('admin.management')}</em>`} subtitle={t('admin.manageUsersDesc')}>
       <style>{`
         .au-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-bottom: 32px; }
         .au-stat { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 16px 20px; }
@@ -163,12 +166,12 @@ export default function AdminDashboard() {
       `}</style>
 
       <div className="au-stats">
-        <div className="au-stat"><div className="au-stat-val">{stats.total}</div><div className="au-stat-label">Total Users</div></div>
-        <div className="au-stat"><div className="au-stat-val">{stats.apprenant}</div><div className="au-stat-label">Apprenants</div></div>
-        <div className="au-stat"><div className="au-stat-val">{stats.formateur}</div><div className="au-stat-label">Formateurs</div></div>
-        <div className="au-stat"><div className="au-stat-val">{stats.responsableCF}</div><div className="au-stat-label">Resp. CF</div></div>
-        <div className="au-stat"><div className="au-stat-val">{stats.admin}</div><div className="au-stat-label">Admins</div></div>
-        <div className="au-stat"><div className="au-stat-val" style={{color: '#e07070'}}>{stats.blocked}</div><div className="au-stat-label">Blocked</div></div>
+        <div className="au-stat"><div className="au-stat-val">{stats.total}</div><div className="au-stat-label">{t('admin.totalUsers')}</div></div>
+        <div className="au-stat"><div className="au-stat-val">{stats.apprenant}</div><div className="au-stat-label">{t('admin.apprenants')}</div></div>
+        <div className="au-stat"><div className="au-stat-val">{stats.formateur}</div><div className="au-stat-label">{t('admin.formateurs')}</div></div>
+        <div className="au-stat"><div className="au-stat-val">{stats.responsableCF}</div><div className="au-stat-label">{t('admin.respCF')}</div></div>
+        <div className="au-stat"><div className="au-stat-val">{stats.admin}</div><div className="au-stat-label">{t('admin.admins')}</div></div>
+        <div className="au-stat"><div className="au-stat-val" style={{color: '#e07070'}}>{stats.blocked}</div><div className="au-stat-label">{t('admin.blocked')}</div></div>
       </div>
 
       {error && <div className="au-error">{error}</div>}
@@ -177,25 +180,25 @@ export default function AdminDashboard() {
         <input
           type="text"
           className="au-search"
-          placeholder="Search by name or email..."
+          placeholder={t('admin.searchUsers')}
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
         <div className="au-tabs">
           <button className={`au-tab ${filter === 'all' ? 'active' : ''}`} onClick={() => setFilter('all')}>
-            All <span className="au-tab-count">{stats.total}</span>
+            {t('common.all')} <span className="au-tab-count">{stats.total}</span>
           </button>
           <button className={`au-tab ${filter === 'apprenant' ? 'active' : ''}`} onClick={() => setFilter('apprenant')}>
-            Apprenants <span className="au-tab-count">{stats.apprenant}</span>
+            {t('admin.apprenants')} <span className="au-tab-count">{stats.apprenant}</span>
           </button>
           <button className={`au-tab ${filter === 'formateur' ? 'active' : ''}`} onClick={() => setFilter('formateur')}>
-            Formateurs <span className="au-tab-count">{stats.formateur}</span>
+            {t('admin.formateurs')} <span className="au-tab-count">{stats.formateur}</span>
           </button>
           <button className={`au-tab ${filter === 'responsableCF' ? 'active' : ''}`} onClick={() => setFilter('responsableCF')}>
-            Resp. CF <span className="au-tab-count">{stats.responsableCF}</span>
+            {t('admin.respCF')} <span className="au-tab-count">{stats.responsableCF}</span>
           </button>
           <button className={`au-tab ${filter === 'admin' ? 'active' : ''}`} onClick={() => setFilter('admin')}>
-            Admins <span className="au-tab-count">{stats.admin}</span>
+            {t('admin.admins')} <span className="au-tab-count">{stats.admin}</span>
           </button>
         </div>
       </div>
@@ -203,17 +206,17 @@ export default function AdminDashboard() {
       {loading ? (
         <div className="au-spinner" />
       ) : filteredUsers.length === 0 ? (
-        <div className="au-empty">No users found</div>
+        <div className="au-empty">{t('admin.noUsersFound')}</div>
       ) : (
         <>
           <div className="au-table-wrap">
             <table className="au-table">
               <thead>
                 <tr>
-                  <th>User</th>
-                  <th>Role</th>
-                  <th>Status</th>
-                  <th>Actions</th>
+                  <th>{t('admin.userTh')}</th>
+                  <th>{t('admin.roleTh')}</th>
+                  <th>{t('admin.statusTh')}</th>
+                  <th>{t('admin.actionsTh')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -247,9 +250,9 @@ export default function AdminDashboard() {
                     </td>
                     <td>
                       {user.block ? (
-                        <span className="au-blocked-label">Blocked</span>
+                        <span className="au-blocked-label">{t('admin.blocked')}</span>
                       ) : (
-                        <span style={{ color: '#4aa87d', fontSize: 12 }}>Active</span>
+                        <span style={{ color: '#4aa87d', fontSize: 12 }}>{t('admin.active')}</span>
                       )}
                     </td>
                     <td>
@@ -260,7 +263,7 @@ export default function AdminDashboard() {
                             onClick={() => handleUnblock(user._id)}
                             disabled={actionLoading === user._id}
                           >
-                            Unblock
+                            {t('admin.unblockBtn')}
                           </button>
                         ) : (
                           <button
@@ -268,7 +271,7 @@ export default function AdminDashboard() {
                             onClick={() => handleBlock(user._id)}
                             disabled={actionLoading === user._id}
                           >
-                            Block
+                            {t('admin.blockBtn')}
                           </button>
                         )}
                       </div>
@@ -282,7 +285,7 @@ export default function AdminDashboard() {
           {pagination.totalPages > 1 && (
             <div className="au-pagination">
               <div className="au-pagination-info">
-                Showing {(pagination.page - 1) * ITEMS_PER_PAGE + 1} to {Math.min(pagination.page * ITEMS_PER_PAGE, pagination.total)} of {pagination.total} users
+                {t('admin.showing')} {(pagination.page - 1) * ITEMS_PER_PAGE + 1} {t('admin.to')} {Math.min(pagination.page * ITEMS_PER_PAGE, pagination.total)} {t('admin.of')} {pagination.total} {t('admin.users')}
               </div>
               <div className="au-pagination-controls">
                 <button 
@@ -290,7 +293,7 @@ export default function AdminDashboard() {
                   onClick={() => setPagination(p => ({ ...p, page: p.page - 1 }))}
                   disabled={pagination.page === 1}
                 >
-                  Previous
+                  {t('admin.previous')}
                 </button>
                 {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(page => (
                   <button
@@ -306,7 +309,7 @@ export default function AdminDashboard() {
                   onClick={() => setPagination(p => ({ ...p, page: p.page + 1 }))}
                   disabled={pagination.page === pagination.totalPages}
                 >
-                  Next
+                  {t('admin.next')}
                 </button>
               </div>
             </div>

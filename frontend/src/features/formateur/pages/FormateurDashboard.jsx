@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { formationService } from '../services/formation';
 import { leconService } from '../services/lecon';
 import FormateurLayout from '../components/FormateurLayout';
@@ -8,6 +9,7 @@ export default function FormateurDashboard() {
   const [formations, setFormations] = useState([]);
   const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetchData();
@@ -38,7 +40,7 @@ export default function FormateurDashboard() {
 
   const stats = [
     {
-      label: 'Assigned Formations',
+      label: t('formateur.assignedFormations'),
       value: formations.length,
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -50,7 +52,7 @@ export default function FormateurDashboard() {
       bg: 'rgba(200,168,110,0.1)',
     },
     {
-      label: 'Total Lessons',
+      label: t('formateur.totalLessons'),
       value: lessons.length,
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -66,7 +68,7 @@ export default function FormateurDashboard() {
   ];
 
   return (
-    <FormateurLayout title="Welcome back, <em>Formateur</em>">
+    <FormateurLayout title={`${t('dashboard.welcome')}, <em>${t('formateur.formateur')}</em>`}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 20, marginBottom: 40 }}>
         {stats.map((stat, i) => (
           <div key={i} style={{
@@ -90,15 +92,15 @@ export default function FormateurDashboard() {
       </div>
 
       <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 24, fontWeight: 400, color: '#f0ebe0', marginBottom: 20 }}>
-        My Formations
+        {t('formateur.myFormations')}
       </h2>
       
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 40, color: '#555' }}>Loading...</div>
+        <div style={{ textAlign: 'center', padding: 40, color: '#555' }}>{t('common.loading')}</div>
       ) : formations.length === 0 ? (
         <div style={{ textAlign: 'center', padding: 60, background: 'rgba(255,255,255,0.02)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.06)' }}>
-          <div style={{ fontSize: 18, color: '#888', marginBottom: 8 }}>No formations assigned yet</div>
-          <div style={{ fontSize: 14, color: '#555' }}>You will be able to manage lessons once a formation is assigned to you</div>
+          <div style={{ fontSize: 18, color: '#888', marginBottom: 8 }}>{t('formateur.noFormations')}</div>
+          <div style={{ fontSize: 14, color: '#555' }}>{t('formateur.noFormationsDesc')}</div>
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
@@ -128,7 +130,7 @@ export default function FormateurDashboard() {
                     {f.titre}
                   </h3>
                   <div style={{ fontSize: 13, color: '#555' }}>
-                    {f.centreId?.nom || 'No centre'} &middot; {f.duree || 0}h
+                    {f.centreId?.nom || t('formateur.noCentre')} &middot; {f.duree || 0}h
                   </div>
                   {f.categorieId?.nom && (
                     <div style={{ marginTop: 8 }}>
