@@ -280,8 +280,8 @@ export default function NotificationBell() {
         onClick={handleToggle}
         style={{
           position: 'relative',
-          background: 'rgba(255,255,255,0.05)',
-          border: '1px solid rgba(255,255,255,0.08)',
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border-main)',
           borderRadius: 10,
           padding: '8px 10px',
           cursor: 'pointer',
@@ -292,11 +292,11 @@ export default function NotificationBell() {
           justifyContent: 'center',
         }}
         onMouseEnter={e => {
-          e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
-          e.currentTarget.style.color = '#e8e4dc';
+          e.currentTarget.style.background = 'var(--border-main)';
+          e.currentTarget.style.color = 'var(--text-primary)';
         }}
         onMouseLeave={e => {
-          e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+          e.currentTarget.style.background = 'var(--bg-card)';
           e.currentTarget.style.color = '#888';
         }}
       >
@@ -344,12 +344,12 @@ export default function NotificationBell() {
         }}>
           <div style={{
             padding: '14px 16px',
-            borderBottom: '1px solid rgba(255,255,255,0.06)',
+            borderBottom: '1px solid var(--border-main)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
           }}>
-            <h3 style={{ margin: 0, fontSize: 14, fontWeight: 500, color: '#e8e4dc', fontFamily: "'DM Sans', sans-serif" }}>
+            <h3 style={{ margin: 0, fontSize: 14, fontWeight: 500, color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif" }}>
               {t('notifications.title')}
               {unreadCount > 0 && (
                 <span style={{ marginLeft: 8, fontSize: 12, color: '#666' }}>({unreadCount} {t('notifications.new')})</span>
@@ -426,14 +426,14 @@ export default function NotificationBell() {
                   onClick={() => handleNotificationClick(notification)}
                   style={{
                     padding: '12px 16px',
-                    borderBottom: '1px solid rgba(255,255,255,0.04)',
+                    borderBottom: '1px solid var(--bg-card)',
                     background: notification.read ? 'transparent' : 'rgba(124,168,212,0.03)',
                     cursor: 'pointer',
                     transition: 'background 0.15s',
                     display: 'flex',
                     gap: 12,
                   }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
+                  onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-card)'}
                   onMouseLeave={e => e.currentTarget.style.background = notification.read ? 'transparent' : 'rgba(124,168,212,0.03)'}
                 >
                   <div style={{
@@ -456,7 +456,7 @@ export default function NotificationBell() {
                           <p style={{
                             margin: '0 0 4px',
                             fontSize: 13,
-                            color: '#e8e4dc',
+                            color: 'var(--text-primary)',
                             fontWeight: notification.read ? 400 : 500,
                           }}>
                             {notification.title}

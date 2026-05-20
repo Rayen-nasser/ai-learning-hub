@@ -35,17 +35,17 @@ const MyFavoris = () => {
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=DM+Sans:wght@300;400;500&display=swap');
-        .mf-root { font-family: 'DM Sans', sans-serif; color: #e8e4dc; padding-top: 48px; }
+        .mf-root { font-family: 'DM Sans', sans-serif; color: var(--text-primary); padding-top: 48px; }
         .mf-header { margin-bottom: 40px; }
-        .mf-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(32px, 4vw, 48px); font-weight: 300; color: #f0ebe0; margin: 0 0 8px; }
+        .mf-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(32px, 4vw, 48px); font-weight: 300; color: var(--text-primary); margin: 0 0 8px; }
         .mf-title em { font-style: italic; color: #b4915a; }
         .mf-subtitle { font-size: 14px; color: #555; }
 
         .mf-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
 
         .mf-card {
-          border: 1px solid rgba(255,255,255,0.07); border-radius: 14px;
-          background: rgba(255,255,255,0.02); overflow: hidden;
+          border: 1px solid var(--border-main); border-radius: 14px;
+          background: var(--bg-card); overflow: hidden;
           display: flex; flex-direction: column;
           transition: border-color 0.25s, transform 0.2s;
         }
@@ -55,13 +55,13 @@ const MyFavoris = () => {
           height: 120px;
           background: linear-gradient(135deg, #111114, #1a1a22);
           display: flex; align-items: center; justify-content: center;
-          position: relative; border-bottom: 1px solid rgba(255,255,255,0.05);
+          position: relative; border-bottom: 1px solid var(--bg-card);
         }
         .mf-thumb-glyph { font-family: 'Cormorant Garamond', serif; font-size: 56px; color: rgba(180,145,90,0.12); font-weight: 300; }
 
         .mf-card-body { padding: 18px 20px; flex: 1; }
         .mf-card-title {
-          font-size: 15px; font-weight: 500; color: #e8e4dc; margin-bottom: 6px;
+          font-size: 15px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px;
           display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
         }
         .mf-card-desc {
@@ -70,7 +70,7 @@ const MyFavoris = () => {
         }
         .mf-card-footer {
           display: flex; gap: 8px;
-          padding: 14px 20px; border-top: 1px solid rgba(255,255,255,0.05);
+          padding: 14px 20px; border-top: 1px solid var(--bg-card);
         }
         .mf-view-btn {
           flex: 1; padding: 9px 12px; border-radius: 8px; text-align: center;
@@ -92,7 +92,7 @@ const MyFavoris = () => {
         .mf-empty-icon { font-size: 44px; margin-bottom: 16px; opacity: 0.3; }
         .mf-explore-link { color: #b4915a; text-decoration: none; font-size: 14px; font-weight: 500; border: 1px solid rgba(180,145,90,0.3); padding: 10px 20px; border-radius: 8px; display: inline-block; margin-top: 16px; }
 
-        .mf-spinner { width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.06); border-top-color: #b4915a; animation: mfspin 0.8s linear infinite; margin: 80px auto; display: block; }
+        .mf-spinner { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border-main); border-top-color: #b4915a; animation: mfspin 0.8s linear infinite; margin: 80px auto; display: block; }
         @keyframes mfspin { to { transform: rotate(360deg); } }
       `}</style>
 

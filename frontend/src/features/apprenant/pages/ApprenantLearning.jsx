@@ -319,9 +319,9 @@ export default function ApprenantLearning() {
         <div style={{ 
           textAlign: 'center', 
           padding: 60,
-          background: 'rgba(255,255,255,0.02)',
+          background: 'var(--bg-card)',
           borderRadius: 16,
-          border: '1px solid rgba(255,255,255,0.06)',
+          border: '1px solid var(--border-main)',
           maxWidth: 480,
           margin: '40px auto',
         }}>
@@ -344,7 +344,7 @@ export default function ApprenantLearning() {
             fontFamily: "'Cormorant Garamond', serif", 
             fontSize: 28, 
             fontWeight: 400, 
-            color: '#f0ebe0', 
+            color: 'var(--text-primary)', 
             marginBottom: 12 
           }}>
             Payment Pending
@@ -393,7 +393,7 @@ export default function ApprenantLearning() {
         
         .learn-root {
           font-family: 'DM Sans', sans-serif;
-          color: #e8e4dc;
+          color: var(--text-primary);
           min-height: calc(100vh - 120px);
         }
         
@@ -403,7 +403,7 @@ export default function ApprenantLearning() {
           gap: 16px;
           margin-bottom: 24px;
           padding-bottom: 20px;
-          border-bottom: 1px solid rgba(255,255,255,0.06);
+          border-bottom: 1px solid var(--border-main);
         }
         
         .learn-back {
@@ -416,7 +416,7 @@ export default function ApprenantLearning() {
           transition: color 0.2s;
           padding: 8px 12px;
           border-radius: 8px;
-          background: rgba(255,255,255,0.02);
+          background: var(--bg-card);
         }
         .learn-back:hover { color: #7ca8d4; }
         
@@ -424,13 +424,13 @@ export default function ApprenantLearning() {
           font-family: 'Cormorant Garamond', serif;
           font-size: 24px;
           font-weight: 400;
-          color: #f0ebe0;
+          color: var(--text-primary);
           margin: 0;
         }
         
         .learn-progress-bar {
           height: 6px;
-          background: rgba(255,255,255,0.08);
+          background: var(--border-main);
           border-radius: 3px;
           overflow: hidden;
           margin-bottom: 8px;
@@ -456,8 +456,8 @@ export default function ApprenantLearning() {
         }
         
         .learn-sidebar {
-          background: rgba(255,255,255,0.02);
-          border: 1px solid rgba(255,255,255,0.06);
+          background: var(--bg-card);
+          border: 1px solid var(--border-main);
           border-radius: 12px;
           overflow: hidden;
           height: fit-content;
@@ -467,7 +467,7 @@ export default function ApprenantLearning() {
         
         .learn-sidebar-header {
           padding: 16px;
-          border-bottom: 1px solid rgba(255,255,255,0.06);
+          border-bottom: 1px solid var(--border-main);
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -476,11 +476,11 @@ export default function ApprenantLearning() {
         .learn-sidebar-title {
           font-size: 13px;
           font-weight: 500;
-          color: #e8e4dc;
+          color: var(--text-primary);
         }
         
         .learn-toggle {
-          background: rgba(255,255,255,0.05);
+          background: var(--bg-card);
           border: none;
           color: #888;
           cursor: pointer;
@@ -490,7 +490,7 @@ export default function ApprenantLearning() {
           align-items: center;
           justify-content: center;
         }
-        .learn-toggle:hover { background: rgba(255,255,255,0.1); color: #e8e4dc; }
+        .learn-toggle:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
         
         .learn-lessons-list {
           max-height: 60vh;
@@ -504,9 +504,9 @@ export default function ApprenantLearning() {
           padding: 14px 16px;
           cursor: pointer;
           transition: all 0.15s;
-          border-bottom: 1px solid rgba(255,255,255,0.03);
+          border-bottom: 1px solid var(--bg-card);
         }
-        .learn-lesson-item:hover { background: rgba(255,255,255,0.03); }
+        .learn-lesson-item:hover { background: var(--bg-card); }
         .learn-lesson-item.active { background: rgba(124,168,212,0.1); border-left: 3px solid #7ca8d4; }
         .learn-lesson-item.completed .learn-lesson-check { background: #4aa87d; border-color: #4aa87d; }
         
@@ -531,7 +531,7 @@ export default function ApprenantLearning() {
         .learn-lesson-info { flex: 1; min-width: 0; }
         .learn-lesson-name {
           font-size: 13px;
-          color: #e8e4dc;
+          color: var(--text-primary);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -540,15 +540,15 @@ export default function ApprenantLearning() {
         .learn-lesson-dur { font-size: 11px; color: #555; margin-top: 2px; }
         
         .learn-main {
-          background: rgba(255,255,255,0.02);
-          border: 1px solid rgba(255,255,255,0.06);
+          background: var(--bg-card);
+          border: 1px solid var(--border-main);
           border-radius: 16px;
           overflow: hidden;
         }
         
         .learn-lesson-header {
           padding: 24px;
-          border-bottom: 1px solid rgba(255,255,255,0.06);
+          border-bottom: 1px solid var(--border-main);
           display: flex;
           justify-content: space-between;
           align-items: flex-start;
@@ -558,7 +558,7 @@ export default function ApprenantLearning() {
           font-family: 'Cormorant Garamond', serif;
           font-size: 28px;
           font-weight: 400;
-          color: #f0ebe0;
+          color: var(--text-primary);
           margin: 0 0 8px;
         }
         
@@ -575,8 +575,8 @@ export default function ApprenantLearning() {
         }
         
         .learn-content-item {
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.06);
+          background: var(--bg-card);
+          border: 1px solid var(--border-main);
           border-radius: 12px;
           padding: 20px;
           margin-bottom: 16px;
@@ -585,7 +585,7 @@ export default function ApprenantLearning() {
         .learn-content-title {
           font-size: 16px;
           font-weight: 500;
-          color: #e8e4dc;
+          color: var(--text-primary);
           margin-bottom: 12px;
           display: flex;
           align-items: center;
@@ -636,8 +636,8 @@ export default function ApprenantLearning() {
         .learn-link:hover { text-decoration: underline; }
         
         .learn-question {
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.08);
+          background: var(--bg-card);
+          border: 1px solid var(--border-main);
           border-radius: 12px;
           padding: 20px;
           margin-bottom: 16px;
@@ -652,7 +652,7 @@ export default function ApprenantLearning() {
         
         .learn-question-text {
           font-size: 15px;
-          color: #e8e4dc;
+          color: var(--text-primary);
           font-weight: 400;
           line-height: 1.5;
         }
@@ -679,8 +679,8 @@ export default function ApprenantLearning() {
           align-items: center;
           gap: 12px;
           padding: 12px 16px;
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.08);
+          background: var(--bg-card);
+          border: 1px solid var(--border-main);
           border-radius: 8px;
           margin-bottom: 8px;
           cursor: pointer;
@@ -696,7 +696,7 @@ export default function ApprenantLearning() {
           width: 28px;
           height: 28px;
           border-radius: 50%;
-          background: rgba(255,255,255,0.05);
+          background: var(--bg-card);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -712,10 +712,10 @@ export default function ApprenantLearning() {
         .learn-open-answer {
           width: 100%;
           padding: 14px 16px;
-          background: rgba(255,255,255,0.04);
+          background: var(--bg-card);
           border: 1px solid rgba(255,255,255,0.1);
           border-radius: 10px;
-          color: #e8e4dc;
+          color: var(--text-primary);
           font-family: 'DM Sans', sans-serif;
           font-size: 14px;
           resize: vertical;
@@ -774,7 +774,7 @@ export default function ApprenantLearning() {
         
         .learn-save-btn {
           padding: 10px 18px;
-          background: rgba(255,255,255,0.05);
+          background: var(--bg-card);
           border: 1px solid rgba(255,255,255,0.15);
           border-radius: 8px;
           color: #888;
@@ -787,8 +787,8 @@ export default function ApprenantLearning() {
           font-family: 'DM Sans', sans-serif;
         }
         .learn-save-btn:hover {
-          background: rgba(255,255,255,0.08);
-          color: #e8e4dc;
+          background: var(--border-main);
+          color: var(--text-primary);
           border-color: rgba(255,255,255,0.2);
         }
         .learn-save-btn.saved {
@@ -823,7 +823,7 @@ export default function ApprenantLearning() {
         
         .learn-nav {
           padding: 20px 24px;
-          border-top: 1px solid rgba(255,255,255,0.06);
+          border-top: 1px solid var(--border-main);
           display: flex;
           justify-content: space-between;
           align-items: center;
@@ -845,7 +845,7 @@ export default function ApprenantLearning() {
           color: #888;
           font-family: 'DM Sans', sans-serif;
         }
-        .learn-nav-btn:hover:not(:disabled) { background: rgba(255,255,255,0.05); color: #e8e4dc; }
+        .learn-nav-btn:hover:not(:disabled) { background: var(--bg-card); color: var(--text-primary); }
         .learn-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
         
         .learn-complete-btn {
@@ -859,14 +859,14 @@ export default function ApprenantLearning() {
           font-family: 'DM Sans', sans-serif;
         }
         .learn-complete-btn.done { background: #4aa87d; color: #fff; }
-        .learn-complete-btn.undone { background: rgba(255,255,255,0.05); color: #888; border: 1px solid rgba(255,255,255,0.1); }
+        .learn-complete-btn.undone { background: var(--bg-card); color: #888; border: 1px solid rgba(255,255,255,0.1); }
         .learn-complete-btn.undone:hover { background: rgba(74,168,125,0.2); color: #4aa87d; }
         
         .learn-spinner {
           width: 32px;
           height: 32px;
           border-radius: 50%;
-          border: 2px solid rgba(255,255,255,0.06);
+          border: 2px solid var(--border-main);
           border-top-color: #7ca8d4;
           animation: spin 0.8s linear infinite;
         }
@@ -881,7 +881,7 @@ export default function ApprenantLearning() {
         .learn-test-result {
           text-align: center;
           padding: 40px;
-          background: rgba(255,255,255,0.02);
+          background: var(--bg-card);
           border-radius: 12px;
           margin-top: 20px;
         }
@@ -907,12 +907,12 @@ export default function ApprenantLearning() {
           gap: 12px;
           margin-top: 24px;
           padding-top: 24px;
-          border-top: 1px solid rgba(255,255,255,0.06);
+          border-top: 1px solid var(--border-main);
         }
         
         .learn-test-detail {
           padding: 16px;
-          background: rgba(255,255,255,0.03);
+          background: var(--bg-card);
           border-radius: 10px;
           text-align: center;
         }
@@ -920,7 +920,7 @@ export default function ApprenantLearning() {
         .learn-test-detail-value {
           font-family: 'Cormorant Garamond', serif;
           font-size: 28px;
-          color: #e8e4dc;
+          color: var(--text-primary);
           margin-bottom: 4px;
         }
         
@@ -967,8 +967,8 @@ export default function ApprenantLearning() {
         }
         
         .learn-question-result.pending {
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.08);
+          background: var(--bg-card);
+          border: 1px solid var(--border-main);
           color: #888;
         }
         
@@ -1017,7 +1017,7 @@ export default function ApprenantLearning() {
           width: 420px; 
           background: rgba(20, 20, 22, 0.85); 
           backdrop-filter: blur(20px); 
-          border: 1px solid rgba(255,255,255,0.08); 
+          border: 1px solid var(--border-main); 
           border-radius: 24px;
           z-index: 999; 
           transform: translateX(calc(100% + 40px)); 
@@ -1032,7 +1032,7 @@ export default function ApprenantLearning() {
 
         .ai-drawer-header { 
           padding: 30px; 
-          border-bottom: 1px solid rgba(255,255,255,0.06); 
+          border-bottom: 1px solid var(--border-main); 
           background: linear-gradient(to bottom, rgba(200,168,110,0.05), transparent);
           border-top-left-radius: 24px;
           border-top-right-radius: 24px;
@@ -1099,9 +1099,9 @@ export default function ApprenantLearning() {
         
         .ai-msg.ai { 
           align-self: flex-start; 
-          background: rgba(255,255,255,0.03); 
-          border: 1px solid rgba(255,255,255,0.08); 
-          color: #f0ebe0; 
+          background: var(--bg-card); 
+          border: 1px solid var(--border-main); 
+          color: var(--text-primary); 
           border-bottom-left-radius: 4px; 
         }
         
@@ -1116,7 +1116,7 @@ export default function ApprenantLearning() {
 
         .ai-input-area { 
           padding: 24px; 
-          border-top: 1px solid rgba(255,255,255,0.06); 
+          border-top: 1px solid var(--border-main); 
           background: rgba(0,0,0,0.2);
           border-bottom-left-radius: 24px;
           border-bottom-right-radius: 24px;
@@ -1124,7 +1124,7 @@ export default function ApprenantLearning() {
         .ai-input-wrapper { 
           display: flex; 
           gap: 12px; 
-          background: rgba(255,255,255,0.03); 
+          background: var(--bg-card); 
           border: 1px solid rgba(255,255,255,0.1); 
           border-radius: 16px; 
           padding: 6px 6px 6px 16px; 
@@ -1133,14 +1133,14 @@ export default function ApprenantLearning() {
         }
         .ai-input-wrapper:focus-within {
           border-color: rgba(200,168,110,0.4);
-          background: rgba(255,255,255,0.05);
+          background: var(--bg-card);
           box-shadow: 0 0 20px rgba(200,168,110,0.1);
         }
         .ai-input { 
           flex: 1; 
           background: transparent; 
           border: none; 
-          color: #f0ebe0; 
+          color: var(--text-primary); 
           font-family: inherit; 
           font-size: 14px; 
           outline: none; 
@@ -1196,7 +1196,7 @@ export default function ApprenantLearning() {
           font-family: 'DM Sans', sans-serif;
           font-weight: 500;
         }
-        .ai-quick-btn-inline:hover { background: rgba(200,168,110,0.15); color: #f0ebe0; }
+        .ai-quick-btn-inline:hover { background: rgba(200,168,110,0.15); color: var(--text-primary); }
         
         .ai-text-link {
           background: transparent;
@@ -1214,7 +1214,7 @@ export default function ApprenantLearning() {
           text-decoration: underline;
         }
         .ai-text-link:hover {
-          color: #f0ebe0;
+          color: var(--text-primary);
           background: rgba(200,168,110,0.1);
         }
 
@@ -1222,11 +1222,11 @@ export default function ApprenantLearning() {
           display: flex; 
           gap: 6px; 
           padding: 16px 20px; 
-          background: rgba(255,255,255,0.02); 
+          background: var(--bg-card); 
           border-radius: 18px; 
           width: fit-content; 
           align-self: flex-start;
-          border: 1px solid rgba(255,255,255,0.05);
+          border: 1px solid var(--bg-card);
         }
         .ai-dot { width: 6px; height: 6px; background: #c8a86e; border-radius: 50%; animation: ai-bounce 1.4s infinite ease-in-out; opacity: 0.6; }
         .ai-dot:nth-child(2) { animation-delay: 0.2s; }
@@ -1621,7 +1621,7 @@ export default function ApprenantLearning() {
                                 </div>
 
                                 <div style={{ marginTop: 24, textAlign: 'left' }}>
-                                  <div style={{ fontSize: 14, fontWeight: 500, color: '#e8e4dc', marginBottom: 12 }}>
+                                  <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-primary)', marginBottom: 12 }}>
                                     Question Results
                                   </div>
                                   {(() => {
@@ -1743,7 +1743,7 @@ export default function ApprenantLearning() {
           {aiMessages.length === 0 && (
             <div className="ai-welcome">
               <div className="ai-welcome-icon">🎓</div>
-              <h3 style={{ margin: 0, color: '#f0ebe0', fontSize: 18, fontWeight: 400 }}>How can I help you?</h3>
+              <h3 style={{ margin: 0, color: 'var(--text-primary)', fontSize: 18, fontWeight: 400 }}>How can I help you?</h3>
               <p className="ai-welcome-text">I can summarize this lesson, explain complex concepts, or answer your questions based on the course materials.</p>
               {contents.some(c => c.type === 'file' || c.type === 'link') && (
                 <button className="ai-quick-btn" onClick={() => handleAiAction('summarize')}>

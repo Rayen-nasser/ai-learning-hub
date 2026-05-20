@@ -90,8 +90,8 @@ export default function AdminSkills() {
 
         .skill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
         .skill-card { 
-          background: rgba(255,255,255,0.02); 
-          border: 1px solid rgba(255,255,255,0.06); 
+          background: var(--bg-card); 
+          border: 1px solid var(--border-main); 
           border-radius: 20px; 
           padding: 24px; 
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -105,7 +105,7 @@ export default function AdminSkills() {
         }
         .skill-card:hover { 
           border-color: rgba(180,145,90,0.3); 
-          background: rgba(255,255,255,0.04);
+          background: var(--bg-card);
           transform: translateY(-4px);
           box-shadow: 0 12px 32px rgba(0,0,0,0.4);
         }
@@ -115,37 +115,37 @@ export default function AdminSkills() {
           background: rgba(180,145,90,0.1); padding: 4px 10px; border-radius: 4px;
           display: inline-block;
         }
-        .skill-name { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 400; color: #f0ebe0; margin: 0 0 10px; }
+        .skill-name { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 400; color: var(--text-primary); margin: 0 0 10px; }
         .skill-desc { font-size: 13.5px; color: #777; line-height: 1.6; margin-bottom: 24px; min-height: 42px; }
-        .skill-actions { display: flex; gap: 10px; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 20px; }
+        .skill-actions { display: flex; gap: 10px; border-top: 1px solid var(--bg-card); padding-top: 20px; }
 
-        .skill-btn { padding: 8px 16px; border-radius: 10px; font-size: 12px; cursor: pointer; transition: all 0.2s; border: 1px solid rgba(255,255,255,0.08); background: transparent; font-family: 'DM Sans', sans-serif; font-weight: 500; }
+        .skill-btn { padding: 8px 16px; border-radius: 10px; font-size: 12px; cursor: pointer; transition: all 0.2s; border: 1px solid var(--border-main); background: transparent; font-family: 'DM Sans', sans-serif; font-weight: 500; }
         .skill-btn-edit { color: #b4915a; }
         .skill-btn-edit:hover { background: rgba(180,145,90,0.1); border-color: rgba(180,145,90,0.3); }
         .skill-btn-delete { color: #e07070; }
         .skill-btn-delete:hover { background: rgba(224,112,112,0.1); border-color: rgba(224,112,112,0.3); }
 
         .skill-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); animation: fadeIn 0.3s ease; }
-        .skill-modal { background: #111114; border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; max-width: 480px; width: 100%; box-shadow: 0 32px 80px rgba(0,0,0,0.6); animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .skill-modal { background: #111114; border: 1px solid var(--border-main); border-radius: 24px; max-width: 480px; width: 100%; box-shadow: 0 32px 80px rgba(0,0,0,0.6); animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
         .skill-modal-header { padding: 28px 32px 0; display: flex; justify-content: space-between; align-items: flex-start; }
-        .skill-modal-title { font-family: 'Cormorant Garamond', serif; font-size: 28px; color: #f0ebe0; font-weight: 400; }
+        .skill-modal-title { font-family: 'Cormorant Garamond', serif; font-size: 28px; color: var(--text-primary); font-weight: 400; }
         .skill-modal-body { padding: 32px; }
         .skill-form-group { margin-bottom: 20px; }
         .skill-label { display: block; font-size: 11px; text-transform: uppercase; color: #555; margin-bottom: 8px; letter-spacing: 0.1em; }
-        .skill-input, .skill-textarea { width: 100%; padding: 14px 18px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #e8e4dc; font-size: 14px; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+        .skill-input, .skill-textarea { width: 100%; padding: 14px 18px; background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: var(--text-primary); font-size: 14px; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
         .skill-textarea { min-height: 100px; resize: vertical; }
         .skill-input:focus, .skill-textarea:focus { border-color: #b4915a; background: rgba(180,145,90,0.03); outline: none; }
         .skill-modal-footer { padding: 0 32px 32px; display: flex; justify-content: flex-end; gap: 12px; }
-        .skill-btn-cancel { padding: 12px 24px; border-radius: 12px; background: transparent; border: 1px solid rgba(255,255,255,0.08); color: #888; font-size: 14px; cursor: pointer; transition: all 0.2s; }
-        .skill-btn-cancel:hover { border-color: rgba(255,255,255,0.2); color: #e8e4dc; }
+        .skill-btn-cancel { padding: 12px 24px; border-radius: 12px; background: transparent; border: 1px solid var(--border-main); color: #888; font-size: 14px; cursor: pointer; transition: all 0.2s; }
+        .skill-btn-cancel:hover { border-color: rgba(255,255,255,0.2); color: var(--text-primary); }
         .skill-btn-submit { padding: 12px 32px; border-radius: 12px; background: linear-gradient(135deg, #b4915a, #c8a86e); border: none; color: #0c0c0e; font-size: 14px; font-weight: 500; cursor: pointer; box-shadow: 0 4px 12px rgba(180,145,90,0.3); transition: all 0.2s; }
         .skill-btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(180,145,90,0.4); }
         .skill-btn-submit:active { transform: translateY(0); }
         
-        .skill-spinner { width: 24px; height: 24px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.06); border-top-color: #b4915a; animation: skillspin 0.8s linear infinite; margin: 40px auto; display: block; }
+        .skill-spinner { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border-main); border-top-color: #b4915a; animation: skillspin 0.8s linear infinite; margin: 40px auto; display: block; }
         @keyframes skillspin { to { transform: rotate(360deg); } }
       `}</style>
 

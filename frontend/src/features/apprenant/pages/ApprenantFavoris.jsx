@@ -62,7 +62,7 @@ export default function ApprenantFavoris() {
       {loading ? (
         <LoadingSpinner />
       ) : allFavoris.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: 60, background: 'rgba(255,255,255,0.02)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ textAlign: 'center', padding: 60, background: 'var(--bg-card)', borderRadius: 16, border: '1px solid var(--border-main)' }}>
           <div style={{ fontSize: 48, marginBottom: 16, opacity: 0.3 }}>💙</div>
           <div style={{ fontSize: 18, color: '#888', marginBottom: 8 }}>{t('apprenant.noFavorites')}</div>
           <div style={{ fontSize: 14, color: '#555', marginBottom: 16 }}>
@@ -76,8 +76,8 @@ export default function ApprenantFavoris() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
           {allFavoris.map(fav => (
             <div key={fav._id} style={{
-              background: 'rgba(255,255,255,0.02)',
-              border: '1px solid rgba(255,255,255,0.06)',
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border-main)',
               borderRadius: 16,
               overflow: 'hidden',
               transition: 'all 0.2s',
@@ -85,9 +85,9 @@ export default function ApprenantFavoris() {
               flexDirection: 'column'
             }}
             onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(180,145,90,0.3)'}
-            onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'}
+            onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border-main)'}
             >
-              <div style={{ height: 120, position: 'relative', background: 'linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))' }}>
+              <div style={{ height: 120, position: 'relative', background: 'linear-gradient(135deg, var(--bg-card), rgba(255,255,255,0.01))' }}>
                 <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 44 }}>
                   {getIcon(fav.typeCible)}
                 </div>
@@ -123,7 +123,7 @@ export default function ApprenantFavoris() {
                   {fav.typeCible === 'formation' ? t('apprenant.course') : fav.typeCible === 'centreFormation' ? t('apprenant.trainingCenter') : fav.typeCible === 'formateur' ? t('formateur.formateur') : fav.typeCible}
                 </div>
                 
-                <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 19, color: '#f0ebe0', margin: '0 0 12px', fontWeight: 400, flex: 1 }}>
+                <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 19, color: 'var(--text-primary)', margin: '0 0 12px', fontWeight: 400, flex: 1 }}>
                   {fav.cibleTitre || t('apprenant.untitledItem')}
                 </h3>
                 

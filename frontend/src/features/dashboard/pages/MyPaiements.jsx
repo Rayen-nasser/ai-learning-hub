@@ -37,9 +37,9 @@ const MyPaiements = () => {
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=DM+Sans:wght@300;400;500&display=swap');
-        .mp-root { font-family: 'DM Sans', sans-serif; color: #e8e4dc; padding-top: 48px; }
+        .mp-root { font-family: 'DM Sans', sans-serif; color: var(--text-primary); padding-top: 48px; }
         .mp-header { margin-bottom: 40px; display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
-        .mp-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(32px, 4vw, 48px); font-weight: 300; color: #f0ebe0; margin: 0 0 6px; }
+        .mp-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(32px, 4vw, 48px); font-weight: 300; color: var(--text-primary); margin: 0 0 6px; }
         .mp-title em { font-style: italic; color: #b4915a; }
         .mp-subtitle { font-size: 14px; color: #555; }
 
@@ -56,8 +56,8 @@ const MyPaiements = () => {
         .mp-card {
           display: flex; align-items: center; gap: 16px;
           padding: 18px 22px; border-radius: 12px;
-          border: 1px solid rgba(255,255,255,0.07);
-          background: rgba(255,255,255,0.02);
+          border: 1px solid var(--border-main);
+          background: var(--bg-card);
           transition: border-color 0.2s;
         }
         .mp-card:hover { border-color: rgba(255,255,255,0.12); }
@@ -67,15 +67,15 @@ const MyPaiements = () => {
           display: flex; align-items: center; justify-content: center; font-size: 18px;
         }
         .mp-info { flex: 1; min-width: 0; }
-        .mp-method { font-size: 14px; font-weight: 500; color: #e8e4dc; text-transform: capitalize; }
+        .mp-method { font-size: 14px; font-weight: 500; color: var(--text-primary); text-transform: capitalize; }
         .mp-date { font-size: 12px; color: #444; margin-top: 2px; }
-        .mp-amount { font-family: 'Cormorant Garamond', serif; font-size: 24px; color: #e8e4dc; font-weight: 400; flex-shrink: 0; }
+        .mp-amount { font-family: 'Cormorant Garamond', serif; font-size: 24px; color: var(--text-primary); font-weight: 400; flex-shrink: 0; }
         .mp-amount-unit { font-size: 11px; color: #555; font-family: 'DM Sans', sans-serif; }
         .mp-status { padding: 3px 10px; border-radius: 20px; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; flex-shrink: 0; }
 
         .mp-empty { text-align: center; padding: 80px 24px; color: #444; }
         .mp-empty-icon { font-size: 44px; margin-bottom: 16px; opacity: 0.3; }
-        .mp-spinner { width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.06); border-top-color: #b4915a; animation: mpspin 0.8s linear infinite; margin: 80px auto; display: block; }
+        .mp-spinner { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border-main); border-top-color: #b4915a; animation: mpspin 0.8s linear infinite; margin: 80px auto; display: block; }
         @keyframes mpspin { to { transform: rotate(360deg); } }
       `}</style>
 

@@ -66,20 +66,20 @@ export default function ResponsablePayments() {
     <ResponsableCFLayout title="Payments" subtitle="Track revenue and transactions">
       <style>{`
         .rp-filters { display: flex; gap: 12px; margin-bottom: 24px; }
-        .rp-select { padding: 10px 16px; background: #1c1c21; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #e8e4dc; font-size: 14px; cursor: pointer; font-family: 'DM Sans', sans-serif; color-scheme: dark; }
+        .rp-select { padding: 10px 16px; background: #1c1c21; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text-primary); font-size: 14px; cursor: pointer; font-family: 'DM Sans', sans-serif; color-scheme: dark; }
         .rp-select:focus { border-color: #4aa87d; outline: none; }
-        .rp-select option { background: #1c1c21; color: #e8e4dc; }
+        .rp-select option { background: #1c1c21; color: var(--text-primary); }
 
         .rp-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
-        .rp-stat { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 20px 24px; }
-        .rp-stat-val { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 400; color: #f0ebe0; }
+        .rp-stat { background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 12px; padding: 20px 24px; }
+        .rp-stat-val { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 400; color: var(--text-primary); }
         .rp-stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #555; margin-top: 4px; }
 
         .rp-table-wrap { overflow-x: auto; }
         .rp-table { width: 100%; border-collapse: collapse; }
-        .rp-table th { text-align: left; padding: 12px 16px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #555; border-bottom: 1px solid rgba(255,255,255,0.06); }
-        .rp-table td { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 14px; }
-        .rp-table tr:hover td { background: rgba(255,255,255,0.02); }
+        .rp-table th { text-align: left; padding: 12px 16px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #555; border-bottom: 1px solid var(--border-main); }
+        .rp-table td { padding: 14px 16px; border-bottom: 1px solid var(--bg-card); font-size: 14px; }
+        .rp-table tr:hover td { background: var(--bg-card); }
 
         .rp-badge { display: inline-flex; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 500; }
         .rp-amount { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: #4aa87d; }
@@ -94,7 +94,7 @@ export default function ResponsablePayments() {
 
         .rp-empty { text-align: center; padding: 60px 20px; color: #555; }
         .rp-error { padding: 12px 16px; background: rgba(224,112,112,0.1); border: 1px solid rgba(224,112,112,0.3); border-radius: 8px; color: #e07070; font-size: 14px; margin-bottom: 20px; }
-        .rp-spinner { width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.06); border-top-color: #4aa87d; animation: rspin 0.8s linear infinite; margin: 60px auto; display: block; }
+        .rp-spinner { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border-main); border-top-color: #4aa87d; animation: rspin 0.8s linear infinite; margin: 60px auto; display: block; }
         @keyframes rspin { to { transform: rotate(360deg); } }
       `}</style>
 
@@ -145,7 +145,7 @@ export default function ResponsablePayments() {
               {filteredPayments.map(payment => (
                 <tr key={payment._id}>
                   <td>
-                    <div style={{ fontWeight: 500, color: '#f0ebe0' }}>
+                    <div style={{ fontWeight: 500, color: 'var(--text-primary)' }}>
                       {payment.apprenantPrenom} {payment.apprenantNom}
                     </div>
                   </td>

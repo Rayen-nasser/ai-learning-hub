@@ -58,17 +58,17 @@ const Centres = () => {
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=DM+Sans:wght@300;400;500&display=swap');
-        .ct-root { font-family: 'DM Sans', sans-serif; color: #e8e4dc; padding-top: 48px; }
+        .ct-root { font-family: 'DM Sans', sans-serif; color: var(--text-primary); padding-top: 48px; }
         .ct-header { margin-bottom: 48px; }
-        .ct-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(36px, 5vw, 56px); font-weight: 300; color: #f0ebe0; margin: 0 0 12px; }
+        .ct-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(36px, 5vw, 56px); font-weight: 300; color: var(--text-primary); margin: 0 0 12px; }
         .ct-title em { font-style: italic; color: #b4915a; }
         .ct-subtitle { font-size: 14px; color: #555; font-weight: 300; }
 
         .ct-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
 
         .ct-card {
-          border: 1px solid rgba(255,255,255,0.07); border-radius: 14px;
-          background: rgba(255,255,255,0.02); overflow: hidden;
+          border: 1px solid var(--border-main); border-radius: 14px;
+          background: var(--bg-card); overflow: hidden;
           transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
         }
         .ct-card:hover { border-color: rgba(180,145,90,0.25); transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.35); }
@@ -76,14 +76,14 @@ const Centres = () => {
         .ct-card-header {
           padding: 28px 28px 20px;
           background: linear-gradient(135deg, #111114, #161620);
-          border-bottom: 1px solid rgba(255,255,255,0.05);
+          border-bottom: 1px solid var(--bg-card);
           display: flex; align-items: flex-start; gap: 16px;
           position: relative;
         }
         .ct-fav-btn {
           position: absolute; top: 16px; right: 16px;
           width: 36px; height: 36px; border-radius: 50%;
-          background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+          background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1);
           display: flex; align-items: center; justify-content: center;
           cursor: pointer; transition: all 0.2s;
           color: #555;
@@ -96,7 +96,7 @@ const Centres = () => {
           display: flex; align-items: center; justify-content: center;
           font-size: 20px; flex-shrink: 0;
         }
-        .ct-name { font-size: 17px; font-weight: 500; color: #e8e4dc; margin-bottom: 4px; }
+        .ct-name { font-size: 17px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
         .ct-address { font-size: 12px; color: #555; display: flex; align-items: center; gap: 5px; }
 
         .ct-card-body { padding: 20px 28px 24px; }
@@ -116,7 +116,7 @@ const Centres = () => {
         }
         .ct-view-btn:hover { background: rgba(180,145,90,0.18); transform: translateY(-1px); }
 
-        .ct-spinner { width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.06); border-top-color: #b4915a; animation: ctspin 0.8s linear infinite; margin: 80px auto; display: block; }
+        .ct-spinner { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border-main); border-top-color: #b4915a; animation: ctspin 0.8s linear infinite; margin: 80px auto; display: block; }
         @keyframes ctspin { to { transform: rotate(360deg); } }
       `}</style>
 

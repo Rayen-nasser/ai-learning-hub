@@ -56,8 +56,8 @@ export default function ApprenantFormations() {
             style={{
               padding: '8px 16px',
               borderRadius: 8,
-              border: filter === tab.key ? '1px solid rgba(124,168,212,0.4)' : '1px solid rgba(255,255,255,0.06)',
-              background: filter === tab.key ? 'rgba(124,168,212,0.15)' : 'rgba(255,255,255,0.02)',
+              border: filter === tab.key ? '1px solid rgba(124,168,212,0.4)' : '1px solid var(--border-main)',
+              background: filter === tab.key ? 'rgba(124,168,212,0.15)' : 'var(--bg-card)',
               color: filter === tab.key ? '#7ca8d4' : '#888',
               fontSize: 13,
               cursor: 'pointer',
@@ -72,7 +72,7 @@ export default function ApprenantFormations() {
       {loading ? (
         <LoadingSpinner />
       ) : filteredInscriptions.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: 60, background: 'rgba(255,255,255,0.02)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ textAlign: 'center', padding: 60, background: 'var(--bg-card)', borderRadius: 16, border: '1px solid var(--border-main)' }}>
           <div style={{ fontSize: 18, color: '#888', marginBottom: 8 }}>{t('apprenant.noCoursesFound')}</div>
           <div style={{ fontSize: 14, color: '#555', marginBottom: 16 }}>
             {filter !== 'all' ? t('apprenant.tryDifferentFilter') : t('apprenant.startLearning')}
@@ -92,14 +92,14 @@ export default function ApprenantFormations() {
                   style={{ textDecoration: 'none' }}
                 >
               <div style={{
-                background: 'rgba(255,255,255,0.02)',
-                border: '1px solid rgba(255,255,255,0.06)',
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border-main)',
                 borderRadius: 16,
                 overflow: 'hidden',
                 transition: 'all 0.2s',
               }}
               onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(124,168,212,0.3)'}
-              onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'}
+              onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border-main)'}
               >
                 <div style={{ height: 140, background: 'linear-gradient(135deg, rgba(124,168,212,0.15), rgba(100,140,180,0.08))', position: 'relative' }}>
                   {ins.formationImage ? (
@@ -116,7 +116,7 @@ export default function ApprenantFormations() {
                   </div>
                 </div>
                 <div style={{ padding: 20 }}>
-                  <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, color: '#f0ebe0', margin: '0 0 8px', fontWeight: 400 }}>
+                  <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, color: 'var(--text-primary)', margin: '0 0 8px', fontWeight: 400 }}>
                     {ins.formationTitre || 'Course'}
                   </h3>
                   <div style={{ fontSize: 13, color: '#555', marginBottom: 12 }}>

@@ -51,7 +51,7 @@ export default function FixDocumentsModal({ centre, onClose, onRefresh }) {
       <style>{`
         .fd-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .fd-modal { background: #1a1a1e; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 64px rgba(0,0,0,0.5); }
-        .fd-header { padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; }
+        .fd-header { padding: 24px; border-bottom: 1px solid var(--border-main); display: flex; justify-content: space-between; align-items: center; }
         .fd-header h2 { font-family: 'Cormorant Garamond', serif; font-size: 24px; color: #b4915a; }
         .fd-close { background: none; border: none; color: #555; cursor: pointer; font-size: 20px; }
 
@@ -60,9 +60,9 @@ export default function FixDocumentsModal({ centre, onClose, onRefresh }) {
         .fd-reason strong { display: block; margin-bottom: 4px; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; }
 
         .fd-doc-grid { display: flex; flex-direction: column; gap: 16px; }
-        .fd-doc-item { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; }
+        .fd-doc-item { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 12px; }
         .fd-doc-info { display: flex; flex-direction: column; gap: 2px; }
-        .fd-doc-label { font-size: 14px; color: #e8e4dc; font-weight: 500; }
+        .fd-doc-label { font-size: 14px; color: var(--text-primary); font-weight: 500; }
         .fd-doc-desc { font-size: 12px; color: #555; }
         .fd-doc-status { font-size: 11px; margin-top: 4px; padding: 2px 6px; border-radius: 4px; display: inline-block; }
         .fd-status-invalid { background: rgba(224,112,112,0.1); color: #e07070; }
@@ -72,7 +72,7 @@ export default function FixDocumentsModal({ centre, onClose, onRefresh }) {
         .fd-file-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
         .fd-file-btn.selected { background: rgba(125,191,125,0.1); border-color: #7dbf7d; color: #7dbf7d; }
 
-        .fd-footer { padding: 24px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: flex-end; gap: 12px; }
+        .fd-footer { padding: 24px; border-top: 1px solid var(--border-main); display: flex; justify-content: flex-end; gap: 12px; }
         .fd-btn-cancel { padding: 10px 20px; border-radius: 10px; background: none; border: 1px solid rgba(255,255,255,0.1); color: #888; cursor: pointer; }
         .fd-btn-submit { padding: 10px 24px; border-radius: 10px; background: #b4915a; color: #0c0c0e; font-weight: 600; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; }
         .fd-btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
@@ -96,7 +96,7 @@ export default function FixDocumentsModal({ centre, onClose, onRefresh }) {
               </div>
             )}
 
-            <p style={{ color: '#aaa', fontSize: '14px', marginBottom: '20px' }}>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '20px' }}>
               Please re-upload the documents that were marked as invalid or missing.
             </p>
 

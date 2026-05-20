@@ -92,13 +92,13 @@ export default function ResponsableCentres() {
         .rc-add-btn:hover { opacity: 0.9; }
 
         .rc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
-        .rc-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; overflow: hidden; transition: border-color 0.2s, transform 0.2s; }
+        .rc-card { background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 16px; overflow: hidden; transition: border-color 0.2s, transform 0.2s; }
         .rc-card:hover { border-color: rgba(125,191,125,0.3); transform: translateY(-2px); }
         .rc-card-image { width: 100%; height: 160px; object-fit: cover; background: linear-gradient(135deg, rgba(106,159,216,0.2), rgba(106,159,216,0.1)); display: flex; align-items: center; justify-content: center; }
         .rc-card-image img { width: 100%; height: 100%; object-fit: cover; }
         .rc-card-image svg { width: 48px; height: 48px; opacity: 0.3; color: #6a9fd8; }
         .rc-card-body { padding: 20px; }
-        .rc-card-name { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; color: #f0ebe0; margin: 0 0 8px; }
+        .rc-card-name { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; color: var(--text-primary); margin: 0 0 8px; }
         .rc-card-address { font-size: 13px; color: #555; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
         .rc-card-desc { font-size: 14px; color: #666; line-height: 1.5; margin: 0 0 16px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .rc-card-actions { display: flex; gap: 8px; }
@@ -111,30 +111,30 @@ export default function ResponsableCentres() {
 
         .rc-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .rc-modal { background: #1a1a1e; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; max-width: 500px; width: 100%; }
-        .rc-modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.06); }
-        .rc-modal-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 400; color: #f0ebe0; }
+        .rc-modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border-main); }
+        .rc-modal-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 400; color: var(--text-primary); }
         .rc-modal-close { background: none; border: none; color: #555; cursor: pointer; font-size: 24px; }
-        .rc-modal-close:hover { color: #e8e4dc; }
+        .rc-modal-close:hover { color: var(--text-primary); }
         .rc-modal-body { padding: 24px; }
         .rc-form-group { margin-bottom: 16px; }
         .rc-form-label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: #555; margin-bottom: 8px; }
-        .rc-form-input, .rc-form-textarea { width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #e8e4dc; font-size: 14px; font-family: 'DM Sans', sans-serif; }
+        .rc-form-input, .rc-form-textarea { width: 100%; padding: 12px 16px; background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text-primary); font-size: 14px; font-family: 'DM Sans', sans-serif; }
         .rc-form-textarea { min-height: 100px; resize: vertical; }
         .rc-form-input:focus, .rc-form-textarea:focus { border-color: #7dbf7d; outline: none; }
-        .rc-modal-footer { display: flex; justify-content: flex-end; gap: 12px; padding: 20px 24px; border-top: 1px solid rgba(255,255,255,0.06); }
+        .rc-modal-footer { display: flex; justify-content: flex-end; gap: 12px; padding: 20px 24px; border-top: 1px solid var(--border-main); }
         .rc-btn-cancel { padding: 10px 20px; border-radius: 8px; font-size: 14px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #888; font-family: 'DM Sans', sans-serif; }
-        .rc-btn-cancel:hover { border-color: rgba(255,255,255,0.2); color: #e8e4dc; }
+        .rc-btn-cancel:hover { border-color: rgba(255,255,255,0.2); color: var(--text-primary); }
         .rc-btn-submit { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; background: linear-gradient(135deg, #7dbf7d, #4aa87d); color: #0c0c0e; font-family: 'DM Sans', sans-serif; }
         .rc-btn-submit:hover { opacity: 0.9; }
         .rc-btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
-        .rc-form-file { width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.04); border: 1px dashed rgba(255,255,255,0.2); border-radius: 8px; color: #888; font-size: 14px; font-family: 'DM Sans', sans-serif; cursor: pointer; }
+        .rc-form-file { width: 100%; padding: 12px 16px; background: var(--bg-card); border: 1px dashed rgba(255,255,255,0.2); border-radius: 8px; color: #888; font-size: 14px; font-family: 'DM Sans', sans-serif; cursor: pointer; }
         .rc-form-file:hover { border-color: #7dbf7d; }
         .rc-logo-preview { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; margin-top: 12px; border: 1px solid rgba(255,255,255,0.1); }
 
         .rc-empty { text-align: center; padding: 60px 20px; color: #555; }
         .rc-empty-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; color: #888; margin-bottom: 8px; }
         .rc-error { padding: 12px 16px; background: rgba(224,112,112,0.1); border: 1px solid rgba(224,112,112,0.3); border-radius: 8px; color: #e07070; font-size: 14px; margin-bottom: 20px; }
-        .rc-spinner { width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.06); border-top-color: #7dbf7d; animation: rcspin 0.8s linear infinite; margin: 60px auto; display: block; }
+        .rc-spinner { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border-main); border-top-color: #7dbf7d; animation: rcspin 0.8s linear infinite; margin: 60px auto; display: block; }
         @keyframes rcspin { to { transform: rotate(360deg); } }
       `}</style>
 

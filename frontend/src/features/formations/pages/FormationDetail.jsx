@@ -276,8 +276,8 @@ const FormationDetail = () => {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=DM+Sans:wght@300;400;500&display=swap');
         *, *::before, *::after { box-sizing: border-box; }
-        .fd-root { font-family: 'DM Sans', sans-serif; color: #e8e4dc; padding-top: 48px; }
-        .fd-spin { width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.06); border-top-color: #b4915a; animation: spin 0.8s linear infinite; }
+        .fd-root { font-family: 'DM Sans', sans-serif; color: var(--text-primary); padding-top: 48px; }
+        .fd-spin { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border-main); border-top-color: #b4915a; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
         /* Back */
@@ -289,18 +289,18 @@ const FormationDetail = () => {
         @media (max-width: 880px) { .fd-hero { grid-template-columns: 1fr; } .fd-enroll-card { position: static !important; } }
 
         .fd-cat-tag { display: inline-block; padding: 4px 12px; border-radius: 6px; background: rgba(180,145,90,0.1); border: 1px solid rgba(180,145,90,0.2); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #b4915a; margin-bottom: 14px; }
-        .fd-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(28px, 4vw, 48px); font-weight: 300; color: #f0ebe0; line-height: 1.1; margin-bottom: 18px; }
+        .fd-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(28px, 4vw, 48px); font-weight: 300; color: var(--text-primary); line-height: 1.1; margin-bottom: 18px; }
         .fd-desc { font-size: 15px; color: #666; line-height: 1.75; font-weight: 300; margin-bottom: 24px; }
 
         /* Quick stats strip */
-        .fd-stats-strip { display: flex; gap: 0; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; overflow: hidden; }
-        .fd-stat { flex: 1; padding: 14px 16px; background: rgba(255,255,255,0.02); border-right: 1px solid rgba(255,255,255,0.07); text-align: center; }
+        .fd-stats-strip { display: flex; gap: 0; margin-bottom: 24px; border: 1px solid var(--border-main); border-radius: 12px; overflow: hidden; }
+        .fd-stat { flex: 1; padding: 14px 16px; background: var(--bg-card); border-right: 1px solid var(--border-main); text-align: center; }
         .fd-stat:last-child { border-right: none; }
-        .fd-stat-val { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; color: #e8e4dc; line-height: 1; margin-bottom: 3px; }
+        .fd-stat-val { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; color: var(--text-primary); line-height: 1; margin-bottom: 3px; }
         .fd-stat-lbl { font-size: 11px; color: #444; letter-spacing: 0.06em; text-transform: uppercase; }
 
         /* ── Enroll card ── */
-        .fd-enroll-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px; position: sticky; top: 80px; }
+        .fd-enroll-card { background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 16px; padding: 24px; position: sticky; top: 80px; }
         .fd-price-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 20px; }
         .fd-price { font-family: 'Cormorant Garamond', serif; font-size: 44px; font-weight: 300; color: #b4915a; line-height: 1; }
         .fd-price-unit { font-size: 13px; color: #555; }
@@ -311,10 +311,10 @@ const FormationDetail = () => {
         .fd-enroll-btn.done { background: linear-gradient(135deg, #4aa87d, #3d9068); box-shadow: 0 4px 18px rgba(74,168,125,0.2); }
         .fd-enroll-btn.done:hover { opacity: 0.9; }
 
-        .fd-fav-btn { width: 100%; padding: 11px; border-radius: 11px; border: 1px solid rgba(255,255,255,0.09); background: transparent; color: ${favorited ? '#e07070' : '#666'}; font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; transition: all 0.2s; margin-bottom: 18px; }
+        .fd-fav-btn { width: 100%; padding: 11px; border-radius: 11px; border: 1px solid var(--border-main); background: transparent; color: ${favorited ? '#e07070' : '#666'}; font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; transition: all 0.2s; margin-bottom: 18px; }
         .fd-fav-btn:hover { border-color: rgba(220,80,80,0.3); color: #e07070; }
 
-        .fd-card-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 16px 0; }
+        .fd-card-divider { height: 1px; background: var(--border-main); margin: 16px 0; }
         .fd-card-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 9px; }
         .fd-card-lbl { color: #555; }
         .fd-card-val { color: #aaa; }
@@ -324,50 +324,50 @@ const FormationDetail = () => {
 
         /* ── Tabs ── */
         .fd-tabs-area { margin-top: 44px; }
-        .fd-tab-nav { display: flex; gap: 0; border-bottom: 1px solid rgba(255,255,255,0.07); margin-bottom: 32px; }
+        .fd-tab-nav { display: flex; gap: 0; border-bottom: 1px solid var(--border-main); margin-bottom: 32px; }
         .fd-tab { padding: 12px 20px; font-size: 13px; color: #555; background: none; border: none; font-family: 'DM Sans', sans-serif; cursor: pointer; position: relative; transition: color 0.2s; letter-spacing: 0.03em; display: flex; align-items: center; gap: 7px; }
         .fd-tab:hover { color: #888; }
-        .fd-tab.active { color: #e8e4dc; }
+        .fd-tab.active { color: var(--text-primary); }
         .fd-tab.active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: #b4915a; border-radius: 1px 1px 0 0; }
-        .fd-tab-count { font-size: 11px; background: rgba(255,255,255,0.08); color: #666; padding: 2px 7px; border-radius: 10px; }
+        .fd-tab-count { font-size: 11px; background: var(--border-main); color: #666; padding: 2px 7px; border-radius: 10px; }
         .fd-tab.active .fd-tab-count { background: rgba(180,145,90,0.15); color: #b4915a; }
 
         /* ── Content tab ── */
-        .fd-section-label { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 400; color: #f0ebe0; margin-bottom: 16px; }
+        .fd-section-label { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 400; color: var(--text-primary); margin-bottom: 16px; }
         .fd-total-dur { font-size: 12px; color: #555; margin-bottom: 20px; display: flex; align-items: center; gap: 5px; }
 
-        .fd-lecon { display: flex; align-items: center; gap: 16px; padding: 13px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); margin-bottom: 6px; cursor: pointer; transition: border-color 0.2s, background 0.2s; }
-        .fd-lecon:hover { border-color: rgba(180,145,90,0.2); background: rgba(255,255,255,0.03); }
+        .fd-lecon { display: flex; align-items: center; gap: 16px; padding: 13px 16px; border-radius: 10px; border: 1px solid var(--border-main); background: var(--bg-card); margin-bottom: 6px; cursor: pointer; transition: border-color 0.2s, background 0.2s; }
+        .fd-lecon:hover { border-color: rgba(180,145,90,0.2); background: var(--bg-card); }
         .fd-lecon-num { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: rgba(180,145,90,0.35); min-width: 28px; flex-shrink: 0; }
         .fd-lecon-info { flex: 1; }
-        .fd-lecon-title { font-size: 14px; color: #e8e4dc; }
+        .fd-lecon-title { font-size: 14px; color: var(--text-primary); }
         .fd-lecon-dur { font-size: 11px; color: #444; display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
         .fd-lecon-arrow { color: #444; transition: transform 0.2s; flex-shrink: 0; }
         .fd-lecon.expanded .fd-lecon-arrow { transform: rotate(90deg); }
-        .fd-lecon-preview { padding: 10px 16px 14px 44px; font-size: 13px; color: #555; line-height: 1.6; border-radius: 0 0 10px 10px; background: rgba(255,255,255,0.01); margin-top: -6px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.04); border-top: none; }
+        .fd-lecon-preview { padding: 10px 16px 14px 44px; font-size: 13px; color: #555; line-height: 1.6; border-radius: 0 0 10px 10px; background: rgba(255,255,255,0.01); margin-top: -6px; margin-bottom: 6px; border: 1px solid var(--bg-card); border-top: none; }
 
         /* ── Reviews tab ── */
-        .fd-rating-hero { display: grid; grid-template-columns: auto 1fr; gap: 32px; align-items: center; padding: 24px; border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; background: rgba(255,255,255,0.02); margin-bottom: 28px; }
+        .fd-rating-hero { display: grid; grid-template-columns: auto 1fr; gap: 32px; align-items: center; padding: 24px; border: 1px solid var(--border-main); border-radius: 14px; background: var(--bg-card); margin-bottom: 28px; }
         @media (max-width: 600px) { .fd-rating-hero { grid-template-columns: 1fr; } }
         .fd-rating-big-num { font-family: 'Cormorant Garamond', serif; font-size: 72px; font-weight: 300; color: #b4915a; line-height: 1; text-align: center; }
         .fd-rating-label { font-size: 12px; color: #555; text-align: center; margin-top: 4px; }
         .fd-dist-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
         .fd-dist-label { font-size: 12px; color: #555; min-width: 30px; }
-        .fd-dist-bar-track { flex: 1; height: 5px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+        .fd-dist-bar-track { flex: 1; height: 5px; background: var(--border-main); border-radius: 3px; overflow: hidden; }
         .fd-dist-bar-fill { height: 100%; background: #b4915a; border-radius: 3px; transition: width 0.5s ease; }
         .fd-dist-count { font-size: 11px; color: #444; min-width: 20px; text-align: right; }
 
-        .fd-avis-card { padding: 18px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); margin-bottom: 10px; animation: fd-fadein 0.3s ease; }
+        .fd-avis-card { padding: 18px 20px; border-radius: 12px; border: 1px solid var(--border-main); background: var(--bg-card); margin-bottom: 10px; animation: fd-fadein 0.3s ease; }
         @keyframes fd-fadein { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
         .fd-avis-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
         .fd-avis-date { font-size: 11px; color: #444; }
         .fd-avis-comment { font-size: 13px; color: #777; line-height: 1.7; font-weight: 300; }
 
         /* Review form */
-        .fd-review-form { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 22px; margin-top: 24px; }
-        .fd-form-title { font-size: 15px; font-weight: 500; color: #e8e4dc; margin-bottom: 18px; }
+        .fd-review-form { background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 14px; padding: 22px; margin-top: 24px; }
+        .fd-form-title { font-size: 15px; font-weight: 500; color: var(--text-primary); margin-bottom: 18px; }
         .fd-form-label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #555; margin-bottom: 8px; display: block; }
-        .fd-textarea { width: 100%; padding: 12px 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 9px; color: #e8e4dc; font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; resize: vertical; min-height: 90px; margin-bottom: 14px; transition: border-color 0.2s; }
+        .fd-textarea { width: 100%; padding: 12px 14px; background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1); border-radius: 9px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; resize: vertical; min-height: 90px; margin-bottom: 14px; transition: border-color 0.2s; }
         .fd-textarea:focus { border-color: rgba(180,145,90,0.4); }
         .fd-textarea::placeholder { color: #444; }
         .fd-form-footer { display: flex; align-items: center; justify-content: space-between; }
@@ -443,7 +443,7 @@ const FormationDetail = () => {
                   </svg>
                   You own this course
                 </div>
-                <h3 style={{ margin: '0 0 8px 0', color: '#e8e4dc', fontSize: 20, fontFamily: "'Cormorant Garamond', serif", fontWeight: 400 }}>Ready to learn?</h3>
+                <h3 style={{ margin: '0 0 8px 0', color: 'var(--text-primary)', fontSize: 20, fontFamily: "'Cormorant Garamond', serif", fontWeight: 400 }}>Ready to learn?</h3>
                 <p style={{ margin: '0 0 20px 0', color: '#888', fontSize: 14 }}>Continue where you left off</p>
                 <button
                   className="fd-enroll-btn done"
@@ -581,12 +581,12 @@ const FormationDetail = () => {
                       ) : leconContents[l._id] && leconContents[l._id].length > 0 ? (
                         <div className="fd-contents-list" style={{ marginTop: 12 }}>
                           {leconContents[l._id].map(c => (
-                            <div key={c._id} className="fd-content-item" style={{ padding: '10px 14px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 8, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <div key={c._id} className="fd-content-item" style={{ padding: '10px 14px', background: 'var(--bg-card)', border: '1px solid var(--bg-card)', borderRadius: 8, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
                               <span style={{ color: '#b4915a', fontSize: 18 }}>
                                 {c.type === 'video' ? '▶️' : c.type === 'image' ? '🖼️' : c.type === 'file' ? '📄' : c.type === 'test' ? '📝' : '🔗'}
                               </span>
                               <div>
-                                <div style={{ color: '#e8e4dc', fontSize: 13, fontWeight: 500 }}>{c.title}</div>
+                                <div style={{ color: 'var(--text-primary)', fontSize: 13, fontWeight: 500 }}>{c.title}</div>
                                 {c.description && <div style={{ color: '#888', fontSize: 11, marginTop: 2 }}>{c.description}</div>}
                               </div>
                             </div>
@@ -668,7 +668,7 @@ const FormationDetail = () => {
                           <button type="submit" className="fd-submit-btn" disabled={reviewSubmitting || !editAvisData.commentaire.trim()}>
                             {reviewSubmitting ? 'Updating…' : 'Update Review'}
                           </button>
-                          <button type="button" className="fd-submit-btn" style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: '#ccc' }} onClick={() => setEditingAvisId(null)}>
+                          <button type="button" className="fd-submit-btn" style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: 'var(--text-secondary)' }} onClick={() => setEditingAvisId(null)}>
                             Cancel
                           </button>
                         </div>
@@ -690,7 +690,7 @@ const FormationDetail = () => {
                           </div>
                         )}
                         <div>
-                          <div style={{ fontSize: 13, color: '#e8e4dc', fontWeight: 500 }}>
+                          <div style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: 500 }}>
                             {a.apprenantId?.prenom || ''} {a.apprenantId?.nom || 'Anonymous'}
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
@@ -784,7 +784,7 @@ const FormationDetail = () => {
                         <input type="radio" name="payment" value="carte" checked={paymentMethod === 'carte'} onChange={() => setPaymentMethod('carte')} />
                         <span className="pm-method-icon">💳</span>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                          <span style={{ fontSize: '13px', fontWeight: 500, color: '#e8e4dc' }}>Credit or Debit Card</span>
+                          <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-primary)' }}>Credit or Debit Card</span>
                           <span style={{ fontSize: '11px', color: '#555' }}>Instant access granted</span>
                         </div>
                       </label>
@@ -792,7 +792,7 @@ const FormationDetail = () => {
                         <input type="radio" name="payment" value="virement" checked={paymentMethod === 'virement'} onChange={() => setPaymentMethod('virement')} />
                         <span className="pm-method-icon">🏛️</span>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                          <span style={{ fontSize: '13px', fontWeight: 500, color: '#e8e4dc' }}>Bank Transfer</span>
+                          <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-primary)' }}>Bank Transfer</span>
                           <span style={{ fontSize: '11px', color: '#555' }}>Requires manual verification</span>
                         </div>
                       </label>
@@ -849,27 +849,27 @@ const FormationDetail = () => {
         .pm-header {
           padding: 24px 28px 20px; display: flex; align-items: center; justify-content: space-between;
           background: linear-gradient(135deg, #111114, #1a1a22);
-          border-bottom: 1px solid rgba(255,255,255,0.06);
+          border-bottom: 1px solid var(--border-main);
         }
-        .pm-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; color: #f0ebe0; margin: 0; }
-        .pm-close { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; width: 32px; height: 32px; color: #666; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; }
+        .pm-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; color: var(--text-primary); margin: 0; }
+        .pm-close { background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; width: 32px; height: 32px; color: #666; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; }
         .pm-close:hover { color: #aaa; }
         .pm-body { padding: 28px; }
         .pm-course-info { text-align: center; margin-bottom: 20px; }
-        .pm-course-title { font-size: 16px; color: #e8e4dc; margin-bottom: 8px; }
+        .pm-course-title { font-size: 16px; color: var(--text-primary); margin-bottom: 8px; }
         .pm-course-price { font-family: 'Cormorant Garamond', serif; font-size: 32px; color: #b4915a; }
-        .pm-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 20px 0; }
+        .pm-divider { height: 1px; background: var(--border-main); margin: 20px 0; }
         .pm-method-section h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: #555; margin: 0 0 12px; }
         .pm-methods { display: flex; flex-direction: column; gap: 8px; }
-        .pm-method { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; cursor: pointer; transition: all 0.2s; }
+        .pm-method { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1px solid var(--border-main); border-radius: 10px; cursor: pointer; transition: all 0.2s; }
         .pm-method:hover { border-color: rgba(180,145,90,0.3); }
         .pm-method.selected { border-color: #b4915a; background: rgba(180,145,90,0.08); }
         .pm-method input { display: none; }
         .pm-method-icon { font-size: 20px; }
-        .pm-method span:last-child { font-size: 14px; color: #e8e4dc; }
+        .pm-method span:last-child { font-size: 14px; color: var(--text-primary); }
         .pm-card-form { margin-top: 16px; }
         .pm-card-row { display: flex; gap: 12px; }
-        .pm-input { width: 100%; padding: 12px 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #e8e4dc; font-size: 14px; margin-bottom: 10px; outline: none; }
+        .pm-input { width: 100%; padding: 12px 14px; background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text-primary); font-size: 14px; margin-bottom: 10px; outline: none; }
         .pm-input:focus { border-color: #b4915a; }
         .pm-error { padding: 10px 14px; background: rgba(220,100,100,0.1); border: 1px solid rgba(220,100,100,0.3); border-radius: 8px; color: #e07070; font-size: 13px; margin: 16px 0; }
         .pm-pay-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #b4915a, #c8a86e); border: none; border-radius: 10px; color: #0c0c0e; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -879,7 +879,7 @@ const FormationDetail = () => {
         .pm-cancel-btn:hover { border-color: rgba(255,255,255,0.2); color: #888; }
         .pm-success { text-align: center; padding: 20px 0; }
         .pm-success-icon { width: 60px; height: 60px; border-radius: 50%; background: rgba(74,168,125,0.15); border: 2px solid #4aa87d; color: #4aa87d; font-size: 28px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
-        .pm-success h3 { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: #f0ebe0; margin: 0 0 8px; }
+        .pm-success h3 { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--text-primary); margin: 0 0 8px; }
         .pm-success p { font-size: 14px; color: #666; margin: 0; }
       `}</style>
     </>

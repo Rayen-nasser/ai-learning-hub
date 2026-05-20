@@ -105,7 +105,7 @@ const DeleteModal = ({ profile, onConfirm, onClose, deleting }) => {
         .dm-modal {
           width: 100%; max-width: 460px;
           background: #111113;
-          border: 1px solid rgba(255,255,255,0.09);
+          border: 1px solid var(--border-main);
           border-radius: 20px;
           overflow: hidden;
           box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(220,80,80,0.08);
@@ -127,16 +127,16 @@ const DeleteModal = ({ profile, onConfirm, onClose, deleting }) => {
         }
         .dm-close {
           width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
-          background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+          background: var(--bg-card); border: 1px solid var(--border-main);
           color: #555; cursor: pointer; display: flex; align-items: center; justify-content: center;
           transition: color 0.2s, background 0.2s; margin-top: -4px;
           font-family: 'DM Sans', sans-serif;
         }
-        .dm-close:hover { color: #aaa; background: rgba(255,255,255,0.08); }
+        .dm-close:hover { color: #aaa; background: var(--border-main); }
 
         .dm-title {
           font-family: 'Cormorant Garamond', serif;
-          font-size: 22px; font-weight: 400; color: #f0ebe0;
+          font-size: 22px; font-weight: 400; color: var(--text-primary);
           margin: 16px 28px 6px;
         }
         .dm-subtitle { font-size: 13px; color: #555; margin: 0 28px 24px; line-height: 1.6; font-weight: 300; }
@@ -157,7 +157,7 @@ const DeleteModal = ({ profile, onConfirm, onClose, deleting }) => {
         .dm-step-dot.done   { flex: 1; }
 
         /* Divider */
-        .dm-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 0 28px; }
+        .dm-divider { height: 1px; background: var(--border-main); margin: 0 28px; }
 
         /* ── Step 1: Consequences ── */
         .dm-body { padding: 20px 28px 24px; }
@@ -177,7 +177,7 @@ const DeleteModal = ({ profile, onConfirm, onClose, deleting }) => {
         .dm-confirm-label {
           font-size: 13px; color: #888; line-height: 1.7; margin-bottom: 16px; font-weight: 300;
         }
-        .dm-confirm-label strong { color: #e8e4dc; font-weight: 500; }
+        .dm-confirm-label strong { color: var(--text-primary); font-weight: 500; }
         .dm-confirm-word {
           display: inline-block;
           font-family: 'Courier New', monospace;
@@ -188,9 +188,9 @@ const DeleteModal = ({ profile, onConfirm, onClose, deleting }) => {
         }
         .dm-type-input {
           width: 100%; padding: 12px 16px;
-          background: rgba(255,255,255,0.04);
+          background: var(--bg-card);
           border: 1px solid rgba(255,255,255,0.1);
-          border-radius: 10px; font-size: 14px; color: #e8e4dc;
+          border-radius: 10px; font-size: 14px; color: var(--text-primary);
           font-family: 'DM Sans', sans-serif;
           outline: none; transition: border-color 0.2s, background 0.2s;
           box-sizing: border-box;
@@ -212,8 +212,8 @@ const DeleteModal = ({ profile, onConfirm, onClose, deleting }) => {
         }
         .dm-btn-cancel {
           flex: 1; padding: 12px;
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.09); border-radius: 10px;
+          background: var(--bg-card);
+          border: 1px solid var(--border-main); border-radius: 10px;
           color: #666; font-size: 13px; font-family: 'DM Sans', sans-serif;
           cursor: pointer; transition: all 0.2s;
         }
@@ -243,7 +243,7 @@ const DeleteModal = ({ profile, onConfirm, onClose, deleting }) => {
         .dm-btn-back {
           padding: 12px 16px;
           background: transparent;
-          border: 1px solid rgba(255,255,255,0.08); border-radius: 10px;
+          border: 1px solid var(--border-main); border-radius: 10px;
           color: #555; font-size: 13px; font-family: 'DM Sans', sans-serif;
           cursor: pointer; transition: all 0.2s;
         }
@@ -574,7 +574,7 @@ const Profile = () => {
 
         .pf-root {
           min-height: 100vh; background: #0c0c0e;
-          font-family: 'DM Sans', sans-serif; color: #e8e4dc;
+          font-family: 'DM Sans', sans-serif; color: var(--text-primary);
           padding: 40px 24px;
         }
         .pf-loading { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #0c0c0e; }
@@ -595,7 +595,7 @@ const Profile = () => {
         .pf-hero-content { position: relative; display: flex; align-items: center; gap: 24px; }
         .pf-avatar { width: 72px; height: 72px; border-radius: 50%; border: 2px solid rgba(180,145,90,.3); flex-shrink: 0; background: rgba(255,255,255,.05); display: flex; align-items: center; justify-content: center; font-size: 28px; overflow: hidden; }
         .pf-avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .pf-hero-text h1 { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 400; color: #f0ebe0; margin: 0 0 6px; }
+        .pf-hero-text h1 { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 400; color: var(--text-primary); margin: 0 0 6px; }
         .pf-hero-text p { font-size: 13px; color: #666; margin: 0 0 12px; }
         .pf-role-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; }
 
@@ -609,13 +609,13 @@ const Profile = () => {
         .pf-info-row:last-child { border-bottom: none; }
         .pf-info-row--edit { align-items: center; }
         .pf-info-label { width: 160px; font-size: 12px; color: #555; letter-spacing: .04em; text-transform: uppercase; flex-shrink: 0; }
-        .pf-info-value { font-size: 14px; color: #e8e4dc; }
+        .pf-info-value { font-size: 14px; color: var(--text-primary); }
         .pf-info-empty { color: #333; }
 
-        .pf-input { flex: 1; padding: 8px 12px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12); border-radius: 7px; font-size: 13px; color: #e8e4dc; font-family: 'DM Sans', sans-serif; outline: none; transition: border-color .2s; }
+        .pf-input { flex: 1; padding: 8px 12px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12); border-radius: 7px; font-size: 13px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; outline: none; transition: border-color .2s; }
         .pf-input:focus { border-color: #b4915a; }
         .pf-select { appearance: none; cursor: pointer; color-scheme: dark; }
-        .pf-select option { background: #1a1a1e; color: #e8e4dc; }
+        .pf-select option { background: #1a1a1e; color: var(--text-primary); }
 
         .pf-actions { display: flex; gap: 10px; }
         .pf-btn-edit { display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: rgba(180,145,90,.1); border: 1px solid rgba(180,145,90,.25); border-radius: 8px; color: #b4915a; font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all .2s; }
@@ -654,7 +654,7 @@ const Profile = () => {
           display: flex; align-items: center; justify-content: space-between; gap: 20px;
         }
         .pf-danger-info {}
-        .pf-danger-title { font-size: 14px; color: #e8e4dc; font-weight: 500; margin-bottom: 4px; }
+        .pf-danger-title { font-size: 14px; color: var(--text-primary); font-weight: 500; margin-bottom: 4px; }
         .pf-danger-desc { font-size: 12px; color: #555; line-height: 1.5; font-weight: 300; max-width: 280px; }
         .pf-btn-open-delete {
           display: flex; align-items: center; gap: 7px; flex-shrink: 0;
@@ -782,9 +782,9 @@ const Profile = () => {
                               <label key={s._id} style={{ 
                                 display: 'flex', alignItems: 'center', gap: '6px', 
                                 padding: '6px 14px', 
-                                background: isSelected ? 'rgba(180,145,90,0.12)' : 'rgba(255,255,255,0.02)', 
+                                background: isSelected ? 'rgba(180,145,90,0.12)' : 'var(--bg-card)', 
                                 border: '1px solid',
-                                borderColor: isSelected ? '#b4915a' : 'rgba(255,255,255,0.08)', 
+                                borderColor: isSelected ? '#b4915a' : 'var(--border-main)', 
                                 borderRadius: '20px', 
                                 cursor: 'pointer', 
                                 transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -805,7 +805,7 @@ const Profile = () => {
                                 />
                                 <span style={{ 
                                   fontSize: '12px', 
-                                  color: isSelected ? '#f0ebe0' : '#555',
+                                  color: isSelected ? 'var(--text-primary)' : '#555',
                                   fontWeight: isSelected ? '500' : '400',
                                   display: 'flex',
                                   alignItems: 'center',

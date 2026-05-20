@@ -70,17 +70,17 @@ export default function AdminUsers() {
       <style>{`
         .au-controls { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
         .au-search { flex: 1; min-width: 200px; }
-        .au-search input { width: 100%; padding: 10px 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #e8e4dc; font-size: 14px; font-family: 'DM Sans', sans-serif; }
+        .au-search input { width: 100%; padding: 10px 16px; background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: var(--text-primary); font-size: 14px; font-family: 'DM Sans', sans-serif; }
         .au-search input:focus { border-color: #b4915a; outline: none; }
         .au-search input::placeholder { color: #555; }
         
-        .au-select { padding: 10px 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #e8e4dc; font-size: 14px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+        .au-select { padding: 10px 16px; background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: var(--text-primary); font-size: 14px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
         .au-select:focus { border-color: #b4915a; outline: none; }
-        .au-select option { background: #121215; color: #e8e4dc; }
+        .au-select option { background: #121215; color: var(--text-primary); }
         
         .au-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
         
-        .au-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 20px; transition: all 0.2s; }
+        .au-card { background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 14px; padding: 20px; transition: all 0.2s; }
         .au-card:hover { border-color: rgba(255,255,255,0.1); }
         .au-card.blocked { opacity: 0.6; border-color: rgba(224,112,112,0.2); }
         
@@ -89,7 +89,7 @@ export default function AdminUsers() {
         .au-avatar img { width: 100%; height: 100%; object-fit: cover; }
         
         .au-card-info { flex: 1; min-width: 0; }
-        .au-card-name { font-weight: 500; font-size: 15px; color: #f0ebe0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .au-card-name { font-weight: 500; font-size: 15px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .au-card-email { font-size: 12px; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
         .au-card-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
@@ -105,7 +105,7 @@ export default function AdminUsers() {
         .au-btn-unblock:hover { background: rgba(125,191,125,0.1); }
         .au-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         
-        .au-pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 32px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); }
+        .au-pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border-main); }
         .au-pagination-info { font-size: 13px; color: #555; }
         .au-pagination-controls { display: flex; gap: 8px; }
         .au-page-btn { padding: 8px 16px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #888; border-radius: 8px; font-size: 13px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
@@ -115,7 +115,7 @@ export default function AdminUsers() {
         
         .au-empty { text-align: center; padding: 60px 20px; color: #555; }
         .au-error { padding: 12px 16px; background: rgba(224,112,112,0.1); border: 1px solid rgba(224,112,112,0.3); border-radius: 10px; color: #e07070; font-size: 14px; margin-bottom: 20px; }
-        .au-spinner { width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.06); border-top-color: #b4915a; animation: aspin 0.8s linear infinite; margin: 60px auto; display: block; }
+        .au-spinner { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border-main); border-top-color: #b4915a; animation: aspin 0.8s linear infinite; margin: 60px auto; display: block; }
         @keyframes aspin { to { transform: rotate(360deg); } }
         
         @media (max-width: 640px) {

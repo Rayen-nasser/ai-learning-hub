@@ -116,26 +116,26 @@ export default function ApprenantPaiements() {
         .tp-card-sub { font-size: 12px; color: #555; margin-top: 6px; }
 
         .tp-filters { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
-        .tp-filter { padding: 7px 16px; border-radius: 20px; font-size: 13px; cursor: pointer; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: #777; transition: all 0.15s; }
+        .tp-filter { padding: 7px 16px; border-radius: 20px; font-size: 13px; cursor: pointer; border: 1px solid var(--border-main); background: var(--bg-card); color: #777; transition: all 0.15s; }
         .tp-filter:hover { border-color: rgba(124,168,212,0.25); color: #aaa; }
         .tp-filter.active { background: rgba(124,168,212,0.12); border-color: rgba(124,168,212,0.35); color: #7ca8d4; }
         .tp-filter-count { margin-left: 6px; font-size: 11px; opacity: 0.7; }
 
         .tp-list { display: flex; flex-direction: column; gap: 10px; }
-        .tp-row { display: grid; grid-template-columns: 56px 1fr auto; align-items: center; gap: 18px; padding: 20px 22px; border-radius: 14px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.07); transition: border-color 0.2s; }
+        .tp-row { display: grid; grid-template-columns: 56px 1fr auto; align-items: center; gap: 18px; padding: 20px 22px; border-radius: 14px; background: var(--bg-card); border: 1px solid var(--border-main); transition: border-color 0.2s; }
         .tp-row:hover { border-color: rgba(255,255,255,0.12); }
         .tp-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .tp-title { font-size: 15px; font-weight: 500; color: #e8e4dc; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .tp-title { font-size: 15px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .tp-meta { font-size: 12px; color: #4a4a4a; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         .tp-meta-dot { width: 3px; height: 3px; border-radius: 50%; background: #333; }
         .tp-right { text-align: right; flex-shrink: 0; }
-        .tp-amount { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 400; color: #f0ebe0; line-height: 1; }
+        .tp-amount { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 400; color: var(--text-primary); line-height: 1; }
         .tp-badge { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; font-size: 10px; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
         .tp-cancel { margin-top: 8px; font-size: 11px; color: #e07070; background: none; border: 1px solid rgba(224,112,112,0.2); padding: 4px 10px; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
         .tp-cancel:hover { background: rgba(224,112,112,0.08); border-color: rgba(224,112,112,0.4); }
         .tp-cancel:disabled { opacity: 0.4; cursor: not-allowed; }
 
-        .tp-empty { text-align: center; padding: 70px 40px; background: rgba(255,255,255,0.02); border-radius: 16px; border: 1px dashed rgba(255,255,255,0.08); }
+        .tp-empty { text-align: center; padding: 70px 40px; background: var(--bg-card); border-radius: 16px; border: 1px dashed var(--border-main); }
         .tp-empty-icon { width: 64px; height: 64px; background: rgba(124,168,212,0.06); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
 
         .tp-error { background: rgba(224,112,112,0.07); border: 1px solid rgba(224,112,112,0.18); border-radius: 12px; padding: 14px 20px; color: #e07070; font-size: 13px; margin-bottom: 24px; }
@@ -145,7 +145,7 @@ export default function ApprenantPaiements() {
         .tp-toast.error   { background: rgba(224,112,112,0.95); color: #fff; }
         @keyframes tp-slide-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-        .tp-spinner { width: 34px; height: 34px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.06); border-top-color: #7ca8d4; animation: tp-spin 0.8s linear infinite; margin: 60px auto; display: block; }
+        .tp-spinner { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--border-main); border-top-color: #7ca8d4; animation: tp-spin 0.8s linear infinite; margin: 60px auto; display: block; }
         @keyframes tp-spin { to { transform: rotate(360deg); } }
       `}</style>
 
@@ -173,9 +173,9 @@ export default function ApprenantPaiements() {
           </div>
           <div className="tp-card-sub">{pendingCount} {t('apprenant.awaitingConfirmation')}</div>
         </div>
-        <div className="tp-card" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}>
+        <div className="tp-card" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-main)' }}>
           <div className="tp-card-label">{t('apprenant.totalSpent')}</div>
-          <div className="tp-card-value" style={{ color: '#f0ebe0' }}>
+          <div className="tp-card-value" style={{ color: 'var(--text-primary)' }}>
             {(confirmedTotal + pendingTotal).toLocaleString()} <span style={{ fontSize: 16, color: '#555' }}>DT</span>
           </div>
           <div className="tp-card-sub">{t('apprenant.confirmedPlusPending')}</div>

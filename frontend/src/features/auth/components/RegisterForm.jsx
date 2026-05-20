@@ -377,7 +377,7 @@ const RegisterForm = () => {
           justify-content: center;
           background: #0c0c0e;
           font-family: 'DM Sans', sans-serif;
-          color: #e8e4dc;
+          color: var(--text-primary);
           padding: 40px 24px;
         }
 
@@ -415,7 +415,7 @@ const RegisterForm = () => {
 
         .rf-title {
           font-family: 'Cormorant Garamond', serif;
-          font-size: 28px; font-weight: 400; color: #f0ebe0; margin-bottom: 4px;
+          font-size: 28px; font-weight: 400; color: var(--text-primary); margin-bottom: 4px;
         }
         .rf-subtitle { font-size: 13px; color: #555; margin-bottom: 28px; }
 
@@ -436,7 +436,7 @@ const RegisterForm = () => {
         .rf-input {
           width: 100%; padding: 13px 16px; background: rgba(255,255,255,.04);
           border: 1px solid rgba(255,255,255,.1); border-radius: 8px;
-          font-size: 14px; color: #e8e4dc; font-family: 'DM Sans', sans-serif;
+          font-size: 14px; color: var(--text-primary); font-family: 'DM Sans', sans-serif;
           transition: border-color .2s, background .2s; outline: none; box-sizing: border-box;
         }
         .rf-input::placeholder { color: #444; }
@@ -444,7 +444,7 @@ const RegisterForm = () => {
         .rf-input.err { border-color: rgba(220,53,53,.5); }
         .rf-input.has-icon { padding-right: 48px; }
         .rf-select { appearance: none; cursor: pointer; color-scheme: dark; }
-        .rf-select option { background: #1a1a1e; color: #e8e4dc; }
+        .rf-select option { background: #1a1a1e; color: var(--text-primary); }
         .rf-eye {
           position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
           background: none; border: none; color: #666; cursor: pointer; padding: 4px;
@@ -499,7 +499,7 @@ const RegisterForm = () => {
         .rf-role-card:hover { border-color: rgba(180,145,90,.4); background: rgba(180,145,90,.04); }
         .rf-role-card.selected { border-color: #b4915a; background: rgba(180,145,90,.08); }
         .rf-role-icon { font-size: 22px; margin-bottom: 8px; }
-        .rf-role-label { font-size: 13px; font-weight: 500; color: #e8e4dc; margin-bottom: 3px; }
+        .rf-role-label { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 3px; }
         .rf-role-desc  { font-size: 11px; color: #555; line-height: 1.4; }
         .rf-role-check {
           position: absolute; top: 10px; right: 10px;
@@ -517,7 +517,7 @@ const RegisterForm = () => {
           background: transparent; color: #888; font-family: 'DM Sans', sans-serif;
           font-size: 14px; cursor: pointer; transition: border-color .2s, color .2s; flex-shrink: 0;
         }
-        .rf-btn-back:hover { border-color: rgba(255,255,255,.2); color: #e8e4dc; }
+        .rf-btn-back:hover { border-color: rgba(255,255,255,.2); color: var(--text-primary); }
         .rf-btn-next {
           flex: 1; padding: 14px; border: none; border-radius: 8px;
           background: linear-gradient(135deg, #b4915a, #c8a86e);

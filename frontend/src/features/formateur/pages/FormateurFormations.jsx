@@ -31,7 +31,7 @@ export default function FormateurFormations() {
         {loading ? (
           <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: 60, color: '#555' }}>{t('common.loading')}</div>
         ) : formations.length === 0 ? (
-          <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: 60, background: 'rgba(255,255,255,0.02)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: 60, background: 'var(--bg-card)', borderRadius: 16, border: '1px solid var(--border-main)' }}>
             <div style={{ fontSize: 18, color: '#888', marginBottom: 8 }}>{t('formateur.noFormationsAssigned')}</div>
             <div style={{ fontSize: 14, color: '#555' }}>{t('formateur.contactCentreManager')}</div>
           </div>
@@ -39,8 +39,8 @@ export default function FormateurFormations() {
           formations.map(f => (
             <Link key={f._id} to={`/formateur/formations/${f._id}`} style={{ textDecoration: 'none' }}>
               <div style={{
-                background: 'rgba(255,255,255,0.02)',
-                border: '1px solid rgba(255,255,255,0.06)',
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border-main)',
                 borderRadius: 16,
                 overflow: 'hidden',
                 transition: 'all 0.2s',
@@ -49,7 +49,7 @@ export default function FormateurFormations() {
                 flexDirection: 'column',
               }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(200,168,110,0.3)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-main)'; e.currentTarget.style.transform = 'translateY(0)'; }}
               >
                 <div style={{ height: 140, background: 'linear-gradient(135deg, rgba(200,168,110,0.2), rgba(180,145,90,0.1))', position: 'relative' }}>
                   {f.image ? (
@@ -68,7 +68,7 @@ export default function FormateurFormations() {
                   </div>
                 </div>
                 <div style={{ padding: 20, flex: 1, display: 'flex', flexDirection: 'column' }}>
-                  <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, color: '#f0ebe0', margin: '0 0 8px', fontWeight: 400 }}>
+                  <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, color: 'var(--text-primary)', margin: '0 0 8px', fontWeight: 400 }}>
                     {f.titre}
                   </h3>
                   <div style={{ fontSize: 13, color: '#555', marginBottom: 8 }}>
@@ -83,7 +83,7 @@ export default function FormateurFormations() {
                       {f.description}
                     </p>
                   )}
-                  <div style={{ marginTop: 16, padding: '10px 0', borderTop: '1px solid rgba(255,255,255,0.06)', color: '#c8a86e', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ marginTop: 16, padding: '10px 0', borderTop: '1px solid var(--border-main)', color: '#c8a86e', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                       <polyline points="14 2 14 8 20 8"/>

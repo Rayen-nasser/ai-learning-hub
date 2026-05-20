@@ -52,7 +52,7 @@ const ResetPassword = () => {
 
         .rp-root {
           min-height: 100vh; display: flex; align-items: center; justify-content: center;
-          background: #0c0c0e; font-family: 'DM Sans', sans-serif; color: #e8e4dc; padding: 20px;
+          background: #0c0c0e; font-family: 'DM Sans', sans-serif; color: var(--text-primary); padding: 20px;
         }
         .rp-card {
           width: 100%; max-width: 420px; background: rgba(255,255,255,.02);
@@ -66,7 +66,7 @@ const ResetPassword = () => {
         .rp-icon-success { background: rgba(125,191,125,.1); color: #7dbf7d; }
         .rp-icon-error { background: rgba(220,53,53,.1); color: #e07070; }
         
-        .rp-title { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 400; color: #f0ebe0; margin-bottom: 12px; }
+        .rp-title { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 400; color: var(--text-primary); margin-bottom: 12px; }
         .rp-subtitle { font-size: 14px; color: #888; margin-bottom: 32px; line-height: 1.5; }
         
         .rp-error {
@@ -77,7 +77,7 @@ const ResetPassword = () => {
 
         .rp-input {
           width: 100%; padding: 14px 16px; background: rgba(255,255,255,.04);
-          border: 1px solid rgba(255,255,255,.1); border-radius: 8px; font-size: 14px; color: #e8e4dc;
+          border: 1px solid rgba(255,255,255,.1); border-radius: 8px; font-size: 14px; color: var(--text-primary);
           font-family: 'DM Sans', sans-serif; transition: all .2s; outline: none; margin-bottom: 20px; box-sizing: border-box;
         }
         .rp-input:focus { border-color: #b4915a; background: rgba(180,145,90,.05); }
@@ -89,7 +89,7 @@ const ResetPassword = () => {
           cursor: pointer; transition: opacity .2s; display: flex; align-items: center; justify-content: center; gap: 8px;
         }
         .rp-btn-outline {
-          background: transparent; border: 1px solid rgba(255,255,255,.15); color: #e8e4dc;
+          background: transparent; border: 1px solid rgba(255,255,255,.15); color: var(--text-primary);
         }
         .rp-btn:hover:not(:disabled) { opacity: .9; }
         .rp-btn-outline:hover:not(:disabled) { background: rgba(255,255,255,.05); }

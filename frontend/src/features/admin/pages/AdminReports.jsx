@@ -124,22 +124,22 @@ export default function AdminReports() {
     <AdminLayout title={`${t('admin.reported')} <em>${t('admin.content')}</em>`} subtitle={t('admin.reviewManageReports')}>
       <style>{`
         .rp-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 32px; }
-        .rp-stat { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .rp-stat { background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s; }
         .rp-stat:hover { border-color: rgba(255,255,255,0.15); }
         .rp-stat.active { border-color: #b4915a; }
         .rp-stat-val { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 400; color: #b4915a; }
         .rp-stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #555; margin-top: 4px; }
 
         .rp-filters { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
-        .rp-select { padding: 10px 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #e8e4dc; font-size: 14px; cursor: pointer; }
+        .rp-select { padding: 10px 16px; background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text-primary); font-size: 14px; cursor: pointer; }
         .rp-select:focus { border-color: #b4915a; outline: none; }
-        .rp-select option, .rp-form-select option { background: #121215; color: #e8e4dc; }
+        .rp-select option, .rp-form-select option { background: #121215; color: var(--text-primary); }
 
         .rp-table-wrap { overflow-x: auto; }
         .rp-table { width: 100%; border-collapse: collapse; }
-        .rp-table th { text-align: left; padding: 12px 16px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #555; border-bottom: 1px solid rgba(255,255,255,0.06); }
-        .rp-table td { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 14px; }
-        .rp-table tr:hover td { background: rgba(255,255,255,0.02); cursor: pointer; }
+        .rp-table th { text-align: left; padding: 12px 16px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #555; border-bottom: 1px solid var(--border-main); }
+        .rp-table td { padding: 14px 16px; border-bottom: 1px solid var(--bg-card); font-size: 14px; }
+        .rp-table tr:hover td { background: var(--bg-card); cursor: pointer; }
 
         .rp-badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 500; }
         .rp-type-user { background: rgba(106,159,216,.15); color: #6a9fd8; }
@@ -152,7 +152,7 @@ export default function AdminReports() {
         .rp-btn-primary:hover { background: rgba(180,145,90,0.25); }
         .rp-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .rp-pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.06); }
+        .rp-pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-main); }
         .rp-pagination-info { font-size: 13px; color: #555; }
         .rp-pagination-controls { display: flex; gap: 8px; }
         .rp-page-btn { padding: 8px 16px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #888; border-radius: 6px; font-size: 13px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
@@ -162,33 +162,33 @@ export default function AdminReports() {
 
         .rp-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .rp-modal { background: #1a1a1e; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; }
-        .rp-modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.06); }
-        .rp-modal-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 400; color: #f0ebe0; }
+        .rp-modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border-main); }
+        .rp-modal-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 400; color: var(--text-primary); }
         .rp-modal-close { background: none; border: none; color: #555; cursor: pointer; font-size: 24px; padding: 4px; }
-        .rp-modal-close:hover { color: #e8e4dc; }
+        .rp-modal-close:hover { color: var(--text-primary); }
         .rp-modal-body { padding: 24px; }
-        .rp-modal-footer { display: flex; justify-content: flex-end; gap: 12px; padding: 20px 24px; border-top: 1px solid rgba(255,255,255,0.06); }
+        .rp-modal-footer { display: flex; justify-content: flex-end; gap: 12px; padding: 20px 24px; border-top: 1px solid var(--border-main); }
 
         .rp-detail-section { margin-bottom: 20px; }
         .rp-detail-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #555; margin-bottom: 6px; }
-        .rp-detail-value { font-size: 15px; color: #e8e4dc; }
+        .rp-detail-value { font-size: 15px; color: var(--text-primary); }
         .rp-detail-value.warning { color: #c8a86e; }
 
-        .rp-reporters { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 16px; margin-top: 16px; }
-        .rp-reporter-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .rp-reporters { background: var(--bg-card); border-radius: 12px; padding: 16px; margin-top: 16px; }
+        .rp-reporter-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--bg-card); }
         .rp-reporter-item:last-child { border-bottom: none; }
         .rp-reporter-name { font-weight: 500; }
         .rp-reporter-meta { font-size: 12px; color: #555; }
 
         .rp-form-group { margin-bottom: 16px; }
         .rp-form-label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: #555; margin-bottom: 8px; }
-        .rp-form-input, .rp-form-textarea, .rp-form-select { width: 100%; padding: 10px 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #e8e4dc; font-size: 14px; font-family: 'DM Sans', sans-serif; }
+        .rp-form-input, .rp-form-textarea, .rp-form-select { width: 100%; padding: 10px 14px; background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text-primary); font-size: 14px; font-family: 'DM Sans', sans-serif; }
         .rp-form-textarea { min-height: 100px; resize: vertical; }
         .rp-form-input:focus, .rp-form-textarea:focus, .rp-form-select:focus { border-color: #b4915a; outline: none; }
 
         .rp-empty { text-align: center; padding: 60px 20px; color: #555; font-size: 14px; }
         .rp-error { padding: 12px 16px; background: rgba(224,112,112,0.1); border: 1px solid rgba(224,112,112,0.3); border-radius: 8px; color: #e07070; font-size: 14px; margin-bottom: 20px; }
-        .rp-spinner { width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.06); border-top-color: #b4915a; animation: rspin 0.8s linear infinite; margin: 60px auto; display: block; }
+        .rp-spinner { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border-main); border-top-color: #b4915a; animation: rspin 0.8s linear infinite; margin: 60px auto; display: block; }
         @keyframes rspin { to { transform: rotate(360deg); } }
       `}</style>
 
@@ -408,7 +408,7 @@ export default function AdminReports() {
 
               {selectedReport.status === 'pending' && (
                 <>
-                  <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '20px', marginTop: '20px' }}>
+                  <div style={{ borderTop: '1px solid var(--border-main)', paddingTop: '20px', marginTop: '20px' }}>
                     <div className="rp-form-group">
                       <label className="rp-form-label">{t('admin.action')}</label>
                       <select
@@ -452,7 +452,7 @@ export default function AdminReports() {
               )}
 
               {selectedReport.status !== 'pending' && selectedReport.review && (
-                <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '20px', marginTop: '20px' }}>
+                <div style={{ borderTop: '1px solid var(--border-main)', paddingTop: '20px', marginTop: '20px' }}>
                   <div className="rp-detail-section">
                     <div className="rp-detail-label">{t('admin.reviewedBy')}</div>
                     <div className="rp-detail-value">

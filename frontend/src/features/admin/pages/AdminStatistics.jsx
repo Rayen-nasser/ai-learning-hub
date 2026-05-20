@@ -41,18 +41,18 @@ export default function AdminStatistics() {
     <AdminLayout title={`${t('admin.platform')} <em>${t('admin.statistics')}</em>`} subtitle={t('admin.platformPerformanceDesc')}>
       <style>{`
         .st-section { margin-bottom: 40px; }
-        .st-section-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 400; color: #f0ebe0; margin: 0 0 16px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .st-section-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 400; color: var(--text-primary); margin: 0 0 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-main); }
 
         .st-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
-        .st-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 20px; }
+        .st-card { background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 12px; padding: 20px; }
         .st-card-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #555; margin-bottom: 8px; }
         .st-card-value { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 400; color: #b4915a; }
         .st-card-sub { font-size: 12px; color: #555; margin-top: 4px; }
 
         .st-table-wrap { overflow-x: auto; }
         .st-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-        .st-table th { text-align: left; padding: 12px 16px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #555; border-bottom: 1px solid rgba(255,255,255,0.06); }
-        .st-table td { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 14px; }
+        .st-table th { text-align: left; padding: 12px 16px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #555; border-bottom: 1px solid var(--border-main); }
+        .st-table td { padding: 14px 16px; border-bottom: 1px solid var(--bg-card); font-size: 14px; }
 
         .st-badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 500; }
         .st-badge-success { background: rgba(74,168,125,0.15); color: #4aa87d; }
@@ -62,7 +62,7 @@ export default function AdminStatistics() {
 
         .st-empty { text-align: center; padding: 40px; color: #555; }
         .st-error { padding: 12px 16px; background: rgba(224,112,112,0.1); border: 1px solid rgba(224,112,112,0.3); border-radius: 8px; color: #e07070; margin-bottom: 20px; }
-        .st-spinner { width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.06); border-top-color: #b4915a; animation: stspin 0.8s linear infinite; margin: 60px auto; display: block; }
+        .st-spinner { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border-main); border-top-color: #b4915a; animation: stspin 0.8s linear infinite; margin: 60px auto; display: block; }
         @keyframes stspin { to { transform: rotate(360deg); } }
       `}</style>
 

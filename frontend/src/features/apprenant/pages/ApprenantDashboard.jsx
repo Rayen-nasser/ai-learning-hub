@@ -99,7 +99,7 @@ export default function ApprenantDashboard() {
             >
               <div style={{ color: stat.color }}>{stat.icon}</div>
               <div>
-                <div style={{ fontSize: 32, fontFamily: "'Cormorant Garamond', serif", color: '#f0ebe0', fontWeight: 400 }}>
+                <div style={{ fontSize: 32, fontFamily: "'Cormorant Garamond', serif", color: 'var(--text-primary)', fontWeight: 400 }}>
                   {loading ? '...' : stat.value}
                 </div>
                 <div style={{ fontSize: 13, color: '#555' }}>{stat.label}</div>
@@ -111,14 +111,14 @@ export default function ApprenantDashboard() {
 
       <AICourseRecommender />
 
-      <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 24, fontWeight: 400, color: '#f0ebe0', marginBottom: 20, marginTop: 40 }}>
+      <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 24, fontWeight: 400, color: 'var(--text-primary)', marginBottom: 20, marginTop: 40 }}>
         {t('apprenant.recentEnrollments')}
       </h2>
       
       {loading ? (
         <div style={{ textAlign: 'center', padding: 40, color: '#555' }}>{t('common.loading')}</div>
       ) : recentFormations.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: 60, background: 'rgba(255,255,255,0.02)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ textAlign: 'center', padding: 60, background: 'var(--bg-card)', borderRadius: 16, border: '1px solid var(--border-main)' }}>
           <div style={{ fontSize: 18, color: '#888', marginBottom: 8 }}>{t('apprenant.noEnrollments')}</div>
           <div style={{ fontSize: 14, color: '#555', marginBottom: 16 }}>{t('apprenant.startLearning')}</div>
           <Link to="/formations" style={{ color: '#7ca8d4', textDecoration: 'none', fontSize: 14 }}>
@@ -130,14 +130,14 @@ export default function ApprenantDashboard() {
           {recentFormations.filter(f => f.formationId).map(f => (
             <Link key={f._id} to={`/formations/${f.formationId}`} style={{ textDecoration: 'none' }}>
               <div style={{
-                background: 'rgba(255,255,255,0.02)',
-                border: '1px solid rgba(255,255,255,0.06)',
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border-main)',
                 borderRadius: 16,
                 overflow: 'hidden',
                 transition: 'all 0.2s',
               }}
               onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(124,168,212,0.3)'}
-              onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'}
+              onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border-main)'}
               >
                 <div style={{ height: 120, background: 'linear-gradient(135deg, rgba(124,168,212,0.2), rgba(100,140,180,0.1))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {f.formationImage ? (
@@ -149,7 +149,7 @@ export default function ApprenantDashboard() {
                   )}
                 </div>
                 <div style={{ padding: 20 }}>
-                  <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, color: '#f0ebe0', margin: '0 0 8px', fontWeight: 400 }}>
+                  <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, color: 'var(--text-primary)', margin: '0 0 8px', fontWeight: 400 }}>
                     {f.formationTitre || 'Course'}
                   </h3>
                   <div style={{ fontSize: 13, color: '#555' }}>

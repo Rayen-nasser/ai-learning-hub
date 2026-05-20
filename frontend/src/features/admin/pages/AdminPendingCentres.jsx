@@ -31,13 +31,13 @@ export default function AdminPendingCentres() {
     <AdminLayout title={`${t('admin.center')} <em>${t('admin.verification')}</em>`} subtitle={t('admin.reviewCenterApplications')}>
       <style>{`
         .ap-list { display: flex; flex-direction: column; gap: 16px; }
-        .ap-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 24px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 24px; transition: all 0.2s; }
-        .ap-card:hover { border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); }
+        .ap-card { background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 16px; padding: 24px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 24px; transition: all 0.2s; }
+        .ap-card:hover { border-color: rgba(255,255,255,0.1); background: var(--bg-card); }
 
-        .ap-logo { width: 64px; height: 64px; border-radius: 12px; background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid rgba(255,255,255,0.06); }
+        .ap-logo { width: 64px; height: 64px; border-radius: 12px; background: var(--bg-card); display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid var(--border-main); }
         .ap-logo img { width: 100%; height: 100%; object-fit: cover; }
 
-        .ap-info h3 { font-size: 18px; color: #e8e4dc; margin-bottom: 4px; }
+        .ap-info h3 { font-size: 18px; color: var(--text-primary); margin-bottom: 4px; }
         .ap-meta { display: flex; flex-wrap: wrap; gap: 12px; color: #555; font-size: 13px; }
         .ap-meta span { display: flex; align-items: center; gap: 6px; }
 
@@ -47,7 +47,7 @@ export default function AdminPendingCentres() {
         .ap-empty { text-align: center; padding: 100px 40px; color: #555; }
         .ap-empty-icon { font-size: 48px; margin-bottom: 20px; opacity: 0.3; }
 
-        .ap-spinner { width: 32px; height: 32px; border: 2px solid rgba(255,255,255,0.05); border-top-color: #b4915a; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 60px auto; }
+        .ap-spinner { width: 32px; height: 32px; border: 2px solid var(--bg-card); border-top-color: #b4915a; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 60px auto; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
         @media (max-width: 640px) {

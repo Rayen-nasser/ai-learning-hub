@@ -32,9 +32,9 @@ const MyInscriptions = () => {
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=DM+Sans:wght@300;400;500&display=swap');
-        .mi-root { font-family: 'DM Sans', sans-serif; color: #e8e4dc; padding-top: 48px; }
+        .mi-root { font-family: 'DM Sans', sans-serif; color: var(--text-primary); padding-top: 48px; }
         .mi-header { margin-bottom: 40px; }
-        .mi-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(32px, 4vw, 48px); font-weight: 300; color: #f0ebe0; margin: 0 0 8px; }
+        .mi-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(32px, 4vw, 48px); font-weight: 300; color: var(--text-primary); margin: 0 0 8px; }
         .mi-title em { font-style: italic; color: #b4915a; }
         .mi-subtitle { font-size: 14px; color: #555; }
 
@@ -43,7 +43,7 @@ const MyInscriptions = () => {
         .mi-card:hover { border-color: rgba(255,255,255,.12); }
         .mi-card-icon { width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0; background: linear-gradient(135deg, #111114, #1a1a22); border: 1px solid rgba(255,255,255,.06); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 20px; color: rgba(180,145,90,.5); }
         .mi-card-info { flex: 1; min-width: 0; }
-        .mi-card-name { font-size: 15px; font-weight: 500; color: #e8e4dc; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .mi-card-name { font-size: 15px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .mi-card-date { font-size: 12px; color: #444; }
         .mi-view-link { font-size: 12px; color: #b4915a; text-decoration: none; padding: 6px 14px; border: 1px solid rgba(180,145,90,.2); border-radius: 7px; transition: background .2s; flex-shrink: 0; }
         .mi-view-link:hover { background: rgba(180,145,90,.08); }

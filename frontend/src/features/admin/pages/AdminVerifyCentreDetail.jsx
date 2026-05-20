@@ -141,7 +141,7 @@ export default function AdminVerifyCentreDetail() {
         .av-row { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,.03); font-size:14px; }
         .av-row:last-child { border-bottom:none; }
         .av-row-label { color:#555; flex-shrink:0; }
-        .av-row-value { color:#e8e4dc; font-weight:500; text-align:right; word-break:break-word; }
+        .av-row-value { color:var(--text-primary); font-weight:500; text-align:right; word-break:break-word; }
 
         /* ── doc cards ── */
         .av-docs { display:flex; flex-direction:column; gap:12px; }
@@ -151,7 +151,7 @@ export default function AdminVerifyCentreDetail() {
         .av-doc-header { display:flex; align-items:center; justify-content:space-between; gap:12px; }
         .av-doc-left { display:flex; align-items:center; gap:12px; }
         .av-doc-icon { width:38px; height:38px; border-radius:9px; background:rgba(180,145,90,.1); display:flex; align-items:center; justify-content:center; color:#b4915a; flex-shrink:0; }
-        .av-doc-label { font-size:14px; color:#e8e4dc; font-weight:500; }
+        .av-doc-label { font-size:14px; color:var(--text-primary); font-weight:500; }
         .av-doc-type  { font-size:11px; color:#555; margin-top:2px; text-transform:uppercase; letter-spacing:.05em; }
         .av-doc-status-pill { padding:3px 10px; border-radius:20px; font-size:10px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; }
         .av-doc-actions { display:flex; gap:8px; margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,.05); }
@@ -167,7 +167,7 @@ export default function AdminVerifyCentreDetail() {
         /* ── sidebar decision ── */
         .av-sidebar { position:sticky; top:100px; }
         .av-decision { background:rgba(255,255,255,.025); border:1px solid rgba(255,255,255,.07); border-radius:18px; padding:24px; }
-        .av-decision-title { font-family:'Cormorant Garamond',serif; font-size:22px; color:#e8e4dc; margin-bottom:8px; }
+        .av-decision-title { font-family:'Cormorant Garamond',serif; font-size:22px; color:var(--text-primary); margin-bottom:8px; }
         .av-decision-hint  { font-size:13px; color:#555; margin-bottom:20px; line-height:1.5; }
 
         .av-summary { background:rgba(0,0,0,.2); border-radius:10px; padding:14px; margin-bottom:20px; display:flex; flex-direction:column; gap:8px; }
@@ -183,7 +183,7 @@ export default function AdminVerifyCentreDetail() {
 
         .av-reject-box { margin-top:4px; animation:slideDown .25s ease; }
         @keyframes slideDown { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
-        .av-textarea { width:100%; background:rgba(255,255,255,.04); border:1px solid rgba(224,112,112,.3); border-radius:10px; padding:12px; color:#e8e4dc; font-size:13px; font-family:'DM Sans',sans-serif; margin-bottom:10px; resize:vertical; min-height:90px; box-sizing:border-box; }
+        .av-textarea { width:100%; background:rgba(255,255,255,.04); border:1px solid rgba(224,112,112,.3); border-radius:10px; padding:12px; color:var(--text-primary); font-size:13px; font-family:'DM Sans',sans-serif; margin-bottom:10px; resize:vertical; min-height:90px; box-sizing:border-box; }
         .av-textarea:focus { outline:none; border-color:#e07070; }
         .av-btn-reject-confirm { background:#e07070; color:#0c0c0e; }
         .av-btn-reject-confirm:hover:not(:disabled) { background:#d05a5a; }

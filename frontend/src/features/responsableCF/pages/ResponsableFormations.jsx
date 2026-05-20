@@ -51,9 +51,9 @@ function ConfirmModal({ formation, onConfirm, onCancel }) {
               <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v6M14 11v6" /><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
             </svg>
           </div>
-          <div style={{ fontSize: 17, fontWeight: 500, color: '#f0ebe0', marginBottom: 8 }}>Delete formation?</div>
+          <div style={{ fontSize: 17, fontWeight: 500, color: 'var(--text-primary)', marginBottom: 8 }}>Delete formation?</div>
           <div style={{ fontSize: 14, color: '#888', lineHeight: 1.5 }}>
-            <strong style={{ color: '#ccc' }}>{formation?.titre}</strong> will be permanently removed. This cannot be undone.
+            <strong style={{ color: 'var(--text-secondary)' }}>{formation?.titre}</strong> will be permanently removed. This cannot be undone.
           </div>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 12, padding: '0 24px 24px' }}>
@@ -121,7 +121,7 @@ function FormationCard({ formation, onEdit, onDelete, onAssign }) {
                 </div>
               ))}
               {formateurs.length > 4 && (
-                <div style={{ ...styles.avatarSm, background: 'rgba(255,255,255,0.06)', color: '#888', fontSize: 10, border: '2px solid rgba(255,255,255,0.1)' }}>
+                <div style={{ ...styles.avatarSm, background: 'var(--border-main)', color: '#888', fontSize: 10, border: '2px solid rgba(255,255,255,0.1)' }}>
                   +{formateurs.length - 4}
                 </div>
               )}
@@ -277,16 +277,16 @@ function FormationModal({ editing, centres, categories, allSkills, onClose, onSu
           {/* Required Skills */}
           <div style={styles.field}>
             <label style={styles.fieldLabel}>Required Skills</label>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', maxHeight: '150px', overflowY: 'auto', padding: '12px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', maxHeight: '150px', overflowY: 'auto', padding: '12px', background: 'var(--bg-card)', border: '1px solid var(--border-main)', borderRadius: '12px' }}>
               {(allSkills || []).map(s => {
                 const isSelected = formData.requiredSkills.includes(s._id);
                 return (
                   <label key={s._id} style={{ 
                     display: 'flex', alignItems: 'center', gap: '6px', 
                     padding: '5px 12px', 
-                    background: isSelected ? 'rgba(200,168,110,0.12)' : 'rgba(255,255,255,0.03)', 
+                    background: isSelected ? 'rgba(200,168,110,0.12)' : 'var(--bg-card)', 
                     border: '1px solid',
-                    borderColor: isSelected ? '#c8a86e' : 'rgba(255,255,255,0.06)', 
+                    borderColor: isSelected ? '#c8a86e' : 'var(--border-main)', 
                     borderRadius: '16px', 
                     cursor: 'pointer', 
                     transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -306,7 +306,7 @@ function FormationModal({ editing, centres, categories, allSkills, onClose, onSu
                     />
                     <span style={{ 
                       fontSize: '11px', 
-                      color: isSelected ? '#f0ebe0' : '#555',
+                      color: isSelected ? 'var(--text-primary)' : '#555',
                       fontWeight: isSelected ? '500' : '400',
                       display: 'flex',
                       alignItems: 'center',
@@ -368,7 +368,7 @@ function AssignModal({ formation, formateurs, onClose, onAssign, loadingSuitable
           
           {loadingSuitable ? (
             <div style={{ textAlign: 'center', padding: '40px 0' }}>
-              <div style={{ width: 24, height: 24, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.06)', borderTopColor: '#c8a86e', animation: 'toastIn .8s linear infinite', margin: '0 auto' }} />
+              <div style={{ width: 24, height: 24, borderRadius: '50%', border: '2px solid var(--border-main)', borderTopColor: '#c8a86e', animation: 'toastIn .8s linear infinite', margin: '0 auto' }} />
             </div>
           ) : formateurs.length === 0
             ? <div style={{ textAlign: 'center', padding: '40px 0', color: '#555' }}>
@@ -401,7 +401,7 @@ function AssignModal({ formation, formateurs, onClose, onAssign, loadingSuitable
                           }
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 14, color: isSelected ? '#c8a86e' : '#e8e4dc', fontWeight: 500, transition: 'color .2s', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <div style={{ fontSize: 14, color: isSelected ? '#c8a86e' : 'var(--text-primary)', fontWeight: 500, transition: 'color .2s', display: 'flex', alignItems: 'center', gap: '8px' }}>
                             {f.prenom} {f.nom}
                             {f.matchCount > 0 && (
                                <span style={{ 
@@ -671,7 +671,7 @@ export default function ResponsableFormations() {
           { val: formations.filter(f => f.prix === 0).length, label: 'Free courses' },
           { val: uniqueFormateurs.size, label: 'Formateurs assigned' },
         ].map(({ val, label }) => (
-          <div key={label} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '14px 18px' }}>
+          <div key={label} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-main)', borderRadius: 10, padding: '14px 18px' }}>
             <div style={{ fontSize: 26, fontFamily: "'Cormorant Garamond', serif", color: '#c8a86e' }}>{val}</div>
             <div style={{ fontSize: 12, color: '#555', marginTop: 2 }}>{label}</div>
           </div>
@@ -684,7 +684,7 @@ export default function ResponsableFormations() {
 
       {/* Grid */}
       {loading ? (
-        <div style={{ width: 32, height: 32, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.06)', borderTopColor: '#c8a86e', animation: 'toastIn .8s linear infinite', margin: '60px auto' }} />
+        <div style={{ width: 32, height: 32, borderRadius: '50%', border: '2px solid var(--border-main)', borderTopColor: '#c8a86e', animation: 'toastIn .8s linear infinite', margin: '60px auto' }} />
       ) : filtered.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '60px 20px' }}>
           <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(200,168,110,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
@@ -752,38 +752,38 @@ export default function ResponsableFormations() {
 const styles = {
   overlay: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 },
   modal: { background: '#18181c', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, width: '100%', maxWidth: 580, maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' },
-  modalHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 22px', borderBottom: '1px solid rgba(255,255,255,0.07)', flexShrink: 0 },
-  modalTitle: { fontSize: 20, fontWeight: 500, color: '#f0ebe0', margin: 0 },
+  modalHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 22px', borderBottom: '1px solid var(--border-main)', flexShrink: 0 },
+  modalTitle: { fontSize: 20, fontWeight: 500, color: 'var(--text-primary)', margin: 0 },
   modalBody: { padding: '20px 22px', overflowY: 'auto', flex: 1 },
-  modalFooter: { display: 'flex', justifyContent: 'flex-end', gap: 10, padding: '16px 22px', borderTop: '1px solid rgba(255,255,255,0.07)', flexShrink: 0 },
+  modalFooter: { display: 'flex', justifyContent: 'flex-end', gap: 10, padding: '16px 22px', borderTop: '1px solid var(--border-main)', flexShrink: 0 },
   closeBtn: { background: 'none', border: 'none', color: '#555', cursor: 'pointer', fontSize: 22, width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 6, lineHeight: 1 },
   field: { marginBottom: 16 },
   fieldLabel: { display: 'block', fontSize: 11, textTransform: 'uppercase', letterSpacing: '.08em', color: '#555', marginBottom: 6 },
   fieldError: { fontSize: 12, color: '#e07070', marginTop: 4 },
-  input: { width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: '#e8e4dc', fontSize: 14, fontFamily: 'inherit', outline: 'none' },
+  input: { width: '100%', padding: '10px 14px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: 'var(--text-primary)', fontSize: 14, fontFamily: 'inherit', outline: 'none' },
   inputError: { borderColor: '#e07070' },
-  textarea: { width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: '#e8e4dc', fontSize: 14, fontFamily: 'inherit', outline: 'none', minHeight: 90, resize: 'vertical' },
-  select: { padding: '10px 14px', background: '#1c1c21', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: '#e8e4dc', fontSize: 13, fontFamily: 'inherit', cursor: 'pointer', outline: 'none', colorScheme: 'dark' },
+  textarea: { width: '100%', padding: '10px 14px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: 'var(--text-primary)', fontSize: 14, fontFamily: 'inherit', outline: 'none', minHeight: 90, resize: 'vertical' },
+  select: { padding: '10px 14px', background: '#1c1c21', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: 'var(--text-primary)', fontSize: 13, fontFamily: 'inherit', cursor: 'pointer', outline: 'none', colorScheme: 'dark' },
   formRow: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 },
-  fileDrop: { display: 'flex', alignItems: 'center', width: '100%', padding: '14px 16px', background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.15)', borderRadius: 8, cursor: 'pointer' },
+  fileDrop: { display: 'flex', alignItems: 'center', width: '100%', padding: '14px 16px', background: 'var(--bg-card)', border: '1px dashed rgba(255,255,255,0.15)', borderRadius: 8, cursor: 'pointer' },
   btnPrimary: { padding: '9px 22px', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer', border: 'none', background: 'linear-gradient(135deg, #c8a86e, #b4915a)', color: '#0c0c0e', fontFamily: 'inherit' },
   btnCancel: { padding: '9px 18px', borderRadius: 8, fontSize: 14, cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#888', fontFamily: 'inherit' },
   alertWarn: { padding: '12px 16px', background: 'rgba(224,180,80,0.1)', border: '1px solid rgba(224,180,80,0.3)', borderRadius: 8, color: '#e0b450', fontSize: 14, marginBottom: 20 },
-  card: { background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'border-color .2s, transform .2s' },
+  card: { background: 'var(--bg-card)', border: '1px solid var(--border-main)', borderRadius: 14, overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'border-color .2s, transform .2s' },
   cardImg: { width: '100%', height: 140, background: 'linear-gradient(135deg,rgba(200,168,110,0.12),rgba(180,145,90,0.06))', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' },
   badge: { position: 'absolute', top: 10, right: 10, padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 500 },
   badgeFree: { background: 'rgba(74,168,125,0.18)', color: '#4aa87d', border: '1px solid rgba(74,168,125,0.3)' },
   badgePaid: { background: 'rgba(200,168,110,0.15)', color: '#c8a86e', border: '1px solid rgba(200,168,110,0.25)' },
   cardBody: { padding: '16px 18px', flex: 1, display: 'flex', flexDirection: 'column', gap: 8 },
-  cardTitle: { fontSize: 16, fontWeight: 500, color: '#f0ebe0', margin: 0, lineHeight: 1.3 },
+  cardTitle: { fontSize: 16, fontWeight: 500, color: 'var(--text-primary)', margin: 0, lineHeight: 1.3 },
   cardDesc: { fontSize: 13, color: '#555', lineHeight: 1.5, margin: 0 },
   metaRow: { display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' },
   chip: { display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#666' },
   formateurLabel: { fontSize: 11, textTransform: 'uppercase', letterSpacing: '.07em', color: '#555', marginBottom: 6 },
   avatarSm: { width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg,#c8a86e,#b4915a)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 600, color: '#0c0c0e', flexShrink: 0, overflow: 'hidden', border: '2px solid #1a1a1e' },
   cardActions: { display: 'flex', gap: 6, marginTop: 4 },
-  actionBtn: { flex: 1, padding: '7px 0', borderRadius: 7, fontSize: 12, cursor: 'pointer', border: '1px solid rgba(255,255,255,0.08)', background: 'transparent', fontFamily: 'inherit', fontWeight: 500, transition: 'background .2s' },
-  formateurItem: { display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 8, marginBottom: 7, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', cursor: 'pointer', transition: 'all .15s' },
+  actionBtn: { flex: 1, padding: '7px 0', borderRadius: 7, fontSize: 12, cursor: 'pointer', border: '1px solid var(--border-main)', background: 'transparent', fontFamily: 'inherit', fontWeight: 500, transition: 'background .2s' },
+  formateurItem: { display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 8, marginBottom: 7, background: 'var(--bg-card)', border: '1px solid var(--border-main)', cursor: 'pointer', transition: 'all .15s' },
   formateurItemSelected: { background: 'rgba(200,168,110,0.08)', border: '1px solid rgba(200,168,110,0.5)' },
   formateurAvatar: { width: 38, height: 38, borderRadius: '50%', background: 'linear-gradient(135deg,#c8a86e,#b4915a)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 600, color: '#0c0c0e', flexShrink: 0, overflow: 'hidden' },
   checkCircle: { width: 20, height: 20, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 11 },

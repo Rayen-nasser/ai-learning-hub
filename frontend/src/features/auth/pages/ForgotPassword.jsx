@@ -41,7 +41,7 @@ const ForgotPassword = () => {
 
         .fp-root {
           min-height: 100vh; display: flex; align-items: center; justify-content: center;
-          background: #0c0c0e; font-family: 'DM Sans', sans-serif; color: #e8e4dc; padding: 20px;
+          background: #0c0c0e; font-family: 'DM Sans', sans-serif; color: var(--text-primary); padding: 20px;
         }
         .fp-card {
           width: 100%; max-width: 420px; background: rgba(255,255,255,.02);
@@ -56,7 +56,7 @@ const ForgotPassword = () => {
           background: rgba(125,191,125,.1); color: #7dbf7d;
         }
         .fp-title {
-          font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 400; color: #f0ebe0; margin-bottom: 12px;
+          font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 400; color: var(--text-primary); margin-bottom: 12px;
         }
         .fp-subtitle { font-size: 14px; color: #888; margin-bottom: 32px; line-height: 1.5; }
         
@@ -68,7 +68,7 @@ const ForgotPassword = () => {
 
         .fp-input {
           width: 100%; padding: 14px 16px; background: rgba(255,255,255,.04);
-          border: 1px solid rgba(255,255,255,.1); border-radius: 8px; font-size: 14px; color: #e8e4dc;
+          border: 1px solid rgba(255,255,255,.1); border-radius: 8px; font-size: 14px; color: var(--text-primary);
           font-family: 'DM Sans', sans-serif; transition: all .2s; outline: none; margin-bottom: 24px; box-sizing: border-box;
         }
         .fp-input:focus { border-color: #b4915a; background: rgba(180,145,90,.05); }
@@ -80,7 +80,7 @@ const ForgotPassword = () => {
           cursor: pointer; transition: opacity .2s; display: flex; align-items: center; justify-content: center; gap: 8px;
         }
         .fp-btn-outline {
-          background: transparent; border: 1px solid rgba(255,255,255,.15); color: #e8e4dc; margin-top: 16px;
+          background: transparent; border: 1px solid rgba(255,255,255,.15); color: var(--text-primary); margin-top: 16px;
         }
         .fp-btn:hover:not(:disabled) { opacity: .9; }
         .fp-btn-outline:hover:not(:disabled) { background: rgba(255,255,255,.05); }
@@ -98,7 +98,7 @@ const ForgotPassword = () => {
           padding: 16px; margin-bottom: 24px; text-align: left;
         }
         .fp-test-title { font-size: 12px; color: #c8a86e; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
-        .fp-test-code { font-size: 12px; color: #e8e4dc; word-break: break-all; margin-bottom: 16px; display: block; font-family: monospace; }
+        .fp-test-code { font-size: 12px; color: var(--text-primary); word-break: break-all; margin-bottom: 16px; display: block; font-family: monospace; }
         .fp-test-link { font-size: 13px; color: #b4915a; text-decoration: underline; }
       `}</style>
       <div className="fp-root">
@@ -108,7 +108,7 @@ const ForgotPassword = () => {
               <div className="fp-icon fp-icon-success">✓</div>
               <h1 className="fp-title">{t('auth.checkEmail')}</h1>
               <p className="fp-subtitle">
-                {t('auth.resetSent')} <strong style={{color:'#e8e4dc'}}>{email}</strong>
+                {t('auth.resetSent')} <strong style={{color:'var(--text-primary)'}}>{email}</strong>
               </p>
               
               {resetToken && (

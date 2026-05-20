@@ -82,7 +82,7 @@ const LoginForm = () => {
           display: flex;
           background: #0c0c0e;
           font-family: 'DM Sans', sans-serif;
-          color: #e8e4dc;
+          color: var(--text-primary);
         }
 
         /* ── Left panel ── */
@@ -116,7 +116,7 @@ const LoginForm = () => {
         .lf-panel-headline {
           font-family: 'Cormorant Garamond', serif;
           font-size: clamp(36px, 4vw, 52px); font-weight: 300; line-height: 1.1;
-          color: #f0ebe0; margin-bottom: 24px;
+          color: var(--text-primary); margin-bottom: 24px;
         }
         .lf-panel-headline em { font-style: italic; color: #b4915a; }
         .lf-panel-body {
@@ -138,7 +138,7 @@ const LoginForm = () => {
         }
         .lf-title {
           font-family: 'Cormorant Garamond', serif;
-          font-size: 32px; font-weight: 400; color: #f0ebe0; margin-bottom: 6px;
+          font-size: 32px; font-weight: 400; color: var(--text-primary); margin-bottom: 6px;
         }
         .lf-subtitle { font-size: 14px; color: #666; margin-bottom: 36px; }
 
@@ -161,7 +161,7 @@ const LoginForm = () => {
         .lf-input {
           width: 100%; padding: 14px 16px; background: rgba(255,255,255,.04);
           border: 1px solid rgba(255,255,255,.1); border-radius: 8px;
-          font-size: 14px; color: #e8e4dc; font-family: 'DM Sans', sans-serif;
+          font-size: 14px; color: var(--text-primary); font-family: 'DM Sans', sans-serif;
           transition: border-color .2s, background .2s; outline: none; box-sizing: border-box;
         }
         .lf-input::placeholder { color: #444; }

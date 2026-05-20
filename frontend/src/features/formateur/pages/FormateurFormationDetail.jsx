@@ -141,7 +141,7 @@ export default function FormateurFormationDetail() {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
           Back to formations
         </Link>
-        <div style={{ display: 'flex', background: 'rgba(255,255,255,0.03)', padding: 4, borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ display: 'flex', background: 'var(--bg-card)', padding: 4, borderRadius: 10, border: '1px solid var(--border-main)' }}>
           <button 
             onClick={() => setActiveTab('lessons')}
             style={{
@@ -192,7 +192,7 @@ export default function FormateurFormationDetail() {
 
       {activeTab === 'lessons' ? (
         lessons.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 60, background: 'rgba(255,255,255,0.02)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ textAlign: 'center', padding: 60, background: 'var(--bg-card)', borderRadius: 16, border: '1px solid var(--border-main)' }}>
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.5" style={{ marginBottom: 16 }}>
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
               <polyline points="14 2 14 8 20 8"/>
@@ -204,8 +204,8 @@ export default function FormateurFormationDetail() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {lessons.map((lesson, index) => (
               <div key={lesson._id} style={{
-                background: 'rgba(255,255,255,0.02)',
-                border: '1px solid rgba(255,255,255,0.06)',
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border-main)',
                 borderRadius: 12,
                 padding: 20,
                 display: 'flex',
@@ -214,14 +214,14 @@ export default function FormateurFormationDetail() {
                 transition: 'all 0.15s',
               }}
               onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(200,168,110,0.3)'}
-              onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'}
+              onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border-main)'}
               >
                 <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(200,168,110,0.1)', color: '#c8a86e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 600, flexShrink: 0 }}>
                   {lesson.ordre || index + 1}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <Link to={`/formateur/formations/${id}/lessons/${lesson._id}`} style={{ textDecoration: 'none' }}>
-                    <div style={{ fontSize: 16, fontWeight: 500, color: '#f0ebe0', marginBottom: 4 }}>{lesson.titre}</div>
+                    <div style={{ fontSize: 16, fontWeight: 500, color: 'var(--text-primary)', marginBottom: 4 }}>{lesson.titre}</div>
                   </Link>
                   {lesson.description && (
                     <div style={{ fontSize: 13, color: '#666', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -260,7 +260,7 @@ export default function FormateurFormationDetail() {
       ) : (
         /* REVIEWS TAB */
         reviews.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 60, background: 'rgba(255,255,255,0.02)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ textAlign: 'center', padding: 60, background: 'var(--bg-card)', borderRadius: 16, border: '1px solid var(--border-main)' }}>
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.5" style={{ marginBottom: 16 }}>
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
             </svg>
@@ -271,8 +271,8 @@ export default function FormateurFormationDetail() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
             {reviews.map(review => (
               <div key={review._id} style={{
-                background: 'rgba(255,255,255,0.02)',
-                border: '1px solid rgba(255,255,255,0.06)',
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border-main)',
                 borderRadius: 12,
                 padding: 20,
               }}>
@@ -282,7 +282,7 @@ export default function FormateurFormationDetail() {
                       {review.apprenantId?.prenom?.[0] || 'A'}
                     </div>
                     <div>
-                      <div style={{ fontSize: 14, fontWeight: 500, color: '#f0ebe0' }}>
+                      <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-primary)' }}>
                         {review.apprenantId?.prenom} {review.apprenantId?.nom}
                       </div>
                       <div style={{ fontSize: 11, color: '#555' }}>
@@ -310,8 +310,8 @@ export default function FormateurFormationDetail() {
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={() => setShowModal(false)}>
           <div style={{ background: '#1a1a1e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, maxWidth: 480, width: '100%' }} onClick={e => e.stopPropagation()}>
-            <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: 24, color: '#f0ebe0', fontWeight: 400 }}>
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-main)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: 24, color: 'var(--text-primary)', fontWeight: 400 }}>
                 {editingLesson ? 'Edit Lesson' : 'Add Lesson'}
               </h2>
               <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: '#555', fontSize: 24, cursor: 'pointer' }}>&times;</button>
@@ -320,14 +320,14 @@ export default function FormateurFormationDetail() {
               <div style={{ padding: 24 }}>
                 <div style={{ marginBottom: 16 }}>
                   <label style={{ display: 'block', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#555', marginBottom: 8 }}>Title *</label>
-                  <input type="text" value={formData.titre} onChange={e => setFormData(d => ({ ...d, titre: e.target.value }))} required style={{ width: '100%', padding: '12px 16px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: '#e8e4dc', fontSize: 14, fontFamily: "'DM Sans', sans-serif", boxSizing: 'border-box' }} />
+                  <input type="text" value={formData.titre} onChange={e => setFormData(d => ({ ...d, titre: e.target.value }))} required style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: 'var(--text-primary)', fontSize: 14, fontFamily: "'DM Sans', sans-serif", boxSizing: 'border-box' }} />
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#555', marginBottom: 8 }}>Description</label>
-                  <textarea value={formData.description} onChange={e => setFormData(d => ({ ...d, description: e.target.value }))} rows={3} style={{ width: '100%', padding: '12px 16px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: '#e8e4dc', fontSize: 14, fontFamily: "'DM Sans', sans-serif", resize: 'vertical', boxSizing: 'border-box' }} />
+                  <textarea value={formData.description} onChange={e => setFormData(d => ({ ...d, description: e.target.value }))} rows={3} style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: 'var(--text-primary)', fontSize: 14, fontFamily: "'DM Sans', sans-serif", resize: 'vertical', boxSizing: 'border-box' }} />
                 </div>
               </div>
-              <div style={{ padding: '20px 24px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+              <div style={{ padding: '20px 24px', borderTop: '1px solid var(--border-main)', display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
                 <button type="button" onClick={() => setShowModal(false)} style={{ padding: '10px 20px', borderRadius: 8, fontSize: 14, cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#888', fontFamily: "'DM Sans', sans-serif" }}>Cancel</button>
                 <button type="submit" disabled={saving} style={{ padding: '10px 20px', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer', border: 'none', background: 'linear-gradient(135deg, #c8a86e, #b4915a)', color: '#0c0c0e', fontFamily: "'DM Sans', sans-serif", opacity: saving ? 0.5 : 1 }}>
                   {saving ? 'Saving...' : (editingLesson ? 'Update' : 'Create')}
@@ -346,7 +346,7 @@ export default function FormateurFormationDetail() {
                 <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
               </svg>
             </div>
-            <h3 style={{ margin: '0 0 8px', color: '#f0ebe0', fontWeight: 500 }}>Delete Lesson?</h3>
+            <h3 style={{ margin: '0 0 8px', color: 'var(--text-primary)', fontWeight: 500 }}>Delete Lesson?</h3>
             <p style={{ margin: '0 0 20px', color: '#888', fontSize: 14 }}>Are you sure you want to delete "{confirmDelete.titre}"? This will also delete all content in this lesson.</p>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
               <button onClick={() => setConfirmDelete(null)} style={{ padding: '10px 20px', borderRadius: 8, fontSize: 14, cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#888', fontFamily: "'DM Sans', sans-serif" }}>Cancel</button>

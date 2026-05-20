@@ -69,7 +69,7 @@ export default function AdminCentres() {
       <style>{`
         .acm-bar { display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; margin-bottom:28px; }
         .acm-search { flex:1; min-width:200px; position:relative; }
-        .acm-search input { width:100%; padding:10px 16px 10px 40px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); border-radius:10px; color:#e8e4dc; font-size:14px; font-family:'DM Sans',sans-serif; }
+        .acm-search input { width:100%; padding:10px 16px 10px 40px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); border-radius:10px; color:var(--text-primary); font-size:14px; font-family:'DM Sans',sans-serif; }
         .acm-search input:focus { border-color:#b4915a; outline:none; }
         .acm-search input::placeholder { color:#555; }
         .acm-search svg { position:absolute; left:12px; top:50%; transform:translateY(-50%); opacity:.4; pointer-events:none; }
@@ -93,7 +93,7 @@ export default function AdminCentres() {
         .acm-status-pill { position:absolute; top:12px; right:12px; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; letter-spacing:.04em; }
 
         .acm-card-body { padding:18px; flex:1; display:flex; flex-direction:column; gap:6px; }
-        .acm-card-name { font-size:17px; font-weight:500; color:#f0ebe0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .acm-card-name { font-size:17px; font-weight:500; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         .acm-card-meta { font-size:12px; color:#555; display:flex; flex-direction:column; gap:3px; }
         .acm-card-meta span { display:flex; align-items:center; gap:6px; }
 
@@ -118,12 +118,12 @@ export default function AdminCentres() {
         .acm-overlay { position:fixed; inset:0; background:rgba(0,0,0,.75); backdrop-filter:blur(6px); z-index:1000; display:flex; align-items:center; justify-content:center; padding:20px; }
         .acm-confirm { background:#1a1a1e; border:1px solid rgba(255,255,255,.1); border-radius:16px; max-width:420px; width:100%; padding:32px; text-align:center; }
         .acm-confirm-icon { width:56px; height:56px; border-radius:50%; background:rgba(224,112,112,.1); color:#e07070; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; font-size:26px; border:1px solid rgba(224,112,112,.2); }
-        .acm-confirm h3 { font-family:'Cormorant Garamond',serif; font-size:24px; color:#e8e4dc; margin-bottom:10px; }
+        .acm-confirm h3 { font-family:'Cormorant Garamond',serif; font-size:24px; color:var(--text-primary); margin-bottom:10px; }
         .acm-confirm p  { color:#666; font-size:14px; margin-bottom:28px; }
         .acm-confirm-btns { display:flex; gap:12px; }
         .acm-confirm-btns button { flex:1; padding:12px; border-radius:10px; font-weight:600; cursor:pointer; transition:all .2s; font-family:'DM Sans',sans-serif; }
         .acm-btn-cancel-conf { background:none; border:1px solid rgba(255,255,255,.12); color:#888; }
-        .acm-btn-cancel-conf:hover { color:#e8e4dc; }
+        .acm-btn-cancel-conf:hover { color:var(--text-primary); }
         .acm-btn-del-conf { background:#e07070; border:none; color:#0c0c0e; }
         .acm-btn-del-conf:hover { opacity:.9; }
         .acm-btn-del-conf:disabled { opacity:.5; cursor:not-allowed; }

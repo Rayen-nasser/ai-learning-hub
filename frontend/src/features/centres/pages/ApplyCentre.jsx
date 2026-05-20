@@ -113,18 +113,18 @@ export default function ApplyCentre() {
         .ac-req-dot { width: 6px; height: 6px; border-radius: 50%; background: #b4915a; }
 
         .ac-form { display: flex; flex-direction: column; gap: 32px; }
-        .ac-section { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 20px; padding: 32px; }
-        .ac-section-title { font-size: 20px; color: #e8e4dc; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 12px; }
+        .ac-section { background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 20px; padding: 32px; }
+        .ac-section-title { font-size: 20px; color: var(--text-primary); margin-bottom: 24px; border-bottom: 1px solid var(--border-main); padding-bottom: 12px; }
 
         .ac-field-group { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
         .ac-field { display: flex; flex-direction: column; gap: 8px; }
         .ac-field.full { grid-column: span 2; }
         .ac-field label { font-size: 14px; color: #aaa; font-weight: 500; }
         .ac-field input, .ac-field textarea { 
-          background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; 
-          padding: 12px 16px; color: #e8e4dc; font-size: 15px; transition: all 0.2s;
+          background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; 
+          padding: 12px 16px; color: var(--text-primary); font-size: 15px; transition: all 0.2s;
         }
-        .ac-field input:focus, .ac-field textarea:focus { border-color: #b4915a; outline: none; background: rgba(255,255,255,0.06); }
+        .ac-field input:focus, .ac-field textarea:focus { border-color: #b4915a; outline: none; background: var(--border-main); }
         .ac-field input::placeholder { color: #555; }
 
         .ac-file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
@@ -136,7 +136,7 @@ export default function ApplyCentre() {
         .ac-file-input.has-file { border-style: solid; border-color: #7dbf7d; background: rgba(125,191,125,0.03); }
         .ac-file-input input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
         .ac-file-label { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-        .ac-file-name { font-size: 14px; color: #e8e4dc; font-weight: 500; }
+        .ac-file-name { font-size: 14px; color: var(--text-primary); font-weight: 500; }
         .ac-file-desc { font-size: 12px; color: #555; }
         .ac-file-status { font-size: 12px; color: #7dbf7d; margin-top: 4px; font-weight: 600; }
 
@@ -160,7 +160,7 @@ export default function ApplyCentre() {
         .ac-success-overlay { position: fixed; inset: 0; background: #0c0c0e; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .ac-success-card { max-width: 500px; text-align: center; }
         .ac-success-icon { width: 80px; height: 80px; border-radius: 50%; background: rgba(125,191,125,0.1); color: #7dbf7d; display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 0 auto 24px; border: 2px solid #7dbf7d; }
-        .ac-success-card h2 { font-family: 'Cormorant Garamond', serif; font-size: 32px; color: #e8e4dc; margin-bottom: 16px; }
+        .ac-success-card h2 { font-family: 'Cormorant Garamond', serif; font-size: 32px; color: var(--text-primary); margin-bottom: 16px; }
         .ac-success-card p { color: #888; margin-bottom: 32px; line-height: 1.6; }
 
         @media (max-width: 640px) {

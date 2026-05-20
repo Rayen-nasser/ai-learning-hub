@@ -111,16 +111,16 @@ export default function AdminDashboard() {
     <AdminLayout title={`${t('admin.user')} <em>${t('admin.management')}</em>`} subtitle={t('admin.manageUsersDesc')}>
       <style>{`
         .au-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-bottom: 32px; }
-        .au-stat { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 16px 20px; }
+        .au-stat { background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 12px; padding: 16px 20px; }
         .au-stat-val { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 400; color: #b4915a; }
         .au-stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #555; margin-top: 4px; }
 
         .au-filters { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; align-items: center; }
-        .au-search { flex: 1; min-width: 200px; padding: 10px 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #e8e4dc; font-size: 14px; outline: none; }
+        .au-search { flex: 1; min-width: 200px; padding: 10px 16px; background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text-primary); font-size: 14px; outline: none; }
         .au-search:focus { border-color: #b4915a; }
         .au-search::placeholder { color: #555; }
 
-        .au-tabs { display: flex; gap: 4px; background: rgba(255,255,255,0.03); border-radius: 8px; padding: 4px; }
+        .au-tabs { display: flex; gap: 4px; background: var(--bg-card); border-radius: 8px; padding: 4px; }
         .au-tab { padding: 8px 16px; border: none; background: transparent; color: #555; font-size: 13px; border-radius: 6px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
         .au-tab:hover { color: #888; }
         .au-tab.active { background: rgba(180,145,90,0.15); color: #b4915a; }
@@ -128,14 +128,14 @@ export default function AdminDashboard() {
 
         .au-table-wrap { overflow-x: auto; }
         .au-table { width: 100%; border-collapse: collapse; }
-        .au-table th { text-align: left; padding: 12px 16px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #555; border-bottom: 1px solid rgba(255,255,255,0.06); }
-        .au-table td { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 14px; }
-        .au-table tr:hover td { background: rgba(255,255,255,0.02); }
+        .au-table th { text-align: left; padding: 12px 16px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #555; border-bottom: 1px solid var(--border-main); }
+        .au-table td { padding: 14px 16px; border-bottom: 1px solid var(--bg-card); font-size: 14px; }
+        .au-table tr:hover td { background: var(--bg-card); }
 
         .au-user-cell { display: flex; align-items: center; gap: 12px; }
         .au-avatar { width: 36px; height: 36px; border-radius: 50%; background: rgba(180,145,90,0.15); display: flex; align-items: center; justify-content: center; font-size: 14px; color: #b4915a; overflow: hidden; }
         .au-avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .au-user-name { font-weight: 500; color: #e8e4dc; }
+        .au-user-name { font-weight: 500; color: var(--text-primary); }
         .au-user-email { font-size: 12px; color: #555; }
 
         .au-role-badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
@@ -153,10 +153,10 @@ export default function AdminDashboard() {
 
         .au-error { padding: 12px 16px; background: rgba(224,112,112,0.1); border: 1px solid rgba(224,112,112,0.3); border-radius: 8px; color: #e07070; font-size: 14px; margin-bottom: 20px; }
         .au-empty { text-align: center; padding: 60px 20px; color: #555; font-size: 14px; }
-        .au-spinner { width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.06); border-top-color: #b4915a; animation: auspin 0.8s linear infinite; margin: 60px auto; display: block; }
+        .au-spinner { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border-main); border-top-color: #b4915a; animation: auspin 0.8s linear infinite; margin: 60px auto; display: block; }
         @keyframes auspin { to { transform: rotate(360deg); } }
 
-        .au-pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.06); flex-wrap: wrap; gap: 12px; }
+        .au-pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-main); flex-wrap: wrap; gap: 12px; }
         .au-pagination-info { font-size: 13px; color: #555; }
         .au-pagination-controls { display: flex; gap: 8px; }
         .au-page-btn { padding: 8px 16px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #888; border-radius: 6px; font-size: 13px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }

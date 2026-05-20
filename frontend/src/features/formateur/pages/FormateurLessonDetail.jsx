@@ -55,7 +55,7 @@ function QuestionEditor({ question, index, onChange, onDelete }) {
   };
 
   return (
-    <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 16, marginBottom: 12 }}>
+    <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-main)', borderRadius: 12, padding: 16, marginBottom: 12 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(200,168,110,0.15)', color: '#c8a86e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 600 }}>
@@ -64,7 +64,7 @@ function QuestionEditor({ question, index, onChange, onDelete }) {
           <select
             value={question.type || 'multiple_choice'}
             onChange={e => updateText('type', e.target.value)}
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, color: '#e8e4dc', padding: '4px 8px', fontSize: 13, fontFamily: "'DM Sans', sans-serif" }}
+            style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, color: 'var(--text-primary)', padding: '4px 8px', fontSize: 13, fontFamily: "'DM Sans', sans-serif" }}
           >
             {QUESTION_TYPES.map(qt => (
               <option key={qt.type} value={qt.type}>{qt.label}</option>
@@ -82,7 +82,7 @@ function QuestionEditor({ question, index, onChange, onDelete }) {
           value={question.questionText || ''}
           onChange={e => updateText('questionText', e.target.value)}
           placeholder="Question text..."
-          style={{ width: '100%', padding: '10px 12px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: '#e8e4dc', fontSize: 14, fontFamily: "'DM Sans', sans-serif", boxSizing: 'border-box' }}
+          style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: 'var(--text-primary)', fontSize: 14, fontFamily: "'DM Sans', sans-serif", boxSizing: 'border-box' }}
         />
       </div>
 
@@ -101,7 +101,7 @@ function QuestionEditor({ question, index, onChange, onDelete }) {
                 value={opt}
                 onChange={e => updateOption(i, e.target.value)}
                 placeholder={`Option ${String.fromCharCode(65 + i)}`}
-                style={{ flex: 1, padding: '8px 12px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, color: '#e8e4dc', fontSize: 13, fontFamily: "'DM Sans', sans-serif", boxSizing: 'border-box' }}
+                style={{ flex: 1, padding: '8px 12px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, color: 'var(--text-primary)', fontSize: 13, fontFamily: "'DM Sans', sans-serif", boxSizing: 'border-box' }}
               />
             </div>
           ))}
@@ -116,7 +116,7 @@ function QuestionEditor({ question, index, onChange, onDelete }) {
             onChange={e => updateText('sampleAnswer', e.target.value)}
             placeholder="Sample answer (optional - for grading reference)"
             rows={2}
-            style={{ width: '100%', padding: '8px 12px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, color: '#e8e4dc', fontSize: 13, fontFamily: "'DM Sans', sans-serif", resize: 'vertical', boxSizing: 'border-box' }}
+            style={{ width: '100%', padding: '8px 12px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, color: 'var(--text-primary)', fontSize: 13, fontFamily: "'DM Sans', sans-serif", resize: 'vertical', boxSizing: 'border-box' }}
           />
           <div style={{ fontSize: 11, color: '#555', marginTop: 4 }}>This is for instructor reference only</div>
         </div>
@@ -130,7 +130,7 @@ function QuestionEditor({ question, index, onChange, onDelete }) {
           onChange={e => updateText('points', parseInt(e.target.value) || 1)}
           min={1}
           max={100}
-          style={{ width: 80, padding: '6px 10px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, color: '#e8e4dc', fontSize: 13, fontFamily: "'DM Sans', sans-serif", marginLeft: 8 }}
+          style={{ width: 80, padding: '6px 10px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, color: 'var(--text-primary)', fontSize: 13, fontFamily: "'DM Sans', sans-serif", marginLeft: 8 }}
         />
       </div>
     </div>
@@ -330,7 +330,7 @@ export default function FormateurLessonDetail() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
         {CONTENT_TYPES.map(ct => (
           <div key={ct.type} onClick={() => openCreate(ct.type)} style={{
-            background: 'rgba(255,255,255,0.02)',
+            background: 'var(--bg-card)',
             border: '1px dashed rgba(255,255,255,0.1)',
             borderRadius: 12,
             padding: 24,
@@ -343,7 +343,7 @@ export default function FormateurLessonDetail() {
             textAlign: 'center',
           }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(200,168,110,0.5)'; e.currentTarget.style.background = 'rgba(200,168,110,0.05)'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.background = 'var(--bg-card)'; }}
           >
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c8a86e" strokeWidth="1.5">
               <path d={ct.icon} />
@@ -355,14 +355,14 @@ export default function FormateurLessonDetail() {
 
       {contents.length > 0 && (
         <>
-          <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 400, color: '#f0ebe0', margin: '32px 0 16px' }}>
+          <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 400, color: 'var(--text-primary)', margin: '32px 0 16px' }}>
             Existing Content ({contents.length})
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {contents.map(content => (
               <div key={content._id} style={{
-                background: 'rgba(255,255,255,0.02)',
-                border: '1px solid rgba(255,255,255,0.06)',
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border-main)',
                 borderRadius: 12,
                 padding: 16,
                 display: 'flex',
@@ -375,7 +375,7 @@ export default function FormateurLessonDetail() {
                   </svg>
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14, fontWeight: 500, color: '#f0ebe0', marginBottom: 4 }}>{content.title}</div>
+                  <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-primary)', marginBottom: 4 }}>{content.title}</div>
                   <div style={{ fontSize: 12, color: '#666' }}>
                     <span style={{ padding: '2px 6px', background: 'rgba(200,168,110,0.1)', borderRadius: 4, color: '#c8a86e', textTransform: 'capitalize' }}>
                       {content.type}
@@ -431,8 +431,8 @@ export default function FormateurLessonDetail() {
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 200, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: 20, overflow: 'auto' }} onClick={() => setShowModal(false)}>
           <div style={{ background: '#1a1a1e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, maxWidth: 600, width: '100%', marginTop: 40, marginBottom: 40 }} onClick={e => e.stopPropagation()}>
-            <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: 24, color: '#f0ebe0', fontWeight: 400 }}>
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-main)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: 24, color: 'var(--text-primary)', fontWeight: 400 }}>
                 {editingContent ? 'Edit' : 'Add'} {CONTENT_TYPES.find(c => c.type === contentType)?.label}
               </h2>
               <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: '#555', fontSize: 24, cursor: 'pointer' }}>&times;</button>
@@ -441,7 +441,7 @@ export default function FormateurLessonDetail() {
               <div style={{ padding: 24, maxHeight: 'calc(100vh - 200px)', overflow: 'auto' }}>
                 <div style={{ marginBottom: 16 }}>
                   <label style={{ display: 'block', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#555', marginBottom: 8 }}>Title *</label>
-                  <input type="text" value={formData.title} onChange={e => setFormData(d => ({ ...d, title: e.target.value }))} required style={{ width: '100%', padding: '12px 16px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: '#e8e4dc', fontSize: 14, fontFamily: "'DM Sans', sans-serif", boxSizing: 'border-box' }} />
+                  <input type="text" value={formData.title} onChange={e => setFormData(d => ({ ...d, title: e.target.value }))} required style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: 'var(--text-primary)', fontSize: 14, fontFamily: "'DM Sans', sans-serif", boxSizing: 'border-box' }} />
                 </div>
 
                 {editingContent && formData.url && (
@@ -458,11 +458,11 @@ export default function FormateurLessonDetail() {
                       </div>
                     )}
                     {contentType === 'file' && (
-                      <div style={{ padding: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12 }}>
+                      <div style={{ padding: 16, background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c8a86e" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
                           <div>
-                            <div style={{ fontSize: 14, color: '#e8e4dc' }}>{formData.url.split('/').pop()}</div>
+                            <div style={{ fontSize: 14, color: 'var(--text-primary)' }}>{formData.url.split('/').pop()}</div>
                           </div>
                         </div>
                         {formData.url.toLowerCase().endsWith('.pdf') ? (
@@ -487,7 +487,7 @@ export default function FormateurLessonDetail() {
                 {contentType === 'link' && (
                   <div style={{ marginBottom: 16 }}>
                     <label style={{ display: 'block', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#555', marginBottom: 8 }}>URL *</label>
-                    <input type="url" value={formData.url} onChange={e => setFormData(d => ({ ...d, url: e.target.value }))} placeholder="https://..." style={{ width: '100%', padding: '12px 16px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: '#e8e4dc', fontSize: 14, fontFamily: "'DM Sans', sans-serif", boxSizing: 'border-box' }} />
+                    <input type="url" value={formData.url} onChange={e => setFormData(d => ({ ...d, url: e.target.value }))} placeholder="https://..." style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: 'var(--text-primary)', fontSize: 14, fontFamily: "'DM Sans', sans-serif", boxSizing: 'border-box' }} />
                   </div>
                 )}
 
@@ -500,7 +500,7 @@ export default function FormateurLessonDetail() {
                       </button>
                     </div>
                     {questions.length === 0 ? (
-                      <div style={{ textAlign: 'center', padding: 20, background: 'rgba(255,255,255,0.02)', borderRadius: 8, color: '#555' }}>
+                      <div style={{ textAlign: 'center', padding: 20, background: 'var(--bg-card)', borderRadius: 8, color: '#555' }}>
                         No questions yet. Click "Add Question" to create one.
                       </div>
                     ) : (
@@ -522,7 +522,7 @@ export default function FormateurLessonDetail() {
                         onChange={e => setPassingGrade(parseInt(e.target.value) || 0)}
                         min={0}
                         max={100}
-                        style={{ width: 80, padding: '8px 12px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: '#e8e4dc', fontSize: 14, fontFamily: "'DM Sans', sans-serif", textAlign: 'center' }}
+                        style={{ width: 80, padding: '8px 12px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: 'var(--text-primary)', fontSize: 14, fontFamily: "'DM Sans', sans-serif", textAlign: 'center' }}
                       />
                       <span style={{ fontSize: 13, color: '#888' }}>%</span>
                     </div>
@@ -535,7 +535,7 @@ export default function FormateurLessonDetail() {
                       {editingContent ? 'File (optional - select to replace)' : 'File *'}
                     </label>
                     {editingContent && formData.url && (
-                      <div style={{ marginBottom: 8, padding: '8px 12px', background: 'rgba(255,255,255,0.03)', borderRadius: 6, fontSize: 12, color: '#888', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{ marginBottom: 8, padding: '8px 12px', background: 'var(--bg-card)', borderRadius: 6, fontSize: 12, color: '#888', display: 'flex', alignItems: 'center', gap: 8 }}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
                         Current file: {formData.url.split('/').pop()}
                       </div>
@@ -558,10 +558,10 @@ export default function FormateurLessonDetail() {
 
                 <div>
                   <label style={{ display: 'block', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#555', marginBottom: 8 }}>Description</label>
-                  <textarea value={formData.description} onChange={e => setFormData(d => ({ ...d, description: e.target.value }))} rows={2} style={{ width: '100%', padding: '12px 16px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: '#e8e4dc', fontSize: 14, fontFamily: "'DM Sans', sans-serif", resize: 'vertical', boxSizing: 'border-box' }} />
+                  <textarea value={formData.description} onChange={e => setFormData(d => ({ ...d, description: e.target.value }))} rows={2} style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: 'var(--text-primary)', fontSize: 14, fontFamily: "'DM Sans', sans-serif", resize: 'vertical', boxSizing: 'border-box' }} />
                 </div>
               </div>
-              <div style={{ padding: '20px 24px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+              <div style={{ padding: '20px 24px', borderTop: '1px solid var(--border-main)', display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
                 <button type="button" onClick={() => setShowModal(false)} style={{ padding: '10px 20px', borderRadius: 8, fontSize: 14, cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#888', fontFamily: "'DM Sans', sans-serif" }}>Cancel</button>
                 <button type="submit" disabled={saving} style={{ padding: '10px 20px', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer', border: 'none', background: 'linear-gradient(135deg, #c8a86e, #b4915a)', color: '#0c0c0e', fontFamily: "'DM Sans', sans-serif", opacity: saving ? 0.5 : 1 }}>
                   {saving ? 'Saving...' : (editingContent ? 'Update' : 'Create')}
@@ -575,7 +575,7 @@ export default function FormateurLessonDetail() {
       {confirmDelete && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={() => setConfirmDelete(null)}>
           <div style={{ background: '#1a1a1e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, maxWidth: 400, width: '100%', padding: 24, textAlign: 'center' }} onClick={e => e.stopPropagation()}>
-            <h3 style={{ margin: '0 0 8px', color: '#f0ebe0', fontWeight: 500 }}>Delete Content?</h3>
+            <h3 style={{ margin: '0 0 8px', color: 'var(--text-primary)', fontWeight: 500 }}>Delete Content?</h3>
             <p style={{ margin: '0 0 20px', color: '#888', fontSize: 14 }}>Are you sure you want to delete "{confirmDelete.title}"?</p>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
               <button onClick={() => setConfirmDelete(null)} style={{ padding: '10px 20px', borderRadius: 8, fontSize: 14, cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#888', fontFamily: "'DM Sans', sans-serif" }}>Cancel</button>

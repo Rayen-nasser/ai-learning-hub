@@ -107,13 +107,13 @@ export default function AdminCategories() {
         .cat-add-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
         .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .cat-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; overflow: hidden; transition: border-color 0.2s, transform 0.2s; }
+        .cat-card { background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 16px; overflow: hidden; transition: border-color 0.2s, transform 0.2s; }
         .cat-card:hover { border-color: rgba(255,255,255,0.15); transform: translateY(-2px); }
-        .cat-card-image { width: 100%; height: 140px; object-fit: cover; background: rgba(255,255,255,0.05); }
+        .cat-card-image { width: 100%; height: 140px; object-fit: cover; background: var(--bg-card); }
         .cat-card-placeholder { width: 100%; height: 140px; background: linear-gradient(135deg, rgba(180,145,90,0.2), rgba(200,168,110,0.1)); display: flex; align-items: center; justify-content: center; }
         .cat-card-placeholder-icon { font-size: 48px; opacity: 0.3; }
         .cat-card-body { padding: 20px; }
-        .cat-card-name { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; color: #f0ebe0; margin: 0 0 8px; }
+        .cat-card-name { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; color: var(--text-primary); margin: 0 0 8px; }
         .cat-card-desc { font-size: 14px; color: #666; line-height: 1.5; margin: 0 0 16px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .cat-card-actions { display: flex; gap: 8px; }
 
@@ -125,19 +125,19 @@ export default function AdminCategories() {
 
         .cat-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .cat-modal { background: #1a1a1e; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; max-width: 500px; width: 100%; }
-        .cat-modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.06); }
-        .cat-modal-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 400; color: #f0ebe0; }
+        .cat-modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border-main); }
+        .cat-modal-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 400; color: var(--text-primary); }
         .cat-modal-close { background: none; border: none; color: #555; cursor: pointer; font-size: 24px; }
-        .cat-modal-close:hover { color: #e8e4dc; }
+        .cat-modal-close:hover { color: var(--text-primary); }
         .cat-modal-body { padding: 24px; }
         .cat-form-group { margin-bottom: 16px; }
         .cat-form-label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: #555; margin-bottom: 8px; }
-        .cat-form-input, .cat-form-textarea { width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #e8e4dc; font-size: 14px; font-family: 'DM Sans', sans-serif; }
+        .cat-form-input, .cat-form-textarea { width: 100%; padding: 12px 16px; background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text-primary); font-size: 14px; font-family: 'DM Sans', sans-serif; }
         .cat-form-textarea { min-height: 100px; resize: vertical; }
         .cat-form-input:focus, .cat-form-textarea:focus { border-color: #b4915a; outline: none; }
-        .cat-modal-footer { display: flex; justify-content: flex-end; gap: 12px; padding: 20px 24px; border-top: 1px solid rgba(255,255,255,0.06); }
+        .cat-modal-footer { display: flex; justify-content: flex-end; gap: 12px; padding: 20px 24px; border-top: 1px solid var(--border-main); }
         .cat-btn-cancel { padding: 10px 20px; border-radius: 8px; font-size: 14px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #888; font-family: 'DM Sans', sans-serif; }
-        .cat-btn-cancel:hover { border-color: rgba(255,255,255,0.2); color: #e8e4dc; }
+        .cat-btn-cancel:hover { border-color: rgba(255,255,255,0.2); color: var(--text-primary); }
         .cat-btn-submit { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; background: linear-gradient(135deg, #b4915a, #c8a86e); color: #0c0c0e; font-family: 'DM Sans', sans-serif; }
         .cat-btn-submit:hover { opacity: 0.9; }
         .cat-btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -145,7 +145,7 @@ export default function AdminCategories() {
         .cat-empty { text-align: center; padding: 60px 20px; color: #555; }
         .cat-empty-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; color: #888; margin-bottom: 8px; }
         .cat-error { padding: 12px 16px; background: rgba(224,112,112,0.1); border: 1px solid rgba(224,112,112,0.3); border-radius: 8px; color: #e07070; font-size: 14px; margin-bottom: 20px; }
-        .cat-spinner { width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.06); border-top-color: #b4915a; animation: catspin 0.8s linear infinite; margin: 60px auto; display: block; }
+        .cat-spinner { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border-main); border-top-color: #b4915a; animation: catspin 0.8s linear infinite; margin: 60px auto; display: block; }
         @keyframes catspin { to { transform: rotate(360deg); } }
       `}</style>
 
@@ -224,7 +224,7 @@ export default function AdminCategories() {
                 </div>
                 <div className="cat-form-group">
                   <label className="cat-form-label">Category image</label>
-                  <label className="cat-file-drop" style={{ display: 'flex', alignItems: 'center', width: '100%', padding: '14px 16px', background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.15)', borderRadius: 8, cursor: 'pointer' }}>
+                  <label className="cat-file-drop" style={{ display: 'flex', alignItems: 'center', width: '100%', padding: '14px 16px', background: 'var(--bg-card)', border: '1px dashed rgba(255,255,255,0.15)', borderRadius: 8, cursor: 'pointer' }}>
                     <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => {
                       const file = e.target.files[0];
                       if (file) { 
