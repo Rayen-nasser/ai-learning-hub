@@ -28,7 +28,6 @@ const NAV_GROUPS = [
   {
     title: 'System',
     items: [
-      { path: '/admin/reports',    label: 'Reports',    icon: 'alert'   },
     ]
   }
 ];

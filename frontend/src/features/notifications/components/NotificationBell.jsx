@@ -122,7 +122,7 @@ export default function NotificationBell() {
         break;
       case 'report_submitted':
       case 'report_resolved':
-        targetPath = '/admin/reports';
+        targetPath = '/admin';
         break;
       default:
         targetPath = null;

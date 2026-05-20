@@ -13,7 +13,6 @@ import FormationDetail from './features/formations/pages/FormationDetail';
 import Centres from './features/centres/pages/Centres';
 import AdminDashboard from './features/admin/pages/AdminDashboard';
 import AdminUsers from './features/admin/pages/AdminUsers';
-import AdminReports from './features/admin/pages/AdminReports';
 import AdminStatistics from './features/admin/pages/AdminStatistics';
 import AdminCategories from './features/admin/pages/AdminCategories';
 import AdminSkills from './features/admin/pages/AdminSkills';
@@ -69,11 +68,6 @@ function App() {
           <Route path="/admin/users" element={
             <AdminRoute>
               <AdminUsers />
-            </AdminRoute>
-          } />
-          <Route path="/admin/reports" element={
-            <AdminRoute>
-              <AdminReports />
             </AdminRoute>
           } />
           <Route path="/admin/statistics" element={

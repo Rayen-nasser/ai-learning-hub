@@ -358,7 +358,6 @@ describe('API Endpoints Validation', () => {
       stats: '/admin/stats',
       users: '/admin/users',
       block: '/admin/users/:id/block',
-      reports: '/admin/reports',
     };
 
     expect(adminEndpoints.stats).toContain('/admin');
