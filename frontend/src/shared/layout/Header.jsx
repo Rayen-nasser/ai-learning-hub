@@ -149,8 +149,8 @@ const Header = () => {
           background: rgba(180,145,90,0.15);
           color: #b4915a;
         }
-        .hd-dropdown-role.admin { background: rgba(224,112,112,0.15); color: #e07070; }
-        .hd-dropdown-role.respCF { background: rgba(125,191,125,0.15); color: #7dbf7d; }
+        .hd-dropdown-role.admin { background: rgba(198,40,40,0.12); color: #c62828; }
+        .hd-dropdown-role.respCF { background: rgba(46,125,50,0.12); color: #2e7d32; }
 
         .hd-dropdown-section { 
           font-size: 10px; 
@@ -171,18 +171,18 @@ const Header = () => {
         .hd-dropdown-link:hover { background: rgba(180,145,90,0.08); color: var(--text-primary); }
         .hd-dropdown-link svg { width: 18px; height: 18px; opacity: 0.6; stroke-width: 1.5; }
         
-        .hd-dropdown-link.admin-link { color: #e07070; opacity: 0.8; }
-        .hd-dropdown-link.admin-link:hover { opacity: 1; background: rgba(224, 112, 112, 0.08); color: #e07070; }
+        .hd-dropdown-link.admin-link { color: #c62828; }
+        .hd-dropdown-link.admin-link:hover { background: rgba(198, 40, 40, 0.08); color: #c62828; }
         
-        .hd-dropdown-link.resp-link { color: #7dbf7d; opacity: 0.8; }
-        .hd-dropdown-link.resp-link:hover { opacity: 1; background: rgba(125, 191, 125, 0.08); color: #7dbf7d; }
+        .hd-dropdown-link.resp-link { color: #2e7d32; }
+        .hd-dropdown-link.resp-link:hover { background: rgba(46, 125, 50, 0.08); color: #2e7d32; }
 
         .hd-dropdown-divider { height: 1px; background: var(--border-main); margin: 8px 12px; }
         
         .hd-dropdown-btn {
           display: flex; align-items: center; gap: 12px;
           width: 100%; padding: 12px 16px; border-radius: 10px;
-          font-size: 14px; color: #e07070; background: none; border: none;
+          font-size: 14px; color: #c62828; background: none; border: none;
           cursor: pointer; transition: all 0.2s;
           font-family: 'DM Sans', sans-serif;
           margin-top: 4px;
@@ -254,8 +254,8 @@ const Header = () => {
         .hd-drawer-link:hover, .hd-drawer-link.active { color: var(--text-primary); background: rgba(180,145,90,0.08); }
         .hd-drawer-link.active { color: #b4915a; }
         .hd-drawer-section { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-secondary); padding: 16px 16px 8px; }
-        .hd-drawer-admin { color: #e07070; }
-        .hd-drawer-resp { color: #7dbf7d; }
+        .hd-drawer-admin { color: #c62828; }
+        .hd-drawer-resp { color: #2e7d32; }
         .hd-drawer-divider { height: 1px; background: var(--border-main); margin: 8px 0; }
         .hd-drawer-cta {
           display: flex; gap: 10px; margin-top: 8px;
@@ -483,23 +483,23 @@ const Header = () => {
                 <div className="hd-drawer-section">{t('nav.management')}</div>
                 {user.role === 'admin' && (
                   <>
-                    <Link to="/admin" className={`hd-drawer-link${isActive('/admin') && !isActive('/admin/') ? ' active' : ''}`} style={{ color: '#e07070' }}>{t('nav.userManagement')}</Link>
-                    <Link to="/admin/reports" className={`hd-drawer-link${isActive('/admin/reports') ? ' active' : ''}`} style={{ color: '#e07070' }}>{t('nav.reportedContent')}</Link>
-                    <Link to="/admin/statistics" className={`hd-drawer-link${isActive('/admin/statistics') ? ' active' : ''}`} style={{ color: '#e07070' }}>{t('nav.statistics')}</Link>
-                    <Link to="/admin/centres/verify" className={`hd-drawer-link${isActive('/admin/centres/verify') ? ' active' : ''}`} style={{ color: '#e07070' }}>{t('nav.verifyCenters')}</Link>
+                    <Link to="/admin" className={`hd-drawer-link${isActive('/admin') && !isActive('/admin/') ? ' active' : ''}`} style={{ color: '#c62828' }}>{t('nav.userManagement')}</Link>
+                    <Link to="/admin/reports" className={`hd-drawer-link${isActive('/admin/reports') ? ' active' : ''}`} style={{ color: '#c62828' }}>{t('nav.reportedContent')}</Link>
+                    <Link to="/admin/statistics" className={`hd-drawer-link${isActive('/admin/statistics') ? ' active' : ''}`} style={{ color: '#c62828' }}>{t('nav.statistics')}</Link>
+                    <Link to="/admin/centres/verify" className={`hd-drawer-link${isActive('/admin/centres/verify') ? ' active' : ''}`} style={{ color: '#c62828' }}>{t('nav.verifyCenters')}</Link>
                   </>
 
                 )}
                 {user.role === 'responsableCF' && (
                   <>
-                    <Link to="/responsable" className={`hd-drawer-link${isActive('/responsable') && !isActive('/responsable/') ? ' active' : ''}`} style={{ color: '#7dbf7d' }}>{t('common.dashboard')}</Link>
-                    <Link to="/responsable/centres" className={`hd-drawer-link${isActive('/responsable/centres') ? ' active' : ''}`} style={{ color: '#7dbf7d' }}>{t('nav.myCentres')}</Link>
-                    <Link to="/responsable/formations" className={`hd-drawer-link${isActive('/responsable/formations') ? ' active' : ''}`} style={{ color: '#7dbf7d' }}>{t('nav.myFormations')}</Link>
-                    <Link to="/responsable/inscriptions" className={`hd-drawer-link${isActive('/responsable/inscriptions') ? ' active' : ''}`} style={{ color: '#7dbf7d' }}>{t('nav.enrollments')}</Link>
-                    <Link to="/responsable/payments" className={`hd-drawer-link${isActive('/responsable/payments') ? ' active' : ''}`} style={{ color: '#7dbf7d' }}>{t('common.payments')}</Link>
+                    <Link to="/responsable" className={`hd-drawer-link${isActive('/responsable') && !isActive('/responsable/') ? ' active' : ''}`} style={{ color: '#2e7d32' }}>{t('common.dashboard')}</Link>
+                    <Link to="/responsable/centres" className={`hd-drawer-link${isActive('/responsable/centres') ? ' active' : ''}`} style={{ color: '#2e7d32' }}>{t('nav.myCentres')}</Link>
+                    <Link to="/responsable/formations" className={`hd-drawer-link${isActive('/responsable/formations') ? ' active' : ''}`} style={{ color: '#2e7d32' }}>{t('nav.myFormations')}</Link>
+                    <Link to="/responsable/inscriptions" className={`hd-drawer-link${isActive('/responsable/inscriptions') ? ' active' : ''}`} style={{ color: '#2e7d32' }}>{t('nav.enrollments')}</Link>
+                    <Link to="/responsable/payments" className={`hd-drawer-link${isActive('/responsable/payments') ? ' active' : ''}`} style={{ color: '#2e7d32' }}>{t('common.payments')}</Link>
                   </>
                 )}
-                <Link to="/admin/categories" className={`hd-drawer-link${isActive('/admin/categories') ? ' active' : ''}`} style={{ color: '#7dbf7d' }}>{t('nav.categories')}</Link>
+                <Link to="/admin/categories" className={`hd-drawer-link${isActive('/admin/categories') ? ' active' : ''}`} style={{ color: '#2e7d32' }}>{t('nav.categories')}</Link>
               </>
             )}
             
@@ -514,7 +514,7 @@ const Header = () => {
 
             
             <div className="hd-drawer-divider" />
-            <button onClick={logout} className="hd-drawer-btn outline" style={{ background: 'none', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', color: '#e07070' }}>
+            <button onClick={logout} className="hd-drawer-btn outline" style={{ background: 'none', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', color: '#c62828' }}>
               {t('common.logout')}
             </button>
           </>
