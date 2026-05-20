@@ -80,7 +80,7 @@ const LoginForm = () => {
         .lf-root {
           min-height: 100vh;
           display: flex;
-          background: #0c0c0e;
+          background: var(--bg-main);
           font-family: 'DM Sans', sans-serif;
           color: var(--text-primary);
         }
@@ -91,7 +91,7 @@ const LoginForm = () => {
           width: 45%;
           position: relative;
           overflow: hidden;
-          background: linear-gradient(145deg, #111114 0%, #1a1a22 100%);
+          background: linear-gradient(145deg, #f0ede5 0%, #e8e4dc 100%);
         }
         @media(min-width:900px){ .lf-panel { display: flex; flex-direction: column; justify-content: flex-end; padding: 56px; } }
 
@@ -104,7 +104,7 @@ const LoginForm = () => {
         .lf-panel-lines {
           position: absolute; inset: 0;
           background-image: repeating-linear-gradient(
-            0deg, transparent, transparent 39px, rgba(255,255,255,.03) 40px
+             0deg, transparent, transparent 39px, rgba(0,0,0,.02) 40px
           );
         }
         .lf-panel-content { position: relative; z-index: 1; }
@@ -120,7 +120,7 @@ const LoginForm = () => {
         }
         .lf-panel-headline em { font-style: italic; color: #b4915a; }
         .lf-panel-body {
-          font-size: 14px; line-height: 1.7; color: #888; max-width: 360px;
+          font-size: 14px; line-height: 1.7; color: var(--text-secondary); max-width: 360px;
         }
 
         /* ── Right / form panel ── */
@@ -140,14 +140,14 @@ const LoginForm = () => {
           font-family: 'Cormorant Garamond', serif;
           font-size: 32px; font-weight: 400; color: var(--text-primary); margin-bottom: 6px;
         }
-        .lf-subtitle { font-size: 14px; color: #666; margin-bottom: 36px; }
+        .lf-subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 36px; }
 
         /* ── Error banner ── */
         .lf-error {
-          background: rgba(220,53,53,.08);
-          border: 1px solid rgba(220,53,53,.25);
+          background: rgba(198,40,40,.08);
+          border: 1px solid rgba(198,40,40,.25);
           border-radius: 8px; padding: 12px 16px;
-          font-size: 13px; color: #e07070; margin-bottom: 24px;
+          font-size: 13px; color: #c62828; margin-bottom: 24px;
           display: flex; align-items: center; gap: 10px;
         }
 
@@ -155,12 +155,12 @@ const LoginForm = () => {
         .lf-field { margin-bottom: 20px; }
         .lf-label {
           display: block; font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
-          color: #888; margin-bottom: 8px; font-weight: 500;
+          color: var(--text-secondary); margin-bottom: 8px; font-weight: 500;
         }
         .lf-input-wrap { position: relative; }
         .lf-input {
-          width: 100%; padding: 14px 16px; background: rgba(255,255,255,.04);
-          border: 1px solid rgba(255,255,255,.1); border-radius: 8px;
+          width: 100%; padding: 14px 16px; background: var(--bg-card);
+          border: 1px solid var(--border-main); border-radius: 8px;
           font-size: 14px; color: var(--text-primary); font-family: 'DM Sans', sans-serif;
           transition: border-color .2s, background .2s; outline: none; box-sizing: border-box;
         }
@@ -174,7 +174,7 @@ const LoginForm = () => {
           display: flex; align-items: center; transition: color .15s;
         }
         .lf-eye:hover { color: #b4915a; }
-        .lf-field-error { font-size: 12px; color: #e07070; margin-top: 5px; }
+        .lf-field-error { font-size: 12px; color: #c62828; margin-top: 5px; }
 
         /* ── Options row ── */
         .lf-options {
@@ -193,7 +193,7 @@ const LoginForm = () => {
         .lf-btn {
           width: 100%; padding: 15px; border: none; border-radius: 8px;
           background: linear-gradient(135deg, #b4915a, #c8a86e);
-          color: #0c0c0e; font-family: 'DM Sans', sans-serif;
+          color: #ffffff; font-family: 'DM Sans', sans-serif;
           font-size: 14px; font-weight: 500; letter-spacing: .06em;
           cursor: pointer; transition: opacity .2s, transform .1s;
           display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -208,14 +208,14 @@ const LoginForm = () => {
         /* ── Divider ── */
         .lf-divider {
           display: flex; align-items: center; gap: 14px;
-          margin: 28px 0; color: #333; font-size: 12px;
+          margin: 28px 0; color: var(--text-secondary); font-size: 12px;
         }
         .lf-divider::before, .lf-divider::after {
-          content: ''; flex: 1; height: 1px; background: rgba(255,255,255,.07);
+          content: ''; flex: 1; height: 1px; background: var(--border-main);
         }
 
         /* ── Footer link ── */
-        .lf-footer { text-align: center; font-size: 13px; color: #555; margin-top: 8px; }
+        .lf-footer { text-align: center; font-size: 13px; color: var(--text-secondary); margin-top: 8px; }
         .lf-footer a { color: #b4915a; text-decoration: none; font-weight: 500; }
         .lf-footer a:hover { color: #d4b07a; text-decoration: underline; }
 

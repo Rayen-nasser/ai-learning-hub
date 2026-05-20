@@ -48,32 +48,32 @@ export default function MyRequests() {
         .mr-container { max-width: 1000px; margin: 40px auto; padding: 0 24px; font-family: 'DM Sans', sans-serif; }
         .mr-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
         .mr-header h1 { font-family: 'Cormorant Garamond', serif; font-size: 32px; color: var(--text-primary); }
-        .mr-btn-apply { padding: 10px 20px; border-radius: 10px; background: #b4915a; color: #0c0c0e; font-weight: 600; text-decoration: none; font-size: 14px; transition: all 0.2s; }
+        .mr-btn-apply { padding: 10px 20px; border-radius: 10px; background: #b4915a; color: #ffffff; font-weight: 600; text-decoration: none; font-size: 14px; transition: all 0.2s; }
         .mr-btn-apply:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(180,145,90,0.2); }
 
         .mr-list { display: flex; flex-direction: column; gap: 16px; }
         .mr-card { background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 16px; padding: 24px; display: flex; align-items: center; gap: 20px; transition: all 0.2s; }
-        .mr-card:hover { border-color: rgba(255,255,255,0.12); background: var(--bg-card); }
+        .mr-card:hover { border-color: var(--border-main); background: var(--bg-card); }
 
         .mr-logo { width: 64px; height: 64px; border-radius: 12px; background: var(--bg-card); display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid var(--border-main); }
         .mr-logo img { width: 100%; height: 100%; object-fit: cover; }
         
         .mr-info { flex: 1; min-width: 0; }
         .mr-name { font-size: 18px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
-        .mr-meta { display: flex; gap: 12px; color: #555; font-size: 13px; }
+        .mr-meta { display: flex; gap: 12px; color: var(--text-secondary); font-size: 13px; }
         
         .mr-status { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
         
         .mr-actions { display: flex; gap: 10px; }
-        .mr-btn-fix { padding: 8px 16px; border-radius: 8px; border: 1px solid #e07070; color: #e07070; background: none; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; }
-        .mr-btn-fix:hover { background: rgba(224,112,112,0.1); }
+.mr-btn-fix { padding: 8px 16px; border-radius: 8px; border: 1px solid #c62828; color: #c62828; background: none; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; }
+.mr-btn-fix:hover { background: rgba(198,40,40,0.1); }
         
-        .mr-reason { margin-top: 16px; padding: 12px 16px; background: rgba(224,112,112,0.05); border-left: 3px solid #e07070; border-radius: 4px; font-size: 13px; color: #aaa; width: 100%; }
-        .mr-reason strong { color: #e07070; margin-right: 8px; }
+.mr-reason { margin-top: 16px; padding: 12px 16px; background: rgba(198,40,40,0.05); border-left: 3px solid #c62828; border-radius: 4px; font-size: 13px; color: var(--text-secondary); width: 100%; }
+.mr-reason strong { color: #c62828; margin-right: 8px; }
 
-        .mr-empty { text-align: center; padding: 80px 40px; background: rgba(255,255,255,0.01); border: 1px dashed var(--border-main); border-radius: 24px; }
-        .mr-empty h3 { color: #888; font-family: 'Cormorant Garamond', serif; font-size: 24px; margin-bottom: 12px; }
-        .mr-empty p { color: #555; margin-bottom: 24px; }
+.mr-empty { text-align: center; padding: 80px 40px; background: transparent; border: 1px dashed var(--border-main); border-radius: 24px; }
+.mr-empty h3 { color: var(--text-secondary); font-family: 'Cormorant Garamond', serif; font-size: 24px; margin-bottom: 12px; }
+.mr-empty p { color: var(--text-secondary); margin-bottom: 24px; }
 
         .mr-spinner { width: 40px; height: 40px; border: 3px solid var(--bg-card); border-top-color: #b4915a; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 60px auto; }
         @keyframes spin { to { transform: rotate(360deg); } }

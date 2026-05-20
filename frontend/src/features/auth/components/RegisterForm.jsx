@@ -229,7 +229,7 @@ const RegisterForm = () => {
             <div className="rf-strength">
               <div className="rf-strength-bars">
                 {[1,2,3,4].map(n => (
-                  <div key={n} className="rf-strength-bar" style={{ background: strength >= n ? strengthColor[strength] : 'rgba(255,255,255,.08)' }} />
+                  <div key={n} className="rf-strength-bar" style={{ background: strength >= n ? strengthColor[strength] : 'var(--border-main)' }} />
                 ))}
               </div>
               <span className="rf-strength-label" style={{ color: strengthColor[strength] }}>
@@ -375,7 +375,7 @@ const RegisterForm = () => {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: #0c0c0e;
+          background: var(--bg-main);
           font-family: 'DM Sans', sans-serif;
           color: var(--text-primary);
           padding: 40px 24px;
@@ -397,7 +397,7 @@ const RegisterForm = () => {
           display: flex; flex-direction: column; align-items: center; flex: 1;
         }
         .rf-step-dot {
-          width: 28px; height: 28px; border-radius: 50%; border: 2px solid rgba(255,255,255,.12);
+          width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border-main);
           display: flex; align-items: center; justify-content: center;
           font-size: 11px; font-weight: 500; color: #555; background: transparent;
           transition: all .3s;
@@ -405,24 +405,24 @@ const RegisterForm = () => {
         .rf-step-dot.active { border-color: #b4915a; color: #b4915a; background: rgba(180,145,90,.1); }
         .rf-step-dot.done  { border-color: #4aa87d; background: rgba(74,168,125,.15); color: #4aa87d; }
         .rf-step-name {
-          font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: #444; margin-top: 6px;
+          font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-secondary); margin-top: 6px;
           transition: color .3s;
         }
         .rf-step-name.active { color: #b4915a; }
         .rf-step-name.done  { color: #4aa87d; }
-        .rf-step-line { flex: 1; height: 1px; background: rgba(255,255,255,.08); margin: 0 4px; margin-bottom: 22px; }
+        .rf-step-line { flex: 1; height: 1px; background: var(--border-main); margin: 0 4px; margin-bottom: 22px; }
         .rf-step-line.done { background: rgba(74,168,125,.3); }
 
         .rf-title {
           font-family: 'Cormorant Garamond', serif;
           font-size: 28px; font-weight: 400; color: var(--text-primary); margin-bottom: 4px;
         }
-        .rf-subtitle { font-size: 13px; color: #555; margin-bottom: 28px; }
+        .rf-subtitle { font-size: 13px; color: var(--text-secondary); margin-bottom: 28px; }
 
         /* ── error banner ── */
         .rf-error {
-          background: rgba(220,53,53,.08); border: 1px solid rgba(220,53,53,.25);
-          border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #e07070;
+          background: rgba(198,40,40,.08); border: 1px solid rgba(198,40,40,.25);
+          border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #c62828;
           margin-bottom: 24px; display: flex; align-items: center; gap: 10px;
         }
 
@@ -430,12 +430,12 @@ const RegisterForm = () => {
         .rf-field { margin-bottom: 18px; }
         .rf-label {
           display: block; font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
-          color: #888; margin-bottom: 7px; font-weight: 500;
+          color: var(--text-secondary); margin-bottom: 7px; font-weight: 500;
         }
         .rf-input-wrap { position: relative; }
         .rf-input {
-          width: 100%; padding: 13px 16px; background: rgba(255,255,255,.04);
-          border: 1px solid rgba(255,255,255,.1); border-radius: 8px;
+          width: 100%; padding: 13px 16px; background: var(--bg-card);
+          border: 1px solid var(--border-main); border-radius: 8px;
           font-size: 14px; color: var(--text-primary); font-family: 'DM Sans', sans-serif;
           transition: border-color .2s, background .2s; outline: none; box-sizing: border-box;
         }
@@ -443,7 +443,7 @@ const RegisterForm = () => {
         .rf-input:focus { border-color: #b4915a; background: rgba(180,145,90,.05); }
         .rf-input.err { border-color: rgba(220,53,53,.5); }
         .rf-input.has-icon { padding-right: 48px; }
-        .rf-select { appearance: none; cursor: pointer; color-scheme: dark; }
+        .rf-select { appearance: none; cursor: pointer; color-scheme: light; }
         .rf-select option { background: var(--bg-card); color: var(--text-primary); }
         .rf-eye {
           position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
@@ -451,7 +451,7 @@ const RegisterForm = () => {
           display: flex; align-items: center; transition: color .15s;
         }
         .rf-eye:hover { color: #b4915a; }
-        .rf-field-error { font-size: 12px; color: #e07070; margin-top: 5px; }
+        .rf-field-error { font-size: 12px; color: #c62828; margin-top: 5px; }
         .rf-field-ok { font-size: 12px; color: #4aa87d; margin-top: 5px; }
         .rf-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
@@ -464,15 +464,15 @@ const RegisterForm = () => {
         /* ── avatar upload ── */
         .rf-avatar-section { display: flex; align-items: center; gap: 20px; margin-bottom: 24px; }
         .rf-avatar {
-          width: 80px; height: 80px; border-radius: 50%; border: 2px dashed rgba(255,255,255,.15);
+          width: 80px; height: 80px; border-radius: 50%; border: 2px dashed var(--border-main);
           cursor: pointer; overflow: hidden; position: relative; flex-shrink: 0;
-          background: rgba(255,255,255,.03); transition: border-color .2s;
+          background: var(--bg-card); transition: border-color .2s;
         }
         .rf-avatar:hover { border-color: #b4915a; }
         .rf-avatar-img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .rf-avatar-placeholder {
           width: 100%; height: 100%; display: flex; flex-direction: column;
-          align-items: center; justify-content: center; gap: 4px; color: #555;
+          align-items: center; justify-content: center; gap: 4px; color: var(--text-secondary);
           font-size: 10px; text-align: center;
         }
         .rf-avatar-overlay {
@@ -481,18 +481,18 @@ const RegisterForm = () => {
           opacity: 0; transition: opacity .2s;
         }
         .rf-avatar:hover .rf-avatar-overlay { opacity: 1; }
-        .rf-avatar-hint { font-size: 13px; color: #aaa; margin-bottom: 3px; }
-        .rf-avatar-sub  { font-size: 12px; color: #555; }
+        .rf-avatar-hint { font-size: 13px; color: var(--text-secondary); margin-bottom: 3px; }
+        .rf-avatar-sub  { font-size: 12px; color: var(--text-secondary); }
 
-        .rf-step-note { font-size: 13px; color: #555; margin-bottom: 6px; line-height: 1.6; }
+        .rf-step-note { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.6; }
 
         /* ── role cards ── */
         .rf-role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px; }
         @media(max-width: 480px){ .rf-role-grid { grid-template-columns: 1fr; } }
         .rf-role-card {
           position: relative; display: flex; flex-direction: column; align-items: flex-start;
-          padding: 16px 14px; background: rgba(255,255,255,.03);
-          border: 1px solid rgba(255,255,255,.09); border-radius: 10px;
+          padding: 16px 14px; background: var(--bg-card);
+          border: 1px solid var(--border-main); border-radius: 10px;
           cursor: pointer; text-align: left; transition: border-color .2s, background .2s;
           font-family: 'DM Sans', sans-serif;
         }
@@ -500,11 +500,11 @@ const RegisterForm = () => {
         .rf-role-card.selected { border-color: #b4915a; background: rgba(180,145,90,.08); }
         .rf-role-icon { font-size: 22px; margin-bottom: 8px; }
         .rf-role-label { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 3px; }
-        .rf-role-desc  { font-size: 11px; color: #555; line-height: 1.4; }
+        .rf-role-desc  { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
         .rf-role-check {
           position: absolute; top: 10px; right: 10px;
           width: 18px; height: 18px; border-radius: 50%; background: #b4915a;
-          display: flex; align-items: center; justify-content: center; color: #0c0c0e;
+          display: flex; align-items: center; justify-content: center; color: #ffffff;
         }
         .rf-role-fields { margin-top: 18px; }
 
@@ -513,15 +513,15 @@ const RegisterForm = () => {
           display: flex; gap: 10px; margin-top: 8px;
         }
         .rf-btn-back {
-          padding: 14px 20px; border: 1px solid rgba(255,255,255,.1); border-radius: 8px;
-          background: transparent; color: #888; font-family: 'DM Sans', sans-serif;
+          padding: 14px 20px; border: 1px solid var(--border-main); border-radius: 8px;
+          background: transparent; color: var(--text-secondary); font-family: 'DM Sans', sans-serif;
           font-size: 14px; cursor: pointer; transition: border-color .2s, color .2s; flex-shrink: 0;
         }
-        .rf-btn-back:hover { border-color: rgba(255,255,255,.2); color: var(--text-primary); }
+        .rf-btn-back:hover { border-color: var(--text-primary); color: var(--text-primary); }
         .rf-btn-next {
           flex: 1; padding: 14px; border: none; border-radius: 8px;
           background: linear-gradient(135deg, #b4915a, #c8a86e);
-          color: #0c0c0e; font-family: 'DM Sans', sans-serif;
+          color: #ffffff; font-family: 'DM Sans', sans-serif;
           font-size: 14px; font-weight: 500; letter-spacing: .04em;
           cursor: pointer; transition: opacity .2s;
           display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -534,14 +534,14 @@ const RegisterForm = () => {
 
         /* ── progress bar ── */
         .rf-progress {
-          height: 2px; background: rgba(255,255,255,.06); border-radius: 1px; margin-bottom: 32px;
+          height: 2px; background: var(--border-main); border-radius: 1px; margin-bottom: 32px;
         }
         .rf-progress-fill {
           height: 100%; border-radius: 1px; background: linear-gradient(90deg, #b4915a, #c8a86e);
           transition: width .4s ease;
         }
 
-        .rf-footer { text-align: center; font-size: 13px; color: #555; margin-top: 24px; }
+        .rf-footer { text-align: center; font-size: 13px; color: var(--text-secondary); margin-top: 24px; }
         .rf-footer a { color: #b4915a; text-decoration: none; font-weight: 500; }
         .rf-footer a:hover { text-decoration: underline; color: #d4b07a; }
       `}</style>

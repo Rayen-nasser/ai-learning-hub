@@ -62,7 +62,7 @@ const Centres = () => {
         .ct-header { margin-bottom: 48px; }
         .ct-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(36px, 5vw, 56px); font-weight: 300; color: var(--text-primary); margin: 0 0 12px; }
         .ct-title em { font-style: italic; color: #b4915a; }
-        .ct-subtitle { font-size: 14px; color: #555; font-weight: 300; }
+        .ct-subtitle { font-size: 14px; color: var(--text-secondary); font-weight: 300; }
 
         .ct-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
 
@@ -75,7 +75,7 @@ const Centres = () => {
 
         .ct-card-header {
           padding: 28px 28px 20px;
-          background: linear-gradient(135deg, #111114, #161620);
+          background: linear-gradient(135deg, #faf9f6, #f0eee8);
           border-bottom: 1px solid var(--bg-card);
           display: flex; align-items: flex-start; gap: 16px;
           position: relative;
@@ -83,13 +83,13 @@ const Centres = () => {
         .ct-fav-btn {
           position: absolute; top: 16px; right: 16px;
           width: 36px; height: 36px; border-radius: 50%;
-          background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1);
+          background: var(--bg-card); border: 1px solid var(--border-main);
           display: flex; align-items: center; justify-content: center;
           cursor: pointer; transition: all 0.2s;
           color: #555;
         }
-        .ct-fav-btn:hover { background: rgba(255,255,255,0.1); color: #888; }
-        .ct-fav-btn.active { background: rgba(220,100,100,0.15); border-color: rgba(220,100,100,0.3); color: #e07070; }
+        .ct-fav-btn:hover { background: rgba(0,0,0,0.03); color: var(--text-primary); }
+        .ct-fav-btn.active { background: rgba(198,40,40,0.12); border-color: rgba(198,40,40,0.3); color: #c62828; }
         .ct-icon {
           width: 44px; height: 44px; border-radius: 12px;
           background: rgba(180,145,90,0.1); border: 1px solid rgba(180,145,90,0.2);
@@ -97,14 +97,14 @@ const Centres = () => {
           font-size: 20px; flex-shrink: 0;
         }
         .ct-name { font-size: 17px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
-        .ct-address { font-size: 12px; color: #555; display: flex; align-items: center; gap: 5px; }
+        .ct-address { font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 5px; }
 
         .ct-card-body { padding: 20px 28px 24px; }
-        .ct-description { font-size: 13px; color: #666; line-height: 1.7; font-weight: 300; margin-bottom: 20px; min-height: 40px; }
+        .ct-description { font-size: 13px; color: var(--text-secondary); line-height: 1.7; font-weight: 300; margin-bottom: 20px; min-height: 40px; }
 
         .ct-details { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
-        .ct-detail { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #555; }
-        .ct-detail-icon { color: #444; flex-shrink: 0; }
+        .ct-detail { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-secondary); }
+        .ct-detail-icon { color: var(--text-secondary); flex-shrink: 0; }
 
         .ct-view-btn {
           display: inline-flex; align-items: center; gap: 6px;

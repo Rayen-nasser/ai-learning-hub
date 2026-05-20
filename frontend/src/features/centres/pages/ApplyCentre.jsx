@@ -119,25 +119,25 @@ export default function ApplyCentre() {
         .ac-field-group { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
         .ac-field { display: flex; flex-direction: column; gap: 8px; }
         .ac-field.full { grid-column: span 2; }
-        .ac-field label { font-size: 14px; color: #aaa; font-weight: 500; }
+        .ac-field label { font-size: 14px; color: var(--text-secondary); font-weight: 500; }
         .ac-field input, .ac-field textarea { 
-          background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; 
+          background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 12px; 
           padding: 12px 16px; color: var(--text-primary); font-size: 15px; transition: all 0.2s;
         }
         .ac-field input:focus, .ac-field textarea:focus { border-color: #b4915a; outline: none; background: var(--border-main); }
-        .ac-field input::placeholder { color: #555; }
+        .ac-field input::placeholder { color: var(--text-secondary); }
 
         .ac-file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
         .ac-file-input { 
-          position: relative; border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; 
-          text-align: center; transition: all 0.2s; cursor: pointer; background: rgba(255,255,255,0.01);
+          position: relative; border: 1px dashed var(--border-main); border-radius: 12px; padding: 20px; 
+          text-align: center; transition: all 0.2s; cursor: pointer; background: transparent;
         }
         .ac-file-input:hover { border-color: #b4915a; background: rgba(180,145,90,0.03); }
         .ac-file-input.has-file { border-style: solid; border-color: #7dbf7d; background: rgba(125,191,125,0.03); }
         .ac-file-input input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
         .ac-file-label { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-        .ac-file-name { font-size: 14px; color: var(--text-primary); font-weight: 500; }
-        .ac-file-desc { font-size: 12px; color: #555; }
+.ac-file-name { font-size: 14px; color: var(--text-primary); font-weight: 500; }
+.ac-file-desc { font-size: 12px; color: var(--text-secondary); }
         .ac-file-status { font-size: 12px; color: #7dbf7d; margin-top: 4px; font-weight: 600; }
 
         .ac-error-msg { 

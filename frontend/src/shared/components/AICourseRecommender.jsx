@@ -43,49 +43,81 @@ const AICourseRecommender = () => {
 
   return (
     <div className="w-full max-w-5xl mx-auto my-12 md:my-20 font-sans">
-      {/* --- HEADER --- */}
+      <style>{`
+        .ar-input {
+          width: 100%; background: transparent; border: none;
+          padding: 24px 32px; color: var(--text-primary);
+          font-size: 18px; font-weight: 300; outline: none;
+        }
+        .ar-input::placeholder { color: var(--text-secondary); opacity: 0.5; }
+        .ar-btn {
+          padding: 20px 40px; border-radius: 28px; font-weight: 500;
+          white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 12px;
+          border: none; cursor: pointer; font-family: inherit;
+          transition: all 0.5s;
+        }
+        .ar-btn-ready {
+          background: linear-gradient(135deg, #b4915a, #c8a86e);
+          color: #ffffff;
+        }
+        .ar-btn-ready:hover { opacity: 0.9; }
+        .ar-btn-ready:active { transform: scale(0.95); }
+        .ar-btn-loading {
+          background: var(--bg-card);
+          color: var(--text-secondary);
+          cursor: not-allowed;
+        }
+        .ar-btn:disabled { opacity: 0.2; cursor: not-allowed; }
+        .ar-dot {
+          width: 6px; height: 6px; background: #b4915a; border-radius: 50%;
+          animation: ar-bounce 1s ease infinite;
+        }
+        .ar-dot:nth-child(2) { animation-delay: -0.15s; }
+        .ar-dot:nth-child(3) { animation-delay: -0.3s; }
+        @keyframes ar-bounce {
+          0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+          40% { transform: scale(1); opacity: 1; }
+        }
+      `}</style>
+
+      {/* HEADER */}
       <div className="text-center mb-12 animate-fade-in-up">
-        <h2 className="text-4xl md:text-6xl font-serif text-white mb-4 tracking-tight">
-          {t('admin.whatIsYourNext', 'What is your next ')}<span className="italic text-primary-400">{t('admin.masterpiece', 'masterpiece')}</span>?
+        <h2 className="text-4xl md:text-6xl font-serif mb-4 tracking-tight" style={{ color: 'var(--text-primary)' }}>
+          {t('admin.whatIsYourNext', 'What is your next ')}
+          <span className="italic" style={{ color: '#b4915a' }}>
+            {t('admin.masterpiece', 'masterpiece')}
+          </span>?
         </h2>
-        <p className="text-gray-500 text-lg font-light max-w-2xl mx-auto">
+        <p className="text-lg font-light max-w-2xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
           {t('admin.describeYourAspirations', 'Describe your aspirations, and our AI will architect the perfect learning path for you.')}
         </p>
       </div>
 
-      {/* --- INPUT AREA --- */}
+      {/* INPUT AREA */}
       <div className="relative max-w-3xl mx-auto z-20">
-        <div className={`
-          premium-border rounded-[2.5rem] overflow-hidden transition-all duration-700
-          ${loading ? 'scale-[0.98] opacity-80' : 'scale-100 shadow-[0_0_50px_rgba(180,145,90,0.1)]'}
-        `}>
-          <div className="bg-[#0c0c0e]/80 backdrop-blur-3xl p-2 md:p-3 flex flex-col md:flex-row items-stretch md:items-center gap-2">
+        <div className={`premium-border rounded-[2.5rem] overflow-hidden transition-all duration-700 ${loading ? 'scale-[0.98] opacity-80' : 'scale-100'}`}>
+          <div style={{ background: 'var(--bg-card)', backdropFilter: 'blur(24px)' }} className="p-2 md:p-3 flex flex-col md:flex-row items-stretch md:items-center gap-2">
             <div className="flex-1 relative">
               <input
                 type="text"
                 value={interests}
                 onChange={(e) => setInterests(e.target.value)}
                 placeholder={t('admin.aiRecommenderPlaceholder', 'Ex: I want to master digital architecture and sustainable design...')}
-                className="w-full bg-transparent border-none py-6 px-8 text-white placeholder:text-gray-700 focus:outline-none text-lg font-light"
-                onKeyPress={(e) => e.key === 'Enter' && handleRecommend()}
+                className="ar-input"
+                onKeyDown={(e) => e.key === 'Enter' && handleRecommend()}
               />
               {loading && (
                 <div className="absolute right-4 top-1/2 -translate-y-1/2 flex gap-1">
-                  <div className="w-1.5 h-1.5 bg-primary-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
-                  <div className="w-1.5 h-1.5 bg-primary-400 rounded-full animate-bounce [animation-delay:-0.15s]" />
-                  <div className="w-1.5 h-1.5 bg-primary-400 rounded-full animate-bounce" />
+                  <div className="ar-dot" />
+                  <div className="ar-dot" />
+                  <div className="ar-dot" />
                 </div>
               )}
             </div>
             <button
               onClick={handleRecommend}
               disabled={loading || !interests.trim()}
-              className={`
-                px-10 py-5 md:py-0 md:h-[70px] rounded-[1.8rem] font-medium transition-all duration-500 whitespace-nowrap flex items-center justify-center gap-3
-                ${loading 
-                  ? 'bg-gray-900 text-gray-600 cursor-not-allowed' 
-                  : 'bg-white text-black hover:bg-primary-400 hover:text-white active:scale-95 disabled:opacity-20'}
-              `}
+              className={`ar-btn ${loading ? 'ar-btn-loading' : 'ar-btn-ready'}`}
             >
               {loading ? t('admin.synthesizing', 'Synthesizing...') : t('admin.architectMyPath', 'Architect My Path')}
               {!loading && (
@@ -98,68 +130,74 @@ const AICourseRecommender = () => {
         </div>
 
         {error && (
-          <p className="text-center text-red-500/70 text-sm mt-4 animate-fade-in-up font-light tracking-wide">
+          <p className="text-center text-sm mt-4 animate-fade-in-up font-light tracking-wide" style={{ color: '#c62828' }}>
             {error}
           </p>
         )}
       </div>
 
-      {/* --- RESULTS --- */}
+      {/* RESULTS */}
       {recommendation && (
         <div className="mt-20 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center animate-fade-in-up">
-          {/* Left: Match Visualization */}
           <div className="lg:col-span-5 flex flex-col items-center lg:items-end order-2 lg:order-1">
-             <div className="relative group">
-                <div className="absolute inset-0 bg-primary-500/20 blur-[100px] rounded-full group-hover:bg-primary-500/30 transition-colors" />
-                <div className="relative floating-glass w-64 h-64 md:w-80 md:h-80 rounded-full flex flex-col items-center justify-center border-white/10 premium-border">
-                   <span className="text-gray-500 text-xs uppercase tracking-[0.4em] mb-2 font-bold">{t('admin.matchAccuracy', 'Match Accuracy')}</span>
-                   <span className="text-7xl md:text-8xl font-serif text-white leading-none">
-                      {recommendation.match_score}
-                      <span className="text-3xl text-primary-400 ml-1">%</span>
-                   </span>
-                </div>
-                {/* Orbital dots */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-primary-400 rounded-full blur-[2px] animate-[spin_8s_linear_infinite] origin-[0_160px] md:origin-[0_200px]" />
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-blue-400 rounded-full blur-[1px] animate-[spin_12s_linear_infinite_reverse] origin-[0_140px] md:origin-[0_180px]" />
-             </div>
+            <div className="relative group">
+              <div className="absolute inset-0 rounded-full" style={{ background: 'rgba(180,145,90,0.15)', filter: 'blur(100px)' }} />
+              <div className="relative floating-glass w-64 h-64 md:w-80 md:h-80 rounded-full flex flex-col items-center justify-center premium-border">
+                <span className="text-xs uppercase tracking-[0.4em] mb-2 font-bold" style={{ color: 'var(--text-secondary)' }}>
+                  {t('admin.matchAccuracy', 'Match Accuracy')}
+                </span>
+                <span className="text-7xl md:text-8xl font-serif leading-none" style={{ color: 'var(--text-primary)' }}>
+                  {recommendation.match_score}
+                  <span className="text-3xl ml-1" style={{ color: '#b4915a' }}>%</span>
+                </span>
+              </div>
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full blur-[2px] animate-[spin_8s_linear_infinite] origin-[0_160px] md:origin-[0_200px]" style={{ background: '#b4915a' }} />
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full blur-[1px] animate-[spin_12s_linear_infinite_reverse] origin-[0_140px] md:origin-[0_180px]" style={{ background: '#2e7d32' }} />
+            </div>
           </div>
 
-          {/* Right: Content */}
           <div className="lg:col-span-7 space-y-8 order-1 lg:order-2">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <div className="h-[1px] w-12 bg-primary-500/50" />
-                <span className="text-xs uppercase tracking-[0.5em] text-primary-400 font-bold">{t('admin.aiRecommendedPath', 'AI Recommended Path')}</span>
+                <div className="h-[1px] w-12" style={{ background: 'rgba(180,145,90,0.5)' }} />
+                <span className="text-xs uppercase tracking-[0.5em] font-bold" style={{ color: '#b4915a' }}>
+                  {t('admin.aiRecommendedPath', 'AI Recommended Path')}
+                </span>
               </div>
-              <h3 className="text-5xl md:text-7xl font-serif text-white leading-[0.95] tracking-tight">
+              <h3 className="text-5xl md:text-7xl font-serif leading-[0.95] tracking-tight" style={{ color: 'var(--text-primary)' }}>
                 {recommendation.course_name}
               </h3>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
               <div className="space-y-4">
-                <h4 className="text-[10px] uppercase tracking-[0.3em] text-gray-500 font-black">{t('admin.theReasoning', 'The Reasoning')}</h4>
-                <p className="text-gray-400 leading-relaxed font-light italic text-xl border-l border-primary-500/20 pl-6">
+                <h4 className="text-[10px] uppercase tracking-[0.3em] font-black" style={{ color: 'var(--text-secondary)' }}>
+                  {t('admin.theReasoning', 'The Reasoning')}
+                </h4>
+                <p className="leading-relaxed font-light italic text-xl border-l pl-6" style={{ color: 'var(--text-secondary)', borderColor: 'rgba(180,145,90,0.2)' }}>
                   "{recommendation.reasoning}"
                 </p>
               </div>
               <div className="space-y-4">
-                <h4 className="text-[10px] uppercase tracking-[0.3em] text-gray-500 font-black">{t('admin.expertiseEarned', 'Expertise Earned')}</h4>
-                <div className="text-gray-400 leading-relaxed font-light text-lg">
+                <h4 className="text-[10px] uppercase tracking-[0.3em] font-black" style={{ color: 'var(--text-secondary)' }}>
+                  {t('admin.expertiseEarned', 'Expertise Earned')}
+                </h4>
+                <div className="leading-relaxed font-light text-lg" style={{ color: 'var(--text-secondary)' }}>
                   {recommendation.what_they_will_learn}
                 </div>
                 <div className="pt-6">
-                   <button 
+                  <button
                     onClick={() => navigate(`/formations/${recommendation.course_id}`)}
-                    className="group flex items-center gap-4 text-white hover:text-primary-400 transition-colors"
-                   >
-                      <span className="text-sm uppercase tracking-widest font-bold">{t('admin.initializeEnrollment', 'Initialize Enrollment')}</span>
-                      <div className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center group-hover:border-primary-400/50 group-hover:bg-primary-400/5 transition-all">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                           <path d="M5 12h14M12 5l7 7-7 7"/>
-                        </svg>
-                      </div>
-                   </button>
+                    className="group flex items-center gap-4 transition-colors"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    <span className="text-sm uppercase tracking-widest font-bold">{t('admin.initializeEnrollment', 'Initialize Enrollment')}</span>
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center transition-all" style={{ border: '1px solid var(--border-main)' }}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                      </svg>
+                    </div>
+                  </button>
                 </div>
               </div>
             </div>
@@ -167,10 +205,10 @@ const AICourseRecommender = () => {
         </div>
       )}
 
-      {/* --- BACKGROUND DECOR --- */}
-      <div className="fixed inset-0 pointer-events-none -z-10 opacity-30">
-        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary-500/5 rounded-full blur-[120px] animate-neural-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[150px] animate-neural-pulse [animation-delay:2s]" />
+      {/* BACKGROUND DECOR */}
+      <div className="fixed inset-0 pointer-events-none -z-10 opacity-20">
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full blur-[120px]" style={{ background: 'rgba(180,145,90,0.08)' }} />
+        <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] rounded-full blur-[150px]" style={{ background: 'rgba(46,125,50,0.05)' }} />
       </div>
     </div>
   );

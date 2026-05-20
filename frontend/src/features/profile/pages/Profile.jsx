@@ -31,8 +31,8 @@ const LogoutIcon = () => (
 const ROLE_META = {
   apprenant: { label: 'Student', color: '#6a9fd8', bg: 'rgba(106,159,216,.12)', icon: '🎓' },
   formateur: { label: 'Trainer', color: '#c8a86e', bg: 'rgba(200,168,110,.12)', icon: '🧑‍🏫' },
-  responsableCF: { label: 'Center Manager', color: '#7dbf7d', bg: 'rgba(125,191,125,.12)', icon: '🏢' },
-  admin: { label: 'Admin', color: '#e07070', bg: 'rgba(220,110,110,.12)', icon: '🔑' },
+        responsableCF: { label: 'Center Manager', color: '#2e7d32', bg: 'rgba(46,125,50,.12)', icon: '🏢' },
+        admin: { label: 'Admin', color: '#c62828', bg: 'rgba(198,40,40,.12)', icon: '🔑' },
 };
 
 /* ─── inline editable field ─── */
@@ -104,7 +104,7 @@ const DeleteModal = ({ profile, onConfirm, onClose, deleting }) => {
 
         .dm-modal {
           width: 100%; max-width: 460px;
-          background: #111113;
+          background: var(--bg-card);
           border: 1px solid var(--border-main);
           border-radius: 20px;
           overflow: hidden;
@@ -148,9 +148,9 @@ const DeleteModal = ({ profile, onConfirm, onClose, deleting }) => {
         }
         .dm-step-dot {
           height: 3px; border-radius: 2px; transition: all 0.3s ease;
-          background: rgba(255,255,255,0.1);
+          background: var(--border-main);
         }
-        .dm-step-dot.active { background: #e07070; flex: 2; }
+        .dm-step-dot.active { background: #c62828; flex: 2; }
         .dm-step-dot.done   { background: rgba(220,80,80,0.3); }
         .dm-step-dot:not(.active):not(.done) { flex: 1; }
         .dm-step-dot.active { flex: 2; }
@@ -183,13 +183,13 @@ const DeleteModal = ({ profile, onConfirm, onClose, deleting }) => {
           font-family: 'Courier New', monospace;
           background: rgba(220,80,80,0.08);
           border: 1px solid rgba(220,80,80,0.2);
-          color: #e07070; padding: 2px 8px; border-radius: 5px;
+          color: #c62828; padding: 2px 8px; border-radius: 5px;
           font-size: 13px; letter-spacing: 0.05em;
         }
         .dm-type-input {
           width: 100%; padding: 12px 16px;
           background: var(--bg-card);
-          border: 1px solid rgba(255,255,255,0.1);
+          border: 1px solid var(--border-main);
           border-radius: 10px; font-size: 14px; color: var(--text-primary);
           font-family: 'DM Sans', sans-serif;
           outline: none; transition: border-color 0.2s, background 0.2s;
@@ -202,7 +202,7 @@ const DeleteModal = ({ profile, onConfirm, onClose, deleting }) => {
           font-size: 11px; margin-top: 6px; height: 16px; letter-spacing: 0.04em;
           transition: color 0.2s;
         }
-        .dm-match-hint.ok { color: #e07070; }
+        .dm-match-hint.ok { color: #c62828; }
         .dm-match-hint.no { color: #333; }
 
         /* ── Footer buttons ── */
@@ -217,13 +217,13 @@ const DeleteModal = ({ profile, onConfirm, onClose, deleting }) => {
           color: #666; font-size: 13px; font-family: 'DM Sans', sans-serif;
           cursor: pointer; transition: all 0.2s;
         }
-        .dm-btn-cancel:hover { color: #aaa; border-color: rgba(255,255,255,0.15); }
+        .dm-btn-cancel:hover { color: var(--text-primary); border-color: var(--text-secondary); }
 
         .dm-btn-next {
           flex: 1; padding: 12px;
           background: rgba(220,80,80,0.12);
           border: 1px solid rgba(220,80,80,0.3); border-radius: 10px;
-          color: #e07070; font-size: 13px; font-weight: 500; font-family: 'DM Sans', sans-serif;
+          color: #c62828; font-size: 13px; font-weight: 500; font-family: 'DM Sans', sans-serif;
           cursor: pointer; transition: all 0.2s;
           display: flex; align-items: center; justify-content: center; gap: 7px;
         }
@@ -247,7 +247,7 @@ const DeleteModal = ({ profile, onConfirm, onClose, deleting }) => {
           color: #555; font-size: 13px; font-family: 'DM Sans', sans-serif;
           cursor: pointer; transition: all 0.2s;
         }
-        .dm-btn-back:hover { color: #888; border-color: rgba(255,255,255,0.15); }
+        .dm-btn-back:hover { color: var(--text-primary); border-color: var(--text-secondary); }
       `}</style>
 
       <div className="dm-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -256,7 +256,7 @@ const DeleteModal = ({ profile, onConfirm, onClose, deleting }) => {
           {/* Header */}
           <div className="dm-header">
             <div className="dm-header-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e07070" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c62828" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="3 6 5 6 21 6" />
                 <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2" />
                 <line x1="10" y1="11" x2="10" y2="17" />
@@ -700,7 +700,7 @@ const Profile = () => {
                     )}
                   </div>
                   {editing && (
-                    <label style={{ position: 'absolute', bottom: '-4px', right: '-4px', background: '#b4915a', color: '#0c0c0e', padding: '6px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.4)', zIndex: 2 }}>
+                    <label style={{ position: 'absolute', bottom: '-4px', right: '-4px', background: '#b4915a', color: '#ffffff', padding: '6px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.4)', zIndex: 2 }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
                       <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
                     </label>

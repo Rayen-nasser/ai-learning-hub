@@ -344,7 +344,7 @@ const FormationDetail = () => {
         .fd-lecon-dur { font-size: 11px; color: #444; display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
         .fd-lecon-arrow { color: #444; transition: transform 0.2s; flex-shrink: 0; }
         .fd-lecon.expanded .fd-lecon-arrow { transform: rotate(90deg); }
-        .fd-lecon-preview { padding: 10px 16px 14px 44px; font-size: 13px; color: #555; line-height: 1.6; border-radius: 0 0 10px 10px; background: rgba(255,255,255,0.01); margin-top: -6px; margin-bottom: 6px; border: 1px solid var(--bg-card); border-top: none; }
+        .fd-lecon-preview { padding: 10px 16px 14px 44px; font-size: 13px; color: var(--text-secondary); line-height: 1.6; border-radius: 0 0 10px 10px; background: rgba(255,255,255,0.01); margin-top: -6px; margin-bottom: 6px; border: 1px solid var(--bg-card); border-top: none; }
 
         /* ── Reviews tab ── */
         .fd-rating-hero { display: grid; grid-template-columns: auto 1fr; gap: 32px; align-items: center; padding: 24px; border: 1px solid var(--border-main); border-radius: 14px; background: var(--bg-card); margin-bottom: 28px; }
@@ -366,12 +366,12 @@ const FormationDetail = () => {
         /* Review form */
         .fd-review-form { background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 14px; padding: 22px; margin-top: 24px; }
         .fd-form-title { font-size: 15px; font-weight: 500; color: var(--text-primary); margin-bottom: 18px; }
-        .fd-form-label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #555; margin-bottom: 8px; display: block; }
-        .fd-textarea { width: 100%; padding: 12px 14px; background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1); border-radius: 9px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; resize: vertical; min-height: 90px; margin-bottom: 14px; transition: border-color 0.2s; }
+        .fd-form-label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px; display: block; }
+        .fd-textarea { width: 100%; padding: 12px 14px; background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 9px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; resize: vertical; min-height: 90px; margin-bottom: 14px; transition: border-color 0.2s; }
         .fd-textarea:focus { border-color: rgba(180,145,90,0.4); }
         .fd-textarea::placeholder { color: #444; }
         .fd-form-footer { display: flex; align-items: center; justify-content: space-between; }
-        .fd-submit-btn { padding: 10px 22px; background: linear-gradient(135deg, #b4915a, #c8a86e); border: none; border-radius: 9px; color: #0c0c0e; font-size: 13px; font-weight: 500; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: opacity 0.2s; display: flex; align-items: center; gap: 7px; }
+        .fd-submit-btn { padding: 10px 22px; background: linear-gradient(135deg, #b4915a, #c8a86e); border: none; border-radius: 9px; color: #ffffff; font-size: 13px; font-weight: 500; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: opacity 0.2s; display: flex; align-items: center; gap: 7px; }
         .fd-submit-btn:hover:not(:disabled) { opacity: 0.9; }
         .fd-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .fd-review-success { font-size: 12px; color: #4aa87d; display: flex; align-items: center; gap: 5px; animation: fd-fadein 0.3s ease; }
@@ -668,7 +668,7 @@ const FormationDetail = () => {
                           <button type="submit" className="fd-submit-btn" disabled={reviewSubmitting || !editAvisData.commentaire.trim()}>
                             {reviewSubmitting ? 'Updating…' : 'Update Review'}
                           </button>
-                          <button type="button" className="fd-submit-btn" style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: 'var(--text-secondary)' }} onClick={() => setEditingAvisId(null)}>
+                          <button type="button" className="fd-submit-btn" style={{ background: 'transparent', border: '1px solid var(--border-main)', color: 'var(--text-secondary)' }} onClick={() => setEditingAvisId(null)}>
                             Cancel
                           </button>
                         </div>
@@ -843,23 +843,23 @@ const FormationDetail = () => {
         }
         .pm-modal {
           width: 100%; max-width: 440px;
-          background: #111114; border: 1px solid rgba(255,255,255,0.1);
+          background: var(--bg-card); border: 1px solid var(--border-main);
           border-radius: 20px; overflow: hidden;
         }
         .pm-header {
           padding: 24px 28px 20px; display: flex; align-items: center; justify-content: space-between;
-          background: linear-gradient(135deg, #111114, #1a1a22);
+          background: linear-gradient(135deg, #faf9f6, #f0eee8);
           border-bottom: 1px solid var(--border-main);
         }
         .pm-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; color: var(--text-primary); margin: 0; }
-        .pm-close { background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; width: 32px; height: 32px; color: #666; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; }
-        .pm-close:hover { color: #aaa; }
+.pm-close { background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 8px; width: 32px; height: 32px; color: var(--text-secondary); cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; }
+.pm-close:hover { color: var(--text-primary); }
         .pm-body { padding: 28px; }
         .pm-course-info { text-align: center; margin-bottom: 20px; }
         .pm-course-title { font-size: 16px; color: var(--text-primary); margin-bottom: 8px; }
         .pm-course-price { font-family: 'Cormorant Garamond', serif; font-size: 32px; color: #b4915a; }
         .pm-divider { height: 1px; background: var(--border-main); margin: 20px 0; }
-        .pm-method-section h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: #555; margin: 0 0 12px; }
+        .pm-method-section h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-secondary); margin: 0 0 12px; }
         .pm-methods { display: flex; flex-direction: column; gap: 8px; }
         .pm-method { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1px solid var(--border-main); border-radius: 10px; cursor: pointer; transition: all 0.2s; }
         .pm-method:hover { border-color: rgba(180,145,90,0.3); }
@@ -869,18 +869,18 @@ const FormationDetail = () => {
         .pm-method span:last-child { font-size: 14px; color: var(--text-primary); }
         .pm-card-form { margin-top: 16px; }
         .pm-card-row { display: flex; gap: 12px; }
-        .pm-input { width: 100%; padding: 12px 14px; background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text-primary); font-size: 14px; margin-bottom: 10px; outline: none; }
+        .pm-input { width: 100%; padding: 12px 14px; background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 8px; color: var(--text-primary); font-size: 14px; margin-bottom: 10px; outline: none; }
         .pm-input:focus { border-color: #b4915a; }
-        .pm-error { padding: 10px 14px; background: rgba(220,100,100,0.1); border: 1px solid rgba(220,100,100,0.3); border-radius: 8px; color: #e07070; font-size: 13px; margin: 16px 0; }
-        .pm-pay-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #b4915a, #c8a86e); border: none; border-radius: 10px; color: #0c0c0e; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .pm-error { padding: 10px 14px; background: rgba(198,40,40,0.08); border: 1px solid rgba(198,40,40,0.25); border-radius: 8px; color: #c62828; font-size: 13px; margin: 16px 0; }
+        .pm-pay-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #b4915a, #c8a86e); border: none; border-radius: 10px; color: #ffffff; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .pm-pay-btn:hover { opacity: 0.9; }
         .pm-pay-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .pm-cancel-btn { width: 100%; padding: 12px; background: transparent; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #666; font-size: 14px; cursor: pointer; margin-top: 10px; }
-        .pm-cancel-btn:hover { border-color: rgba(255,255,255,0.2); color: #888; }
+.pm-cancel-btn { width: 100%; padding: 12px; background: transparent; border: 1px solid var(--border-main); border-radius: 10px; color: var(--text-secondary); font-size: 14px; cursor: pointer; margin-top: 10px; }
+.pm-cancel-btn:hover { border-color: var(--text-primary); color: var(--text-primary); }
         .pm-success { text-align: center; padding: 20px 0; }
         .pm-success-icon { width: 60px; height: 60px; border-radius: 50%; background: rgba(74,168,125,0.15); border: 2px solid #4aa87d; color: #4aa87d; font-size: 28px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
         .pm-success h3 { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--text-primary); margin: 0 0 8px; }
-        .pm-success p { font-size: 14px; color: #666; margin: 0; }
+        .pm-success p { font-size: 14px; color: var(--text-secondary); margin: 0; }
       `}</style>
     </>
   );

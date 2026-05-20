@@ -52,11 +52,11 @@ const ResetPassword = () => {
 
         .rp-root {
           min-height: 100vh; display: flex; align-items: center; justify-content: center;
-          background: #0c0c0e; font-family: 'DM Sans', sans-serif; color: var(--text-primary); padding: 20px;
+          background: var(--bg-main); font-family: 'DM Sans', sans-serif; color: var(--text-primary); padding: 20px;
         }
         .rp-card {
-          width: 100%; max-width: 420px; background: rgba(255,255,255,.02);
-          border: 1px solid rgba(255,255,255,.07); border-radius: 16px; padding: 40px; text-align: center;
+          width: 100%; max-width: 420px; background: var(--bg-card);
+          border: 1px solid var(--border-main); border-radius: 16px; padding: 40px; text-align: center;
         }
         .rp-icon {
           width: 64px; height: 64px; background: rgba(180,145,90,.1); color: #b4915a;
@@ -64,35 +64,35 @@ const ResetPassword = () => {
           font-size: 28px; margin: 0 auto 24px;
         }
         .rp-icon-success { background: rgba(125,191,125,.1); color: #7dbf7d; }
-        .rp-icon-error { background: rgba(220,53,53,.1); color: #e07070; }
+        .rp-icon-error { background: rgba(198,40,40,.1); color: #c62828; }
         
         .rp-title { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 400; color: var(--text-primary); margin-bottom: 12px; }
-        .rp-subtitle { font-size: 14px; color: #888; margin-bottom: 32px; line-height: 1.5; }
+        .rp-subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 32px; line-height: 1.5; }
         
         .rp-error {
-          background: rgba(220,53,53,.08); border: 1px solid rgba(220,53,53,.25);
-          border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #e07070; margin-bottom: 24px;
+          background: rgba(198,40,40,.08); border: 1px solid rgba(198,40,40,.25);
+          border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #c62828; margin-bottom: 24px;
           display: flex; align-items: center; justify-content: center; gap: 10px;
         }
 
         .rp-input {
-          width: 100%; padding: 14px 16px; background: rgba(255,255,255,.04);
-          border: 1px solid rgba(255,255,255,.1); border-radius: 8px; font-size: 14px; color: var(--text-primary);
+          width: 100%; padding: 14px 16px; background: var(--bg-card);
+          border: 1px solid var(--border-main); border-radius: 8px; font-size: 14px; color: var(--text-primary);
           font-family: 'DM Sans', sans-serif; transition: all .2s; outline: none; margin-bottom: 20px; box-sizing: border-box;
         }
         .rp-input:focus { border-color: #b4915a; background: rgba(180,145,90,.05); }
 
         .rp-btn {
           width: 100%; padding: 15px; border: none; border-radius: 8px;
-          background: linear-gradient(135deg, #b4915a, #c8a86e); color: #0c0c0e;
+          background: linear-gradient(135deg, #b4915a, #c8a86e); color: #ffffff;
           font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
           cursor: pointer; transition: opacity .2s; display: flex; align-items: center; justify-content: center; gap: 8px;
         }
         .rp-btn-outline {
-          background: transparent; border: 1px solid rgba(255,255,255,.15); color: var(--text-primary);
+          background: transparent; border: 1px solid var(--border-main); color: var(--text-primary);
         }
         .rp-btn:hover:not(:disabled) { opacity: .9; }
-        .rp-btn-outline:hover:not(:disabled) { background: rgba(255,255,255,.05); }
+        .rp-btn-outline:hover:not(:disabled) { background: rgba(0,0,0,.03); }
         .rp-btn:disabled { opacity: .5; cursor: not-allowed; }
 
         .rp-spinner { animation: rp-spin .8s linear infinite; }

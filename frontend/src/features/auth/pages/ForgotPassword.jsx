@@ -41,11 +41,11 @@ const ForgotPassword = () => {
 
         .fp-root {
           min-height: 100vh; display: flex; align-items: center; justify-content: center;
-          background: #0c0c0e; font-family: 'DM Sans', sans-serif; color: var(--text-primary); padding: 20px;
+          background: var(--bg-main); font-family: 'DM Sans', sans-serif; color: var(--text-primary); padding: 20px;
         }
         .fp-card {
-          width: 100%; max-width: 420px; background: rgba(255,255,255,.02);
-          border: 1px solid rgba(255,255,255,.07); border-radius: 16px; padding: 40px; text-align: center;
+          width: 100%; max-width: 420px; background: var(--bg-card);
+          border: 1px solid var(--border-main); border-radius: 16px; padding: 40px; text-align: center;
         }
         .fp-icon {
           width: 64px; height: 64px; background: rgba(180,145,90,.1); color: #b4915a;
@@ -58,35 +58,35 @@ const ForgotPassword = () => {
         .fp-title {
           font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 400; color: var(--text-primary); margin-bottom: 12px;
         }
-        .fp-subtitle { font-size: 14px; color: #888; margin-bottom: 32px; line-height: 1.5; }
+        .fp-subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 32px; line-height: 1.5; }
         
         .fp-error {
-          background: rgba(220,53,53,.08); border: 1px solid rgba(220,53,53,.25);
-          border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #e07070; margin-bottom: 24px;
+          background: rgba(198,40,40,.08); border: 1px solid rgba(198,40,40,.25);
+          border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #c62828; margin-bottom: 24px;
           display: flex; align-items: center; justify-content: center; gap: 10px;
         }
 
         .fp-input {
-          width: 100%; padding: 14px 16px; background: rgba(255,255,255,.04);
-          border: 1px solid rgba(255,255,255,.1); border-radius: 8px; font-size: 14px; color: var(--text-primary);
+          width: 100%; padding: 14px 16px; background: var(--bg-card);
+          border: 1px solid var(--border-main); border-radius: 8px; font-size: 14px; color: var(--text-primary);
           font-family: 'DM Sans', sans-serif; transition: all .2s; outline: none; margin-bottom: 24px; box-sizing: border-box;
         }
         .fp-input:focus { border-color: #b4915a; background: rgba(180,145,90,.05); }
 
         .fp-btn {
           width: 100%; padding: 15px; border: none; border-radius: 8px;
-          background: linear-gradient(135deg, #b4915a, #c8a86e); color: #0c0c0e;
+          background: linear-gradient(135deg, #b4915a, #c8a86e); color: #ffffff;
           font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
           cursor: pointer; transition: opacity .2s; display: flex; align-items: center; justify-content: center; gap: 8px;
         }
         .fp-btn-outline {
-          background: transparent; border: 1px solid rgba(255,255,255,.15); color: var(--text-primary); margin-top: 16px;
+          background: transparent; border: 1px solid var(--border-main); color: var(--text-primary); margin-top: 16px;
         }
         .fp-btn:hover:not(:disabled) { opacity: .9; }
-        .fp-btn-outline:hover:not(:disabled) { background: rgba(255,255,255,.05); }
+        .fp-btn-outline:hover:not(:disabled) { background: rgba(0,0,0,.03); }
         .fp-btn:disabled { opacity: .5; cursor: not-allowed; }
 
-        .fp-footer { margin-top: 32px; font-size: 13px; color: #666; }
+        .fp-footer { margin-top: 32px; font-size: 13px; color: var(--text-secondary); }
         .fp-footer a { color: #b4915a; text-decoration: none; font-weight: 500; }
         .fp-footer a:hover { color: #d4b07a; text-decoration: underline; }
 

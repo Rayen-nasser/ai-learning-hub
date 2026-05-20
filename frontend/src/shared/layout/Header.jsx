@@ -6,7 +6,7 @@ import NotificationBell from '../../features/notifications/components/Notificati
 
 const Header = () => {
   const { user, logout } = useAuth();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -206,21 +206,6 @@ const Header = () => {
         }
         .hd-register:hover { opacity: 0.9; transform: translateY(-1px); }
 
-        .hd-lang-toggle {
-          display: flex; align-items: center; gap: 4px;
-          padding: 4px 8px; border-radius: 6px;
-          background: rgba(180, 145, 90, 0.05);
-          border: 1px solid var(--border-main);
-          cursor: pointer; transition: all 0.2s;
-        }
-        .hd-lang-toggle:hover { border-color: rgba(180,145,90,0.3); }
-        .hd-lang-btn {
-          font-size: 11px; font-weight: 600; color: var(--text-secondary);
-          padding: 2px 4px; border-radius: 4px;
-          transition: all 0.2s;
-        }
-        .hd-lang-btn.active { color: #b4915a; background: rgba(180,145,90,0.1); }
-
         .hd-burger {
           display: none;
           background: none; border: none; cursor: pointer;
@@ -293,11 +278,6 @@ const Header = () => {
           </nav>
 
           <div className="hd-right">
-            <div className="hd-lang-toggle" onClick={() => i18n.changeLanguage(i18n.language === 'en' ? 'fr' : 'en')}>
-              <span className={`hd-lang-btn ${i18n.language === 'en' ? 'active' : ''}`}>EN</span>
-              <span style={{ width: 1, height: 10, background: 'var(--border-main)' }} />
-              <span className={`hd-lang-btn ${i18n.language === 'fr' ? 'active' : ''}`}>FR</span>
-            </div>
             {user && <NotificationBell />}
             {user ? (
               <div className="hd-user-wrapper" ref={userMenuRef}>
