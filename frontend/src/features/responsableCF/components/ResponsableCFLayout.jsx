@@ -35,13 +35,13 @@ export default function ResponsableCFLayout({ children, title, subtitle }) {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=DM+Sans:wght@300;400;500&display=swap');
         
-        .rcf-root { font-family: 'DM Sans', sans-serif; color: #e8e4dc; min-height: 100vh; background: #0c0c0e; }
+        .rcf-root { font-family: 'DM Sans', sans-serif; color: var(--text-primary); min-height: 100vh; background: var(--bg-main); }
         
         .rcf-topbar {
           position: sticky; top: 0; z-index: 50;
-          background: rgba(12,12,14,0.98);
+          background: rgba(245, 244, 240, 0.95);
           backdrop-filter: blur(20px);
-          border-bottom: 1px solid rgba(255,255,255,0.06);
+          border-bottom: 1px solid var(--border-main);
           padding: 0 32px;
         }
         .rcf-topbar-inner { max-width: 1400px; margin: 0 auto; }
@@ -52,12 +52,12 @@ export default function ResponsableCFLayout({ children, title, subtitle }) {
           font-size: 13px;
         }
         .rcf-breadcrumb-link {
-          color: #555; text-decoration: none;
+          color: var(--text-secondary); text-decoration: none;
           transition: color 0.15s;
         }
         .rcf-breadcrumb-link:hover { color: #b4915a; }
-        .rcf-breadcrumb-sep { color: #333; }
-        .rcf-breadcrumb-current { color: #e8e4dc; font-weight: 500; }
+        .rcf-breadcrumb-sep { color: var(--border-main); }
+        .rcf-breadcrumb-current { color: var(--text-primary); font-weight: 500; }
         
         .rcf-nav { display: flex; gap: 4px; padding: 8px 0 12px; overflow-x: auto; scrollbar-width: none; }
         .rcf-nav::-webkit-scrollbar { display: none; }
@@ -66,26 +66,26 @@ export default function ResponsableCFLayout({ children, title, subtitle }) {
           display: flex; align-items: center; gap: 8px;
           padding: 10px 16px; border-radius: 10px;
           font-size: 13px; font-weight: 400;
-          color: #555; text-decoration: none;
+          color: var(--text-secondary); text-decoration: none;
           white-space: nowrap;
           transition: all 0.2s;
         }
-        .rcf-nav-link:hover { color: #888; background: rgba(255,255,255,0.03); }
-        .rcf-nav-link.active { color: #7dbf7d; background: rgba(125,191,125,0.1); }
+        .rcf-nav-link:hover { color: var(--text-primary); background: rgba(180, 145, 90, 0.05); }
+        .rcf-nav-link.active { color: #2e7d32; background: rgba(46, 125, 50, 0.1); }
         .rcf-nav-link svg { width: 18px; height: 18px; flex-shrink: 0; }
         
-        .rcf-nav-link.centres.active { color: #6a9fd8; background: rgba(106,159,216,0.1); }
-        .rcf-nav-link.formations.active { color: #c8a86e; background: rgba(200,168,110,0.1); }
-        .rcf-nav-link.inscriptions.active { color: #e07070; background: rgba(224,112,112,0.1); }
-        .rcf-nav-link.payments.active { color: #4aa87d; background: rgba(74,168,125,0.1); }
-        .rcf-nav-link.categories.active { color: #b4915a; background: rgba(180,145,90,0.1); }
+        .rcf-nav-link.centres.active { color: #1565c0; background: rgba(21, 101, 192, 0.1); }
+        .rcf-nav-link.formations.active { color: #b4915a; background: rgba(180, 145, 90, 0.1); }
+        .rcf-nav-link.inscriptions.active { color: #c62828; background: rgba(198, 40, 40, 0.1); }
+        .rcf-nav-link.payments.active { color: #2e7d32; background: rgba(46, 125, 50, 0.1); }
+        .rcf-nav-link.categories.active { color: #b4915a; background: rgba(180, 145, 90, 0.1); }
         
         .rcf-content { max-width: 1400px; margin: 0 auto; padding: 32px 32px 48px; }
         
         .rcf-page-header { margin-bottom: 32px; }
-        .rcf-page-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(28px, 4vw, 40px); font-weight: 300; color: #f0ebe0; margin: 0 0 8px; }
-        .rcf-page-title em { font-style: italic; color: #7dbf7d; }
-        .rcf-page-subtitle { font-size: 14px; color: #555; font-weight: 300; }
+        .rcf-page-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(28px, 4vw, 40px); font-weight: 300; color: var(--text-primary); margin: 0 0 8px; }
+        .rcf-page-title em { font-style: italic; color: #2e7d32; }
+        .rcf-page-subtitle { font-size: 14px; color: var(--text-secondary); font-weight: 300; }
         
         @media (max-width: 768px) {
           .rcf-topbar { padding: 0 16px; }

@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 const styles = {
   wrapper: {
     minHeight: '100vh',
-    background: '#0c0c0e',
+    background: 'var(--bg-main)',
   },
   sidebar: {
     position: 'fixed',
@@ -11,8 +11,8 @@ const styles = {
     left: 0,
     width: 260,
     height: '100vh',
-    background: '#141416',
-    borderRight: '1px solid rgba(255,255,255,0.06)',
+    background: '#faf9f6',
+    borderRight: '1px solid var(--border-main)',
     display: 'flex',
     flexDirection: 'column',
     padding: '24px 0',
@@ -22,7 +22,7 @@ const styles = {
     fontFamily: "'Cormorant Garamond', serif",
     fontSize: 22,
     fontWeight: 500,
-    color: '#c8a86e',
+    color: '#b4915a',
     textDecoration: 'none',
     padding: '0 24px',
     marginBottom: 32,
@@ -45,7 +45,8 @@ const styles = {
     fontSize: 10,
     textTransform: 'uppercase',
     letterSpacing: '0.1em',
-    color: '#555',
+    color: 'var(--text-secondary)',
+    opacity: 0.6,
     padding: '8px 12px',
     marginBottom: 4,
   },
@@ -56,15 +57,15 @@ const styles = {
     padding: '10px 14px',
     borderRadius: 10,
     fontSize: 14,
-    color: '#888',
+    color: 'var(--text-secondary)',
     textDecoration: 'none',
     transition: 'all 0.15s',
     fontWeight: 400,
   },
   navLinkActive: {
-    background: 'rgba(200,168,110,0.1)',
-    color: '#c8a86e',
-    border: '1px solid rgba(200,168,110,0.2)',
+    background: 'rgba(180,145,90,0.08)',
+    color: '#b4915a',
+    border: '1px solid rgba(180,145,90,0.15)',
   },
   main: {
     marginLeft: 260,
@@ -78,12 +79,12 @@ const styles = {
     fontFamily: "'Cormorant Garamond', serif",
     fontSize: 36,
     fontWeight: 400,
-    color: '#f0ebe0',
+    color: 'var(--text-primary)',
     margin: 0,
   },
   subtitle: {
     fontSize: 14,
-    color: '#555',
+    color: 'var(--text-secondary)',
     marginTop: 8,
   },
 };
@@ -97,7 +98,7 @@ export default function FormateurLayout({ title, subtitle, children }) {
     <div style={styles.wrapper}>
       <aside style={styles.sidebar}>
         <Link to="/formateur" style={styles.logo}>
-          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#c8a86e', boxShadow: '0 0 8px rgba(200,168,110,0.5)' }} />
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#b4915a', boxShadow: '0 0 8px rgba(180,145,90,0.5)' }} />
           Forma
         </Link>
         
@@ -127,7 +128,7 @@ export default function FormateurLayout({ title, subtitle, children }) {
           </div>
         </nav>
 
-        <div style={{ padding: '0 12px', borderTop: '1px solid rgba(255,255,255,0.06)', marginTop: 'auto' }}>
+        <div style={{ padding: '0 12px', borderTop: '1px solid var(--border-main)', paddingTop: 12, marginTop: 'auto' }}>
           <Link 
             to="/" 
             style={styles.navLink}

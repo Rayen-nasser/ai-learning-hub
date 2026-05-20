@@ -83,12 +83,12 @@ const Home = () => {
 
         .home-root {
           font-family: 'DM Sans', sans-serif;
-          color: #e8e4dc;
+          color: var(--text-primary);
         }
 
         .home-spinner {
           width: 36px; height: 36px; border-radius: 50%;
-          border: 2px solid rgba(255,255,255,0.06);
+          border: 2px solid var(--border-main);
           border-top-color: #b4915a;
           animation: spin 0.8s linear infinite;
         }
@@ -103,23 +103,23 @@ const Home = () => {
         .hero-bg {
           position: absolute; inset: 0; pointer-events: none;
           background:
-            radial-gradient(ellipse 90% 70% at 65% -10%, rgba(180,145,90,0.12) 0%, transparent 55%),
-            radial-gradient(ellipse 60% 90% at 5% 110%, rgba(100,80,200,0.07) 0%, transparent 50%),
-            radial-gradient(ellipse 40% 40% at 90% 80%, rgba(180,145,90,0.05) 0%, transparent 60%);
+            radial-gradient(ellipse 90% 70% at 65% -10%, rgba(180,145,90,0.1) 0%, transparent 55%),
+            radial-gradient(ellipse 60% 90% at 5% 110%, rgba(124,168,212,0.06) 0%, transparent 50%),
+            radial-gradient(ellipse 40% 40% at 90% 80%, rgba(180,145,90,0.04) 0%, transparent 60%);
         }
         .hero-orb {
           position: absolute; border-radius: 50%; pointer-events: none; filter: blur(80px);
         }
-        .hero-orb-1 { width: 500px; height: 500px; top: -200px; right: -100px; background: rgba(180,145,90,0.08); animation: orbFloat 8s ease-in-out infinite; }
-        .hero-orb-2 { width: 300px; height: 300px; bottom: -100px; left: 20%; background: rgba(100,80,200,0.06); animation: orbFloat 10s ease-in-out infinite reverse; }
+        .hero-orb-1 { width: 500px; height: 500px; top: -200px; right: -100px; background: rgba(180,145,90,0.05); animation: orbFloat 8s ease-in-out infinite; }
+        .hero-orb-2 { width: 300px; height: 300px; bottom: -100px; left: 20%; background: rgba(124,168,212,0.04); animation: orbFloat 10s ease-in-out infinite reverse; }
         @keyframes orbFloat { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-30px)} }
         .hero-grid-lines {
           position: absolute; inset: 0;
           background-image:
-            linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+            linear-gradient(rgba(180,145,90,0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(180,145,90,0.03) 1px, transparent 1px);
           background-size: 72px 72px;
-          mask-image: linear-gradient(to bottom, transparent, rgba(0,0,0,0.4) 20%, rgba(0,0,0,0.4) 80%, transparent);
+          mask-image: linear-gradient(to bottom, transparent, rgba(0,0,0,0.2) 20%, rgba(0,0,0,0.2) 80%, transparent);
         }
         .hero-content { position: relative; max-width: 720px; }
 
@@ -128,9 +128,9 @@ const Home = () => {
           font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
           color: #c8a86e; margin-bottom: 32px;
           padding: 8px 18px;
-          border: 1px solid rgba(180,145,90,0.3);
+          border: 1px solid rgba(180,145,90,0.25);
           border-radius: 40px;
-          background: rgba(180,145,90,0.08);
+          background: rgba(180,145,90,0.06);
           backdrop-filter: blur(10px);
           animation: fadeSlideUp 0.7s ease both;
         }
@@ -143,15 +143,15 @@ const Home = () => {
           font-size: clamp(52px, 6.5vw, 88px);
           font-weight: 300;
           line-height: 1.03;
-          color: #f0ebe0;
+          color: var(--text-primary);
           margin: 0 0 28px;
           letter-spacing: -0.02em;
           animation: fadeSlideUp 0.7s 0.1s ease both;
         }
-        .hero-title em { font-style: italic; background: linear-gradient(135deg,#c8a86e,#e8c87a); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .hero-title em { font-style: italic; background: linear-gradient(135deg,#c8a86e,#b4915a); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
 
         .hero-desc {
-          font-size: 17px; line-height: 1.8; color: #777;
+          font-size: 17px; line-height: 1.8; color: var(--text-secondary);
           max-width: 500px; margin-bottom: 48px; font-weight: 300;
           animation: fadeSlideUp 0.7s 0.2s ease both;
         }
@@ -162,35 +162,35 @@ const Home = () => {
           display: inline-flex; align-items: center; gap: 10px;
           padding: 15px 32px; border-radius: 12px;
           background: linear-gradient(135deg, #b4915a 0%, #d4a96a 50%, #c8a86e 100%);
-          color: #0c0c0e; font-size: 14px; font-weight: 600;
+          color: #ffffff; font-size: 14px; font-weight: 600;
           letter-spacing: 0.04em; text-decoration: none;
           transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
-          box-shadow: 0 4px 24px rgba(180,145,90,0.35), 0 1px 0 rgba(255,255,255,0.15) inset;
+          box-shadow: 0 4px 24px rgba(180,145,90,0.25), 0 1px 0 rgba(255,255,255,0.15) inset;
         }
-        .btn-primary:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 32px rgba(180,145,90,0.5); }
+        .btn-primary:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 32px rgba(180,145,90,0.4); }
         .btn-primary:active { transform: translateY(-1px); }
 
         .btn-ghost {
           display: inline-flex; align-items: center; gap: 8px;
           padding: 15px 28px; border-radius: 12px;
-          border: 1px solid rgba(255,255,255,0.12);
-          color: #888; font-size: 14px; text-decoration: none;
+          border: 1px solid var(--border-main);
+          color: var(--text-secondary); font-size: 14px; text-decoration: none;
           transition: all 0.2s; backdrop-filter: blur(8px);
-          background: rgba(255,255,255,0.02);
+          background: rgba(255,255,255,0.6);
         }
-        .btn-ghost:hover { color: #e8e4dc; border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.05); transform: translateY(-1px); }
+        .btn-ghost:hover { color: var(--text-primary); border-color: rgba(180,145,90,0.3); background: rgba(180,145,90,0.05); transform: translateY(-1px); }
 
         /* ══ STATS ══ */
         .stats-row {
           display: flex; gap: 0;
           margin-top: 72px;
-          border-top: 1px solid rgba(255,255,255,0.07);
+          border-top: 1px solid var(--border-main);
           padding-top: 48px;
           animation: fadeSlideUp 0.7s 0.4s ease both;
         }
         .stat-item {
           flex: 1; padding-right: 32px;
-          border-right: 1px solid rgba(255,255,255,0.07);
+          border-right: 1px solid var(--border-main);
           margin-right: 32px;
           transition: transform 0.2s;
         }
@@ -199,11 +199,11 @@ const Home = () => {
         .stat-value {
           font-family: 'Cormorant Garamond', serif;
           font-size: 44px; font-weight: 400;
-          background: linear-gradient(135deg,#f0ebe0,#c8a86e);
+          background: linear-gradient(135deg, var(--text-primary), #b4915a);
           -webkit-background-clip: text; -webkit-text-fill-color: transparent;
           line-height: 1; margin-bottom: 6px;
         }
-        .stat-label { font-size: 11px; color: #555; letter-spacing: 0.12em; text-transform: uppercase; }
+        .stat-label { font-size: 11px; color: var(--text-secondary); letter-spacing: 0.12em; text-transform: uppercase; }
 
         /* ══ SECTION HEADER ══ */
         .section { padding: 88px 0 0; }
@@ -213,10 +213,10 @@ const Home = () => {
         }
         .section-title {
           font-family: 'Cormorant Garamond', serif;
-          font-size: 38px; font-weight: 400; color: #f0ebe0;
+          font-size: 38px; font-weight: 400; color: var(--text-primary);
           margin: 0; line-height: 1.1;
         }
-        .section-title span { font-style: italic; background: linear-gradient(135deg,#c8a86e,#e8c87a); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .section-title span { font-style: italic; background: linear-gradient(135deg,#c8a86e,#b4915a); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
         .section-link {
           font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
           color: #b4915a; text-decoration: none;
@@ -227,12 +227,12 @@ const Home = () => {
         .section-link:hover { gap: 10px; border-bottom-color: rgba(180,145,90,0.4); }
 
         /* ══ FEATURES ══ */
-        .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.07); border-radius: 20px; overflow: hidden; }
+        .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border-main); border: 1px solid var(--border-main); border-radius: 20px; overflow: hidden; }
         @media (max-width: 768px) { .features-grid { grid-template-columns: 1fr; } }
 
         .feature-card {
           padding: 40px 36px;
-          background: rgba(255,255,255,0.015);
+          background: rgba(255,255,255,0.4);
           transition: all 0.3s;
           position: relative; overflow: hidden;
         }
@@ -241,7 +241,7 @@ const Home = () => {
           background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(180,145,90,0.06) 0%, transparent 70%);
           opacity: 0; transition: opacity 0.4s;
         }
-        .feature-card:hover { background: rgba(255,255,255,0.035); }
+        .feature-card:hover { background: rgba(255,255,255,0.85); }
         .feature-card:hover::before { opacity: 1; }
         .feature-icon {
           width: 48px; height: 48px; border-radius: 14px;
@@ -249,12 +249,12 @@ const Home = () => {
           background: linear-gradient(135deg, rgba(180,145,90,0.12), rgba(180,145,90,0.04));
           display: flex; align-items: center; justify-content: center;
           font-size: 22px; margin-bottom: 24px;
-          box-shadow: 0 4px 16px rgba(180,145,90,0.1);
+          box-shadow: 0 4px 16px rgba(180,145,90,0.05);
           transition: transform 0.3s;
         }
         .feature-card:hover .feature-icon { transform: scale(1.1) rotate(-3deg); }
-        .feature-title { font-size: 17px; font-weight: 500; color: #e8e4dc; margin-bottom: 10px; }
-        .feature-desc { font-size: 13px; color: #555; line-height: 1.75; font-weight: 300; }
+        .feature-title { font-size: 17px; font-weight: 500; color: var(--text-primary); margin-bottom: 10px; }
+        .feature-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.75; font-weight: 300; }
 
         /* ══ CATEGORIES ══ */
         .cats-grid {
@@ -264,9 +264,9 @@ const Home = () => {
         }
         .cat-card {
           padding: 24px 20px;
-          border: 1px solid rgba(255,255,255,0.07);
+          border: 1px solid var(--border-main);
           border-radius: 16px;
-          background: rgba(255,255,255,0.02);
+          background: rgba(255,255,255,0.5);
           text-decoration: none;
           transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
           display: block;
@@ -279,15 +279,15 @@ const Home = () => {
         }
         .cat-card:hover {
           border-color: rgba(180,145,90,0.35);
-          background: rgba(180,145,90,0.04);
+          background: rgba(255,255,255,0.9);
           transform: translateY(-4px);
-          box-shadow: 0 12px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(180,145,90,0.1);
+          box-shadow: 0 12px 32px rgba(180,145,90,0.05), 0 0 0 1px rgba(180,145,90,0.1);
         }
         .cat-card:hover::after { opacity: 1; }
         .cat-icon { font-size: 22px; color: #c8a86e; margin-bottom: 12px; font-family: monospace; transition: transform 0.3s; }
         .cat-card:hover .cat-icon { transform: scale(1.2) rotate(5deg); }
-        .cat-name { font-size: 13px; color: #888; font-weight: 400; transition: color 0.2s; }
-        .cat-card:hover .cat-name { color: #e8e4dc; }
+        .cat-name { font-size: 13px; color: var(--text-secondary); font-weight: 400; transition: color 0.2s; }
+        .cat-card:hover .cat-name { color: var(--text-primary); }
 
         /* ══ COURSE CARDS ══ */
         .courses-grid {
@@ -296,22 +296,23 @@ const Home = () => {
           gap: 22px;
         }
         .course-card {
-          border: 1px solid rgba(255,255,255,0.07);
+          border: 1px solid var(--border-main);
           border-radius: 18px;
-          background: rgba(255,255,255,0.02);
+          background: var(--bg-card);
           overflow: hidden;
           text-decoration: none;
           display: flex; flex-direction: column;
           transition: all 0.35s cubic-bezier(0.175,0.885,0.32,1.275);
+          box-shadow: 0 10px 30px rgba(180,145,90,0.02);
         }
         .course-card:hover {
-          border-color: rgba(180,145,90,0.3);
+          border-color: rgba(180,145,90,0.35);
           transform: translateY(-6px);
-          box-shadow: 0 20px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(180,145,90,0.1);
+          box-shadow: 0 20px 48px rgba(180,145,90,0.08), 0 0 0 1px rgba(180,145,90,0.05);
         }
         .course-thumb {
           height: 160px;
-          background: linear-gradient(135deg, #111114 0%, #1c1c24 100%);
+          background: linear-gradient(135deg, #f7f5f0 0%, #edebe6 100%);
           position: relative; overflow: hidden;
           display: flex; align-items: center; justify-content: center;
         }
@@ -326,10 +327,10 @@ const Home = () => {
         .course-thumb-label {
           position: absolute; top: 12px; right: 12px;
           padding: 4px 10px; border-radius: 6px;
-          background: rgba(12,12,14,0.75);
-          border: 1px solid rgba(180,145,90,0.3);
+          background: rgba(255,255,255,0.9);
+          border: 1px solid var(--border-main);
           font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
-          color: #c8a86e; backdrop-filter: blur(8px);
+          color: #b4915a; backdrop-filter: blur(8px);
           z-index: 2; max-width: 130px;
           white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
@@ -343,60 +344,61 @@ const Home = () => {
         .course-card:hover .course-glyph { opacity: 0.22; transform: scale(1.1) rotate(-5deg); }
         .course-body { padding: 22px; flex: 1; display: flex; flex-direction: column; }
         .course-title {
-          font-size: 15px; font-weight: 500; color: #e8e4dc;
+          font-size: 15px; font-weight: 500; color: var(--text-primary);
           margin-bottom: 6px; line-height: 1.45;
           display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
           transition: color 0.2s;
         }
-        .course-card:hover .course-title { color: #f5f0e8; }
+        .course-card:hover .course-title { color: #b4915a; }
         .course-desc {
-          font-size: 12px; color: #555; line-height: 1.65;
+          font-size: 12px; color: var(--text-secondary); line-height: 1.65;
           display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
           margin-bottom: 18px; flex: 1; font-weight: 300;
         }
         .course-footer {
           display: flex; align-items: center; justify-content: space-between;
-          padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06);
+          padding-top: 14px; border-top: 1px solid var(--border-main);
         }
         .course-price {
           font-family: 'Cormorant Garamond', serif;
           font-size: 24px; font-weight: 400;
-          background: linear-gradient(135deg,#c8a86e,#e8c87a);
+          background: linear-gradient(135deg,#c8a86e,#b4915a);
           -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        .course-price-unit { font-size: 12px; color: #555; margin-left: 2px; font-family: 'DM Sans', sans-serif; }
-        .course-meta { font-size: 11px; color: #444; display: flex; align-items: center; gap: 4px; }
+        .course-price-unit { font-size: 12px; color: var(--text-secondary); margin-left: 2px; font-family: 'DM Sans', sans-serif; }
+        .course-meta { font-size: 11px; color: var(--text-secondary); display: flex; align-items: center; gap: 4px; }
 
         /* ══ CTA BANNER ══ */
         .cta-banner {
           margin-top: 88px;
           padding: 80px 64px;
           border-radius: 24px;
-          background: linear-gradient(145deg, #111116 0%, #17171f 50%, #111116 100%);
-          border: 1px solid rgba(255,255,255,0.08);
+          background: linear-gradient(145deg, #fdfdfc 0%, #f7f6f2 50%, #fdfdfc 100%);
+          border: 1px solid var(--border-main);
           position: relative; overflow: hidden;
           text-align: center;
+          box-shadow: 0 10px 40px rgba(180,145,90,0.03);
         }
         .cta-banner-bg {
           position: absolute; inset: 0;
           background:
-            radial-gradient(ellipse 70% 80% at 50% -20%, rgba(180,145,90,0.14) 0%, transparent 60%),
-            radial-gradient(ellipse 40% 40% at 20% 100%, rgba(100,80,200,0.06) 0%, transparent 60%);
+            radial-gradient(ellipse 70% 80% at 50% -20%, rgba(180,145,90,0.06) 0%, transparent 60%),
+            radial-gradient(ellipse 40% 40% at 20% 100%, rgba(124,168,212,0.04) 0%, transparent 60%);
         }
         .cta-banner-lines {
           position: absolute; inset: 0;
-          background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+          background-image: linear-gradient(rgba(180,145,90,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(180,145,90,0.02) 1px, transparent 1px);
           background-size: 60px 60px;
-          mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, rgba(0,0,0,0.4), transparent);
+          mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, rgba(0,0,0,0.2), transparent);
         }
         .cta-banner-content { position: relative; }
         .cta-banner-title {
           font-family: 'Cormorant Garamond', serif;
           font-size: clamp(34px, 4vw, 56px); font-weight: 300;
-          color: #f0ebe0; margin-bottom: 18px; line-height: 1.1;
+          color: var(--text-primary); margin-bottom: 18px; line-height: 1.1;
         }
-        .cta-banner-title em { font-style: italic; background: linear-gradient(135deg,#c8a86e,#e8c87a); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-        .cta-banner-desc { font-size: 15px; color: #666; margin-bottom: 40px; font-weight: 300; max-width: 480px; margin-left: auto; margin-right: auto; }
+        .cta-banner-title em { font-style: italic; background: linear-gradient(135deg,#c8a86e,#b4915a); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .cta-banner-desc { font-size: 15px; color: var(--text-secondary); margin-bottom: 40px; font-weight: 300; max-width: 480px; margin-left: auto; margin-right: auto; }
         .cta-banner-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
 
         @media (max-width: 600px) {

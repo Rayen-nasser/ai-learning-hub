@@ -87,11 +87,11 @@ export default function AdminLayout({ children, title, subtitle }) {
           --admin-sidebar-width: 280px;
           --admin-accent: #b4915a;
           --admin-accent-rgb: 180, 145, 90;
-          --admin-bg: #0c0c0e;
-          --admin-card-bg: rgba(255, 255, 255, 0.02);
-          --admin-border: rgba(255, 255, 255, 0.06);
-          --admin-text: #e8e4dc;
-          --admin-text-dim: #888;
+          --admin-bg: var(--bg-main);
+          --admin-card-bg: var(--bg-card);
+          --admin-border: var(--border-main);
+          --admin-text: var(--text-primary);
+          --admin-text-dim: var(--text-secondary);
         }
 
         .al-root { 
@@ -108,7 +108,7 @@ export default function AdminLayout({ children, title, subtitle }) {
           height: 100vh;
           position: fixed;
           left: 0; top: 0; bottom: 0;
-          background: #111114;
+          background: var(--bg-card);
           border-right: 1px solid var(--admin-border);
           display: flex;
           flex-direction: column;
@@ -147,7 +147,8 @@ export default function AdminLayout({ children, title, subtitle }) {
           font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 0.15em;
-          color: #444;
+          color: var(--admin-text-dim);
+          opacity: 0.6;
           padding: 0 16px;
           margin-bottom: 12px;
         }
@@ -167,7 +168,7 @@ export default function AdminLayout({ children, title, subtitle }) {
         }
         .al-nav-link:hover {
           color: var(--admin-text);
-          background: rgba(255,255,255,0.03);
+          background: rgba(180, 145, 90, 0.05);
         }
         .al-nav-link.active {
           color: var(--admin-accent);
@@ -205,7 +206,7 @@ export default function AdminLayout({ children, title, subtitle }) {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          background: rgba(12,12,14,0.8);
+          background: rgba(255, 255, 255, 0.9);
           backdrop-filter: blur(20px);
           border-bottom: 1px solid var(--admin-border);
           position: sticky;
@@ -218,13 +219,13 @@ export default function AdminLayout({ children, title, subtitle }) {
           display: flex;
           align-items: center;
           gap: 12px;
-          background: rgba(255,255,255,0.03);
+          background: var(--admin-card-bg);
           border: 1px solid var(--admin-border);
           padding: 8px 16px;
           border-radius: 12px;
           width: 100%;
           max-width: 400px;
-          color: #555;
+          color: var(--admin-text-dim);
           font-size: 14px;
         }
         .al-search-bar svg { width: 18px; height: 18px; opacity: 0.5; }
@@ -249,7 +250,7 @@ export default function AdminLayout({ children, title, subtitle }) {
           align-items: center;
           gap: 12px;
           padding: 6px 18px 6px 6px;
-          background: rgba(255,255,255,0.03);
+          background: var(--admin-card-bg);
           border: 1px solid var(--admin-border);
           border-radius: 40px;
           transition: border-color 0.2s;
@@ -271,11 +272,11 @@ export default function AdminLayout({ children, title, subtitle }) {
           border: 1px solid rgba(var(--admin-accent-rgb), 0.2);
         }
         .al-user-avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .al-user-name-small { font-size: 13px; font-weight: 500; color: #aaa; }
+        .al-user-name-small { font-size: 13px; font-weight: 500; color: var(--admin-text-dim); }
 
         .al-btn-logout-icon {
           background: none; border: none;
-          color: #666; cursor: pointer;
+          color: var(--admin-text-dim); cursor: pointer;
           padding: 10px; border-radius: 12px;
           transition: all 0.2s;
           display: flex; align-items: center; justify-content: center;
@@ -300,12 +301,12 @@ export default function AdminLayout({ children, title, subtitle }) {
           font-family: 'Cormorant Garamond', serif; 
           font-size: clamp(34px, 5vw, 48px); 
           font-weight: 300; 
-          color: #f0ebe0; 
+          color: var(--admin-text); 
           margin: 0 0 16px; 
           line-height: 1.1;
         }
         .al-page-title em { font-style: italic; color: var(--admin-accent); }
-        .al-page-subtitle { font-size: 16px; color: #666; font-weight: 300; max-width: 650px; line-height: 1.6; }
+        .al-page-subtitle { font-size: 16px; color: var(--admin-text-dim); font-weight: 300; max-width: 650px; line-height: 1.6; }
 
         /* ── Mobile Responsive ── */
         @media (max-width: 1024px) {

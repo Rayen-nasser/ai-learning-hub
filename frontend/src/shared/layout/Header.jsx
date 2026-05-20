@@ -44,11 +44,11 @@ const Header = () => {
 
         .hd-root {
           position: sticky; top: 0; z-index: 100;
-          background: ${scrolled ? 'rgba(12,12,14,0.96)' : 'rgba(12,12,14,0.8)'};
+          background: ${scrolled ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.75)'};
           backdrop-filter: blur(20px);
-          border-bottom: 1px solid ${scrolled ? 'rgba(255,255,255,0.07)' : 'transparent'};
+          border-bottom: 1px solid ${scrolled ? 'var(--border-main)' : 'transparent'};
           transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
-          box-shadow: ${scrolled ? '0 8px 32px rgba(0,0,0,0.4)' : 'none'};
+          box-shadow: ${scrolled ? '0 8px 32px rgba(0, 0, 0, 0.25)' : 'none'};
           font-family: 'DM Sans', sans-serif;
         }
         .hd-inner {
@@ -78,11 +78,11 @@ const Header = () => {
         .hd-nav-link {
           padding: 6px 14px; border-radius: 7px;
           font-size: 13px; font-weight: 400; letter-spacing: 0.02em;
-          color: #666; text-decoration: none;
+          color: var(--text-secondary); text-decoration: none;
           transition: color 0.2s, background 0.2s;
           position: relative;
         }
-        .hd-nav-link:hover { color: #e8e4dc; background: rgba(255,255,255,0.04); }
+        .hd-nav-link:hover { color: var(--text-primary); background: rgba(180,145,90,0.08); }
         .hd-nav-link.active { color: #b4915a; }
         .hd-nav-link.active::after {
           content: '';
@@ -99,8 +99,8 @@ const Header = () => {
           text-decoration: none;
           padding: 5px 12px 5px 5px;
           border-radius: 40px;
-          border: 1px solid rgba(255,255,255,0.08);
-          background: rgba(255,255,255,0.03);
+          border: 1px solid var(--border-main);
+          background: rgba(0,0,0,0.02);
           transition: border-color 0.2s, background 0.2s;
           cursor: pointer;
         }
@@ -109,21 +109,21 @@ const Header = () => {
           width: 28px; height: 28px; border-radius: 50%;
           background: linear-gradient(135deg, #b4915a, #8a6e40);
           display: flex; align-items: center; justify-content: center;
-          font-size: 12px; font-weight: 600; color: #0c0c0e;
+          font-size: 12px; font-weight: 600; color: #ffffff;
           flex-shrink: 0;
         }
-        .hd-user-name { font-size: 13px; color: #aaa; }
-        .hd-user-chevron { font-size: 10px; color: #555; margin-left: 2px; transition: transform 0.2s; }
+        .hd-user-name { font-size: 13px; color: var(--text-primary); }
+        .hd-user-chevron { font-size: 10px; color: var(--text-secondary); margin-left: 2px; transition: transform 0.2s; }
         .hd-user-chevron.open { transform: rotate(180deg); }
 
         .hd-user-dropdown {
           position: absolute; top: calc(100% + 12px); right: 0;
-          background: #16161a;
-          border: 1px solid rgba(255,255,255,0.08);
+          background: var(--bg-card);
+          border: 1px solid var(--border-main);
           border-radius: 16px;
           min-width: 260px;
           padding: 12px;
-          box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
           opacity: 0; visibility: hidden;
           transform: translateY(-12px);
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -133,11 +133,11 @@ const Header = () => {
 
         .hd-dropdown-header {
           padding: 12px 16px 20px;
-          border-bottom: 1px solid rgba(255,255,255,0.06);
+          border-bottom: 1px solid var(--border-main);
           margin-bottom: 8px;
         }
-        .hd-dropdown-name { font-size: 15px; font-weight: 500; color: #f0ebe0; margin-bottom: 4px; }
-        .hd-dropdown-email { font-size: 12px; color: #555; margin-bottom: 10px; }
+        .hd-dropdown-name { font-size: 15px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
+        .hd-dropdown-email { font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; }
         .hd-dropdown-role {
           display: inline-block;
           padding: 3px 10px;
@@ -158,25 +158,26 @@ const Header = () => {
           text-transform: uppercase; 
           letter-spacing: 0.12em; 
           color: #444; 
+          color: var(--text-secondary); 
           padding: 16px 16px 8px; 
         }
         
         .hd-dropdown-link {
           display: flex; align-items: center; gap: 12px;
           padding: 10px 16px; border-radius: 10px;
-          font-size: 14px; color: #999; text-decoration: none;
+          font-size: 14px; color: var(--text-secondary); text-decoration: none;
           transition: all 0.2s ease;
         }
-        .hd-dropdown-link:hover { background: rgba(255,255,255,0.04); color: #f0ebe0; }
+        .hd-dropdown-link:hover { background: rgba(180,145,90,0.08); color: var(--text-primary); }
         .hd-dropdown-link svg { width: 18px; height: 18px; opacity: 0.6; stroke-width: 1.5; }
         
         .hd-dropdown-link.admin-link { color: #e07070; opacity: 0.8; }
-        .hd-dropdown-link.admin-link:hover { opacity: 1; background: rgba(224,112,112,0.08); color: #e07070; }
+        .hd-dropdown-link.admin-link:hover { opacity: 1; background: rgba(224, 112, 112, 0.08); color: #e07070; }
         
         .hd-dropdown-link.resp-link { color: #7dbf7d; opacity: 0.8; }
-        .hd-dropdown-link.resp-link:hover { opacity: 1; background: rgba(125,191,125,0.08); color: #7dbf7d; }
+        .hd-dropdown-link.resp-link:hover { opacity: 1; background: rgba(125, 191, 125, 0.08); color: #7dbf7d; }
 
-        .hd-dropdown-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 8px 12px; }
+        .hd-dropdown-divider { height: 1px; background: var(--border-main); margin: 8px 12px; }
         
         .hd-dropdown-btn {
           display: flex; align-items: center; gap: 12px;
@@ -186,19 +187,19 @@ const Header = () => {
           font-family: 'DM Sans', sans-serif;
           margin-top: 4px;
         }
-        .hd-dropdown-btn:hover { background: rgba(224,112,112,0.08); }
+        .hd-dropdown-btn:hover { background: rgba(224, 112, 112, 0.08); }
         .hd-dropdown-btn svg { width: 18px; height: 18px; stroke-width: 1.5; }
 
         .hd-signin {
           padding: 7px 16px; border-radius: 8px;
-          color: #888; font-size: 13px; text-decoration: none;
+          color: var(--text-secondary); font-size: 13px; text-decoration: none;
           transition: color 0.2s; font-weight: 400;
         }
-        .hd-signin:hover { color: #e8e4dc; }
+        .hd-signin:hover { color: var(--text-primary); }
         .hd-register {
           padding: 8px 18px; border-radius: 8px;
           background: linear-gradient(135deg, #b4915a, #c8a86e);
-          color: #0c0c0e; font-size: 13px; font-weight: 500;
+          color: #ffffff; font-size: 13px; font-weight: 500;
           text-decoration: none; letter-spacing: 0.04em;
           transition: opacity 0.2s, transform 0.1s;
           display: inline-block;
@@ -208,13 +209,13 @@ const Header = () => {
         .hd-lang-toggle {
           display: flex; align-items: center; gap: 4px;
           padding: 4px 8px; border-radius: 6px;
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.08);
+          background: rgba(180, 145, 90, 0.05);
+          border: 1px solid var(--border-main);
           cursor: pointer; transition: all 0.2s;
         }
         .hd-lang-toggle:hover { border-color: rgba(180,145,90,0.3); }
         .hd-lang-btn {
-          font-size: 11px; font-weight: 600; color: #555;
+          font-size: 11px; font-weight: 600; color: var(--text-secondary);
           padding: 2px 4px; border-radius: 4px;
           transition: all 0.2s;
         }
@@ -223,7 +224,7 @@ const Header = () => {
         .hd-burger {
           display: none;
           background: none; border: none; cursor: pointer;
-          padding: 6px; color: #666;
+          padding: 6px; color: var(--text-secondary);
         }
         @media (max-width: 768px) {
           .hd-nav { display: none; }
@@ -233,7 +234,7 @@ const Header = () => {
 
         .hd-drawer {
           position: fixed; inset: 64px 0 0 0; z-index: 99;
-          background: rgba(12,12,14,0.98);
+          background: rgba(245, 244, 240, 0.98);
           backdrop-filter: blur(20px);
           padding: 24px 24px;
           display: flex; flex-direction: column; gap: 6px;
@@ -241,21 +242,21 @@ const Header = () => {
           opacity: ${menuOpen ? '1' : '0'};
           pointer-events: ${menuOpen ? 'all' : 'none'};
           transition: transform 0.25s ease, opacity 0.25s ease;
-          border-top: 1px solid rgba(255,255,255,0.06);
+          border-top: 1px solid var(--border-main);
           overflow-y: auto;
         }
         .hd-drawer-link {
           padding: 13px 16px; border-radius: 10px;
-          font-size: 15px; color: #888; text-decoration: none;
+          font-size: 15px; color: var(--text-secondary); text-decoration: none;
           transition: color 0.2s, background 0.2s;
           display: flex; align-items: center; gap: 10px;
         }
-        .hd-drawer-link:hover, .hd-drawer-link.active { color: #e8e4dc; background: rgba(255,255,255,0.04); }
+        .hd-drawer-link:hover, .hd-drawer-link.active { color: var(--text-primary); background: rgba(180,145,90,0.08); }
         .hd-drawer-link.active { color: #b4915a; }
-        .hd-drawer-section { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: #555; padding: 16px 16px 8px; }
+        .hd-drawer-section { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-secondary); padding: 16px 16px 8px; }
         .hd-drawer-admin { color: #e07070; }
         .hd-drawer-resp { color: #7dbf7d; }
-        .hd-drawer-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 8px 0; }
+        .hd-drawer-divider { height: 1px; background: var(--border-main); margin: 8px 0; }
         .hd-drawer-cta {
           display: flex; gap: 10px; margin-top: 8px;
         }
@@ -265,10 +266,10 @@ const Header = () => {
           transition: opacity 0.2s;
         }
         .hd-drawer-btn.outline {
-          border: 1px solid rgba(255,255,255,0.1); color: #888;
+          border: 1px solid var(--border-main); color: var(--text-secondary);
         }
         .hd-drawer-btn.filled {
-          background: linear-gradient(135deg, #b4915a, #c8a86e); color: #0c0c0e;
+          background: linear-gradient(135deg, #b4915a, #c8a86e); color: #ffffff;
         }
       `}</style>
 
@@ -294,7 +295,7 @@ const Header = () => {
           <div className="hd-right">
             <div className="hd-lang-toggle" onClick={() => i18n.changeLanguage(i18n.language === 'en' ? 'fr' : 'en')}>
               <span className={`hd-lang-btn ${i18n.language === 'en' ? 'active' : ''}`}>EN</span>
-              <span style={{ width: 1, height: 10, background: 'rgba(255,255,255,0.1)' }} />
+              <span style={{ width: 1, height: 10, background: 'var(--border-main)' }} />
               <span className={`hd-lang-btn ${i18n.language === 'fr' ? 'active' : ''}`}>FR</span>
             </div>
             {user && <NotificationBell />}

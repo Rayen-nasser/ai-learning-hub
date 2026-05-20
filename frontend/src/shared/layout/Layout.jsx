@@ -11,7 +11,7 @@ const Layout = () => {
   const hideHeader = isAdminPage || isResponsablePage || isFormateurPage || isApprenantPage;
   
   return (
-    <div style={{ minHeight: '100vh', background: '#0c0c0e' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-main)', color: 'var(--text-primary)' }}>
       {!hideHeader && <Header />}
       <main style={{ maxWidth: '1280px', margin: '0 auto', padding: hideHeader ? '0' : '0 32px 64px' }}>
         <Outlet />
