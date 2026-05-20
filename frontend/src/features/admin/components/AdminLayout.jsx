@@ -24,11 +24,6 @@ const NAV_GROUPS = [
       { path: '/admin/categories', label: 'Categories', icon: 'folder'  },
       { path: '/admin/skills',     label: 'Skills',     icon: 'award'   },
     ]
-  },
-  {
-    title: 'System',
-    items: [
-    ]
   }
 ];
 
