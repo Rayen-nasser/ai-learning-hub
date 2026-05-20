@@ -430,7 +430,7 @@ export default function FormateurLessonDetail() {
 
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 200, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: 20, overflow: 'auto' }} onClick={() => setShowModal(false)}>
-          <div style={{ background: '#1a1a1e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, maxWidth: 600, width: '100%', marginTop: 40, marginBottom: 40 }} onClick={e => e.stopPropagation()}>
+          <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, maxWidth: 600, width: '100%', marginTop: 40, marginBottom: 40 }} onClick={e => e.stopPropagation()}>
             <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-main)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h2 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: 24, color: 'var(--text-primary)', fontWeight: 400 }}>
                 {editingContent ? 'Edit' : 'Add'} {CONTENT_TYPES.find(c => c.type === contentType)?.label}
@@ -574,7 +574,7 @@ export default function FormateurLessonDetail() {
 
       {confirmDelete && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={() => setConfirmDelete(null)}>
-          <div style={{ background: '#1a1a1e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, maxWidth: 400, width: '100%', padding: 24, textAlign: 'center' }} onClick={e => e.stopPropagation()}>
+          <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, maxWidth: 400, width: '100%', padding: 24, textAlign: 'center' }} onClick={e => e.stopPropagation()}>
             <h3 style={{ margin: '0 0 8px', color: 'var(--text-primary)', fontWeight: 500 }}>Delete Content?</h3>
             <p style={{ margin: '0 0 20px', color: '#888', fontSize: 14 }}>Are you sure you want to delete "{confirmDelete.title}"?</p>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>

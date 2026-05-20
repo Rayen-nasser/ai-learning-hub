@@ -133,7 +133,7 @@ export default function AdminReports() {
         .rp-filters { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
         .rp-select { padding: 10px 16px; background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text-primary); font-size: 14px; cursor: pointer; }
         .rp-select:focus { border-color: #b4915a; outline: none; }
-        .rp-select option, .rp-form-select option { background: #121215; color: var(--text-primary); }
+        .rp-select option, .rp-form-select option { background: var(--bg-card); color: var(--text-primary); }
 
         .rp-table-wrap { overflow-x: auto; }
         .rp-table { width: 100%; border-collapse: collapse; }
@@ -161,7 +161,7 @@ export default function AdminReports() {
         .rp-page-btn.active { background: rgba(180,145,90,0.15); border-color: #b4915a; color: #b4915a; }
 
         .rp-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .rp-modal { background: #1a1a1e; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; }
+        .rp-modal { background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; }
         .rp-modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border-main); }
         .rp-modal-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 400; color: var(--text-primary); }
         .rp-modal-close { background: none; border: none; color: #555; cursor: pointer; font-size: 24px; padding: 4px; }

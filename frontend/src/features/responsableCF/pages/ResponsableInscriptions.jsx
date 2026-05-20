@@ -84,9 +84,9 @@ export default function ResponsableInscriptions() {
     <ResponsableCFLayout title="Inscriptions" subtitle="Manage learner registrations">
       <style>{`
         .ri-filters { display: flex; gap: 12px; margin-bottom: 24px; }
-        .ri-select { padding: 10px 16px; background: #1c1c21; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text-primary); font-size: 14px; cursor: pointer; font-family: 'DM Sans', sans-serif; color-scheme: dark; }
+        .ri-select { padding: 10px 16px; background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text-primary); font-size: 14px; cursor: pointer; font-family: 'DM Sans', sans-serif; color-scheme: dark; }
         .ri-select:focus { border-color: #e07070; outline: none; }
-        .ri-select option { background: #1c1c21; color: var(--text-primary); }
+        .ri-select option { background: var(--bg-card); color: var(--text-primary); }
 
         .ri-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 32px; }
         .ri-stat { background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 12px; padding: 16px 20px; text-align: center; }

@@ -615,7 +615,7 @@ const Profile = () => {
         .pf-input { flex: 1; padding: 8px 12px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12); border-radius: 7px; font-size: 13px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; outline: none; transition: border-color .2s; }
         .pf-input:focus { border-color: #b4915a; }
         .pf-select { appearance: none; cursor: pointer; color-scheme: dark; }
-        .pf-select option { background: #1a1a1e; color: var(--text-primary); }
+        .pf-select option { background: var(--bg-card); color: var(--text-primary); }
 
         .pf-actions { display: flex; gap: 10px; }
         .pf-btn-edit { display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: rgba(180,145,90,.1); border: 1px solid rgba(180,145,90,.25); border-radius: 8px; color: #b4915a; font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all .2s; }

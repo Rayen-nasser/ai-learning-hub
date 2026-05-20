@@ -116,7 +116,7 @@ export default function AdminCentres() {
 
         /* Delete confirm modal */
         .acm-overlay { position:fixed; inset:0; background:rgba(0,0,0,.75); backdrop-filter:blur(6px); z-index:1000; display:flex; align-items:center; justify-content:center; padding:20px; }
-        .acm-confirm { background:#1a1a1e; border:1px solid rgba(255,255,255,.1); border-radius:16px; max-width:420px; width:100%; padding:32px; text-align:center; }
+        .acm-confirm { background: var(--bg-card); border:1px solid rgba(255,255,255,.1); border-radius:16px; max-width:420px; width:100%; padding:32px; text-align:center; }
         .acm-confirm-icon { width:56px; height:56px; border-radius:50%; background:rgba(224,112,112,.1); color:#e07070; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; font-size:26px; border:1px solid rgba(224,112,112,.2); }
         .acm-confirm h3 { font-family:'Cormorant Garamond',serif; font-size:24px; color:var(--text-primary); margin-bottom:10px; }
         .acm-confirm p  { color:#666; font-size:14px; margin-bottom:28px; }

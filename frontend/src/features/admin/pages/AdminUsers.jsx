@@ -76,7 +76,7 @@ export default function AdminUsers() {
         
         .au-select { padding: 10px 16px; background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: var(--text-primary); font-size: 14px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
         .au-select:focus { border-color: #b4915a; outline: none; }
-        .au-select option { background: #121215; color: var(--text-primary); }
+        .au-select option { background: var(--bg-card); color: var(--text-primary); }
         
         .au-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
         

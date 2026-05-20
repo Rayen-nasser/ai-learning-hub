@@ -763,7 +763,7 @@ const styles = {
   input: { width: '100%', padding: '10px 14px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: 'var(--text-primary)', fontSize: 14, fontFamily: 'inherit', outline: 'none' },
   inputError: { borderColor: '#e07070' },
   textarea: { width: '100%', padding: '10px 14px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: 'var(--text-primary)', fontSize: 14, fontFamily: 'inherit', outline: 'none', minHeight: 90, resize: 'vertical' },
-  select: { padding: '10px 14px', background: '#1c1c21', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: 'var(--text-primary)', fontSize: 13, fontFamily: 'inherit', cursor: 'pointer', outline: 'none', colorScheme: 'dark' },
+  select: { padding: '10px 14px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: 'var(--text-primary)', fontSize: 13, fontFamily: 'inherit', cursor: 'pointer', outline: 'none', colorScheme: 'dark' },
   formRow: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 },
   fileDrop: { display: 'flex', alignItems: 'center', width: '100%', padding: '14px 16px', background: 'var(--bg-card)', border: '1px dashed rgba(255,255,255,0.15)', borderRadius: 8, cursor: 'pointer' },
   btnPrimary: { padding: '9px 22px', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer', border: 'none', background: 'linear-gradient(135deg, #c8a86e, #b4915a)', color: '#0c0c0e', fontFamily: 'inherit' },

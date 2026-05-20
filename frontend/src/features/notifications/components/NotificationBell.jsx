@@ -335,7 +335,7 @@ export default function NotificationBell() {
           marginTop: 8,
           width: 360,
           maxHeight: 480,
-          background: '#1a1a1e',
+          background: 'var(--bg-card)',
           border: '1px solid rgba(255,255,255,0.1)',
           borderRadius: 12,
           boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
@@ -427,7 +427,7 @@ export default function NotificationBell() {
                   style={{
                     padding: '12px 16px',
                     borderBottom: '1px solid var(--bg-card)',
-                    background: notification.read ? 'transparent' : 'rgba(124,168,212,0.03)',
+                    background: notification.read ? 'transparent' : 'rgba(124,168,212,0.06)',
                     cursor: 'pointer',
                     transition: 'background 0.15s',
                     display: 'flex',

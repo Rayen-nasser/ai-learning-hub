@@ -444,7 +444,7 @@ const RegisterForm = () => {
         .rf-input.err { border-color: rgba(220,53,53,.5); }
         .rf-input.has-icon { padding-right: 48px; }
         .rf-select { appearance: none; cursor: pointer; color-scheme: dark; }
-        .rf-select option { background: #1a1a1e; color: var(--text-primary); }
+        .rf-select option { background: var(--bg-card); color: var(--text-primary); }
         .rf-eye {
           position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
           background: none; border: none; color: #666; cursor: pointer; padding: 4px;

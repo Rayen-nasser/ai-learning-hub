@@ -998,7 +998,7 @@ export default function ApprenantLearning() {
           overflow: hidden;
         }
         .ai-fab:hover { transform: scale(1.1) translateY(-5px); box-shadow: 0 15px 50px rgba(200,168,110,0.4); }
-        .ai-fab.open { transform: rotate(90deg) scale(0.9); background: #1a1a1e; color: #888; }
+        .ai-fab.open { transform: rotate(90deg) scale(0.9); background: var(--bg-card); color: #888; }
         
         .ai-fab-glow {
           position: absolute;

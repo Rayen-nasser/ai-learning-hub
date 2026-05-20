@@ -124,7 +124,7 @@ export default function AdminCategories() {
         .cat-btn-delete:hover { background: rgba(224,112,112,0.15); }
 
         .cat-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .cat-modal { background: #1a1a1e; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; max-width: 500px; width: 100%; }
+        .cat-modal { background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; max-width: 500px; width: 100%; }
         .cat-modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border-main); }
         .cat-modal-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 400; color: var(--text-primary); }
         .cat-modal-close { background: none; border: none; color: #555; cursor: pointer; font-size: 24px; }

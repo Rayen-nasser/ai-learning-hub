@@ -50,7 +50,7 @@ export default function FixDocumentsModal({ centre, onClose, onRefresh }) {
     <div className="fd-modal-overlay">
       <style>{`
         .fd-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .fd-modal { background: #1a1a1e; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 64px rgba(0,0,0,0.5); }
+        .fd-modal { background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 64px rgba(0,0,0,0.5); }
         .fd-header { padding: 24px; border-bottom: 1px solid var(--border-main); display: flex; justify-content: space-between; align-items: center; }
         .fd-header h2 { font-family: 'Cormorant Garamond', serif; font-size: 24px; color: #b4915a; }
         .fd-close { background: none; border: none; color: #555; cursor: pointer; font-size: 20px; }

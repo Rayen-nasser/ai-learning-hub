@@ -171,7 +171,7 @@ const Formations = () => {
         .fm-cat-pill.sel .fm-pill-dot { opacity: 1; }
         .fm-select { width: 100%; padding: 9px 12px; background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 9px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; appearance: none; cursor: pointer; transition: border-color 0.2s; }
         .fm-select:focus { border-color: rgba(180,145,90,0.4); }
-        .fm-select option { background: #1a1a22; }
+        .fm-select option { background: var(--bg-card); }
         .fm-price-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .fm-num-input { width: 100%; padding: 9px 10px; background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 9px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; transition: border-color 0.2s; }
         .fm-num-input::placeholder { color: #333; }
@@ -194,7 +194,7 @@ const Formations = () => {
         .fm-meta-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
         .fm-count { font-size: 12px; color: #444; letter-spacing: 0.06em; text-transform: uppercase; }
         .fm-sort { padding: 7px 12px; border-radius: 8px; background: var(--bg-card); border: 1px solid var(--border-main); color: #666; font-size: 12px; font-family: 'DM Sans', sans-serif; outline: none; cursor: pointer; }
-        .fm-sort option { background: #1a1a22; }
+        .fm-sort option { background: var(--bg-card); }
 
         .fm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(234px, 1fr)); gap: 16px; }
         .fm-card { border: 1px solid var(--border-main); border-radius: 14px; overflow: hidden; background: var(--bg-card); text-decoration: none; display: flex; flex-direction: column; transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s; animation: fm-in 0.35s ease both; }
