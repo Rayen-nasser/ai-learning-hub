@@ -26,7 +26,7 @@
         }
       },
       "id": "node_formations",
-      "name": "Fetch Formations",
+      "name": "Fetch Courses",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1,
       "position": [
@@ -43,7 +43,7 @@
         }
       },
       "id": "node_avis",
-      "name": "Fetch Avis",
+      "name": "Fetch Reviews",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1,
       "position": [
@@ -83,7 +83,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// All four collections arrive as items from Fetch Categories (last in chain)\n// We reach back to each node by name\n\nconst interests = $('Webhook').first().json.query.interests || '';\n\nconst formations = $('Fetch Formations').all().map(i => i.json);\nconst avisItems  = $('Fetch Avis').all().map(i => i.json);\nconst skills     = $('Fetch Skills').all().map(i => i.json);\nconst categories = $('Fetch Categories').all().map(i => i.json);\n\nif (!formations.length) {\n  throw new Error('No formations found in database');\n}\n\n// Skill lookup map\nconst skillMap = {};\nskills.forEach(s => { skillMap[String(s._id)] = s.name; });\n\n// Category lookup map\nconst categoryMap = {};\ncategories.forEach(c => { categoryMap[String(c._id)] = c.nom; });\n\n// Average rating per formation\nconst ratingMap = {};\navisItems.forEach(a => {\n  const fid = String(a.formationId);\n  if (!ratingMap[fid]) ratingMap[fid] = { sum: 0, count: 0 };\n  ratingMap[fid].sum   += Number(a.note) || 0;\n  ratingMap[fid].count += 1;\n});\n\n// Build course list string for AI using REF_ID to prevent hallucination\nconst lines = formations.map((f, index) => {\n  const fid     = String(f._id);\n  const refId   = index + 1;\n  const rating  = ratingMap[fid];\n  const avgNote = rating\n    ? (rating.sum / rating.count).toFixed(1) + '/5 (' + rating.count + ' avis)'\n    : 'Aucun avis';\n  const catName = categoryMap[String(f.categorieId)] || 'Non categorise';\n  const reqSkillNames = (f.requiredSkills || [])\n    .map(sid => skillMap[String(sid)] || String(sid))\n    .join(', ') || 'Aucun prerequis';\n\n  return [\n    'REF_ID: '       + refId,\n    'Titre: '        + (f.titre       || 'N/A'),\n    'Description: '  + (f.description || 'N/A'),\n    'Categorie: '    + catName,\n    'Duree: '        + (f.duree != null ? f.duree + ' h'   : 'N/A'),\n    'Prix: '         + (f.prix  != null ? f.prix  + ' TND' : 'N/A'),\n    'Note moyenne: ' + avgNote,\n    'Prerequis: '    + reqSkillNames\n  ].join(' | ');\n});\n\nconst courseList = lines.join('\\n---\\n');\nconst formationIds = formations.map(f => String(f._id));\n\nreturn [{ json: { interests, courseList, formationIds } }];"
+        "jsCode": "// All four collections arrive as items from Fetch Categories (last in chain)\n// We reach back to each node by name\n\nconst interests = $('Webhook').first().json.query.interests || [];\nconst courseList = $('Fetch Courses').first().json || [];\nconst reviews = $('Fetch Reviews').first().json || [];\nconst skills = $('Fetch Skills').first().json || [];\nconst categories = $('Fetch Categories').first().json || [];\n\nreturn [{\n  interests,\n  courseList,\n  reviews,\n  skills,\n  categories,\n  formationIds: courseList.map(c => c._id || c.id)\n}];"
       },
       "id": "node_merge",
       "name": "Merge and Format",
@@ -97,9 +97,9 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=INTERETS DE L'ETUDIANT:\n{{ $json.interests }}\n\nLISTE DES FORMATIONS DISPONIBLES:\n{{ $json.courseList }}\n\nReponds uniquement avec un objet JSON contenant exactement ces 5 champs:\nref_id: le REF_ID (nombre) de la formation choisie\ncourse_name: le titre exact copie depuis la liste\nmatch_score: un entier entre 0 et 100\nreasoning: 2 a 3 phrases expliquant pourquoi cette formation correspond\nwhat_they_will_learn: 1 phrase sur les competences acquises\n\nSi aucune formation ne semble correspondre du tout (match_score < 40), mets ref_id a 0.\nAucun texte avant ou apres le JSON. Aucune balise markdown.",
+        "text": "STUDENT INTERESTS:\n{{ $json.interests }}\n\nAVAILABLE COURSES:\n{{ $json.courseList }}\n\nRespond with only a JSON object containing exactly these 5 fields:\n1. recommendedCourseId - The ID of the best matching course\n2. courseName - Name of the recommended course\n3. matchScore - Match percentage (0-100)\n4. reason - Brief explanation of why this course matches\n5. skillsGained - Array of 3-5 key skills the student will gain\n\nChoose the course that best matches the student's interests. Be precise and decisive.",
         "options": {
-          "systemMessage": "Tu es un conseiller d'orientation expert pour une plateforme de formation tunisienne. Ton travail est de choisir LA meilleure formation parmi la liste.\n\nREGLES ABSOLUES:\n- Utilise uniquement le REF_ID (le nombre) pour identifier la formation.\n- Ne jamais inventer une formation ou un ID.\n- Si le score de correspondance est tres faible, mets ref_id a 0.\n- Ne reponds qu'avec du JSON pur."
+          "systemMessage": "You are an expert educational advisor for a training platform. Your job is to recommend THE BEST course from the provided list based on student interests.\n\nABSOLUTE RULES:\n1. You MUST respond with valid JSON only\n2. The courseId must exist in the provided course list\n3. Respond with exactly 5 fields: recommendedCourseId, courseName, matchScore, reason, skillsGained\n4. matchScore must be a number between 0-100\n5. Be concise and professional\n6. Do not include any explanation outside the JSON object"
         }
       },
       "id": "node_agent",
@@ -129,7 +129,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const input = $input.first().json;\nconst validIds = $('Merge and Format').first().json.formationIds || [];\n\nlet rec;\ntry {\n  if (typeof input.output === 'object' && input.output !== null) {\n    rec = input.output;\n  } else {\n    const raw = String(input.output || input.text || '');\n    const cleaned = raw.replace(/```json\\s*|```/gi, '').trim();\n    rec = JSON.parse(cleaned);\n  }\n} catch (e) {\n  return [{ json: { success: false, error: 'AI did not return valid JSON' }}];\n}\n\nconst refId = parseInt(rec.ref_id);\n\n// Handle No Match case\nif (refId === 0) {\n  return [{ json: {\n    success: false,\n    error: 'No suitable course found for these interests',\n    interests: $('Merge and Format').first().json.interests\n  }}];\n}\n\n// Validate refId range\nif (isNaN(refId) || refId < 1 || refId > validIds.length) {\n  return [{ json: {\n    success: false,\n    error: 'AI returned an invalid REF_ID',\n    received_ref_id: rec.ref_id,\n    total_available: validIds.length\n  }}];\n}\n\nconst realCourseId = validIds[refId - 1];\n\nreturn [{ json: {\n  success: true,\n  recommendation: {\n    course_id:            realCourseId,\n    course_name:          rec.course_name,\n    match_score:          rec.match_score,\n    reasoning:            rec.reasoning,\n    what_they_will_learn: rec.what_they_will_learn\n  }\n}}];"
+        "jsCode": "const input = $input.first().json;\nconst validIds = $('Merge and Format').first().json.formationIds || [];\n\nlet rec;\ntry {\n  if (typeof input.output === 'object' && input.output !== null) {\n    rec = input.output;\n  } else if (typeof input.output === 'string') {\n    rec = JSON.parse(input.output);\n  } else {\n    throw new Error('Invalid output format');\n  }\n} catch (e) {\n  return [{ error: 'Failed to parse AI response', details: e.message }];\n}\n\nif (!rec.recommendedCourseId || !validIds.includes(rec.recommendedCourseId)) {\n  return [{ error: 'Invalid course ID: ' + rec.recommendedCourseId }];\n}\n\nreturn [rec];"
       },
       "id": "node_validate",
       "name": "Parse and Validate",
@@ -146,25 +146,25 @@
       "main": [
         [
           {
-            "node": "Fetch Formations",
+            "node": "Fetch Courses",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Fetch Formations": {
+    "Fetch Courses": {
       "main": [
         [
           {
-            "node": "Fetch Avis",
+            "node": "Fetch Reviews",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Fetch Avis": {
+    "Fetch Reviews": {
       "main": [
         [
           {
