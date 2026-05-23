@@ -25,6 +25,7 @@ const AICourseRecommender = () => {
         params: {
           interests: interests,
           userId: user?._id || user?.id || 'visitor',
+          language: 'en',
         }
       });
 
@@ -138,68 +139,152 @@ const AICourseRecommender = () => {
 
       {/* RESULTS */}
       {recommendation && (
-        <div className="mt-20 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center animate-fade-in-up">
-          <div className="lg:col-span-5 flex flex-col items-center lg:items-end order-2 lg:order-1">
+        <div className="mt-20 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center animate-fade-in-up">
+          {/* Match Score Indicator (Circular Progress Ring) */}
+          <div className="lg:col-span-5 flex flex-col items-center justify-center order-2 lg:order-1">
             <div className="relative group">
+              {/* Soft Radial Ambient Glow */}
               <div className="absolute inset-0 rounded-full" style={{ background: 'rgba(180,145,90,0.15)', filter: 'blur(100px)' }} />
-              <div className="relative floating-glass w-64 h-64 md:w-80 md:h-80 rounded-full flex flex-col items-center justify-center premium-border">
-                <span className="text-xs uppercase tracking-[0.4em] mb-2 font-bold" style={{ color: 'var(--text-secondary)' }}>
-                  {t('admin.matchAccuracy', 'Match Accuracy')}
-                </span>
-                <span className="text-7xl md:text-8xl font-serif leading-none" style={{ color: 'var(--text-primary)' }}>
-                  {recommendation.match_score}
-                  <span className="text-3xl ml-1" style={{ color: '#b4915a' }}>%</span>
-                </span>
+              
+              {/* Circular SVG Progress Ring */}
+              <div className="relative flex items-center justify-center w-64 h-64 md:w-80 md:h-80 mx-auto rounded-full bg-neutral-900/5 dark:bg-white/5 border border-neutral-200/30 dark:border-white/5 backdrop-blur-xl transition-transform duration-700 hover:scale-[1.02]">
+                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 200 200">
+                  <defs>
+                    <linearGradient id="premiumScoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#b4915a" />
+                      <stop offset="100%" stopColor="#d4af37" />
+                    </linearGradient>
+                  </defs>
+                  
+                  {/* Track Circle */}
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="85"
+                    className="stroke-neutral-200/50 dark:stroke-white/5"
+                    strokeWidth="6"
+                    fill="transparent"
+                  />
+                  
+                  {/* Glowing Score Progress Circle */}
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="85"
+                    stroke="url(#premiumScoreGradient)"
+                    strokeWidth="8"
+                    fill="transparent"
+                    strokeDasharray={534}
+                    strokeDashoffset={534 - (534 * (parseInt(recommendation.match_score) || 0)) / 100}
+                    strokeLinecap="round"
+                    className="transition-all duration-1000 ease-out"
+                    style={{ filter: 'drop-shadow(0px 0px 8px rgba(180,145,90,0.3))' }}
+                  />
+                </svg>
+
+                {/* Inner Text Info */}
+                <div className="absolute flex flex-col items-center justify-center text-center">
+                  <span className="text-[10px] md:text-xs uppercase tracking-[0.3em] font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>
+                    {t('admin.matchAccuracy', 'Match Accuracy')}
+                  </span>
+                  <span className="text-6xl md:text-7xl font-serif leading-none font-semibold relative" style={{ color: 'var(--text-primary)' }}>
+                    {recommendation.match_score}
+                    <span className="text-2xl md:text-3xl font-serif absolute -top-1 -right-6" style={{ color: '#b4915a' }}>%</span>
+                  </span>
+                  
+                  {/* Dynamic Compatibility Tag */}
+                  <div className="mt-4 px-3 py-1 rounded-full text-[9px] tracking-[0.2em] uppercase font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                    {parseInt(recommendation.match_score) >= 80 
+                      ? t('admin.highMatch', 'High Compatibility') 
+                      : t('admin.moderateMatch', 'Moderate Match')}
+                  </div>
+                </div>
               </div>
+
+              {/* Orbital Rings / Particles for premium feel */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full blur-[2px] animate-[spin_8s_linear_infinite] origin-[0_160px] md:origin-[0_200px]" style={{ background: '#b4915a' }} />
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full blur-[1px] animate-[spin_12s_linear_infinite_reverse] origin-[0_140px] md:origin-[0_180px]" style={{ background: '#2e7d32' }} />
             </div>
           </div>
 
-          <div className="lg:col-span-7 space-y-8 order-1 lg:order-2">
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="h-[1px] w-12" style={{ background: 'rgba(180,145,90,0.5)' }} />
-                <span className="text-xs uppercase tracking-[0.5em] font-bold" style={{ color: '#b4915a' }}>
-                  {t('admin.aiRecommendedPath', 'AI Recommended Path')}
+          {/* Stepper Learning Path details */}
+          <div className="lg:col-span-7 space-y-6 order-1 lg:order-2">
+            
+            {/* Step 1: Course Destination */}
+            <div className="p-6 md:p-8 rounded-3xl bg-neutral-900/5 dark:bg-white/5 border border-neutral-200/50 dark:border-white/5 backdrop-blur-xl relative overflow-hidden group hover:border-[#b4915a]/30 transition-all duration-500">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#b4915a]/10 to-transparent rounded-bl-full pointer-events-none" />
+              
+              <div className="flex items-center gap-3 mb-4">
+                <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-[#b4915a]/10 text-[#b4915a] font-serif text-sm font-bold border border-[#b4915a]/20">
+                  1
+                </span>
+                <span className="text-[10px] uppercase tracking-[0.2em] font-bold" style={{ color: '#b4915a' }}>
+                  {t('admin.aiRecommendedPath', 'AI RECOMMENDED PATH')}
                 </span>
               </div>
-              <h3 className="text-5xl md:text-7xl font-serif leading-[0.95] tracking-tight" style={{ color: 'var(--text-primary)' }}>
+              
+              <h3 className="text-3xl md:text-5xl font-serif leading-tight font-semibold" style={{ color: 'var(--text-primary)' }}>
                 {recommendation.course_name}
               </h3>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
-              <div className="space-y-4">
-                <h4 className="text-[10px] uppercase tracking-[0.3em] font-black" style={{ color: 'var(--text-secondary)' }}>
-                  {t('admin.theReasoning', 'The Reasoning')}
-                </h4>
-                <p className="leading-relaxed font-light italic text-xl border-l pl-6" style={{ color: 'var(--text-secondary)', borderColor: 'rgba(180,145,90,0.2)' }}>
-                  "{recommendation.reasoning}"
-                </p>
-              </div>
-              <div className="space-y-4">
-                <h4 className="text-[10px] uppercase tracking-[0.3em] font-black" style={{ color: 'var(--text-secondary)' }}>
-                  {t('admin.expertiseEarned', 'Expertise Earned')}
-                </h4>
-                <div className="leading-relaxed font-light text-lg" style={{ color: 'var(--text-secondary)' }}>
-                  {recommendation.what_they_will_learn}
+            {/* Steps 2 & 3 in Responsive Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              {/* Step 2: The Reasoning (Quote design) */}
+              <div className="p-6 md:p-8 rounded-3xl bg-neutral-900/5 dark:bg-white/5 border border-neutral-200/50 dark:border-white/5 backdrop-blur-xl hover:border-[#b4915a]/30 transition-all duration-500 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-serif text-sm font-bold border border-indigo-500/20">
+                      2
+                    </span>
+                    <span className="text-[10px] uppercase tracking-[0.2em] font-extrabold text-indigo-600 dark:text-indigo-400">
+                      {t('admin.theReasoning', 'THE REASONING')}
+                    </span>
+                  </div>
+                  
+                  <p className="leading-relaxed font-light italic text-base md:text-lg relative pl-2" style={{ color: 'var(--text-primary)' }}>
+                    <span className="absolute -left-1 -top-2 text-4xl text-[#b4915a]/20 font-serif">“</span>
+                    {recommendation.reasoning}
+                    <span className="text-4xl text-[#b4915a]/20 font-serif leading-none align-bottom ml-1">”</span>
+                  </p>
                 </div>
-                <div className="pt-6">
+              </div>
+
+              {/* Step 3: Skills & Action */}
+              <div className="p-6 md:p-8 rounded-3xl bg-neutral-900/5 dark:bg-white/5 border border-neutral-200/50 dark:border-white/5 backdrop-blur-xl hover:border-[#b4915a]/30 transition-all duration-500 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-serif text-sm font-bold border border-emerald-500/20">
+                      3
+                    </span>
+                    <span className="text-[10px] uppercase tracking-[0.2em] font-extrabold text-emerald-600 dark:text-emerald-400">
+                      {t('admin.expertiseEarned', 'EXPERTISE EARNED')}
+                    </span>
+                  </div>
+                  
+                  <p className="leading-relaxed font-light text-sm md:text-base mb-6" style={{ color: 'var(--text-primary)' }}>
+                    {recommendation.what_they_will_learn}
+                  </p>
+                </div>
+                
+                <div className="pt-4 border-t border-neutral-200/30 dark:border-white/5">
                   <button
                     onClick={() => navigate(`/formations/${recommendation.course_id}`)}
-                    className="group flex items-center gap-4 transition-colors"
-                    style={{ color: 'var(--text-primary)' }}
+                    className="w-full group relative flex items-center justify-center gap-3 py-3 px-5 rounded-2xl bg-gradient-to-r from-[#b4915a] to-[#c8a86e] text-white hover:opacity-95 active:scale-[0.98] transition-all duration-300 shadow-[0_4px_15px_rgba(180,145,90,0.2)] hover:shadow-[0_8px_25px_rgba(180,145,90,0.3)]"
                   >
-                    <span className="text-sm uppercase tracking-widest font-bold">{t('admin.initializeEnrollment', 'Initialize Enrollment')}</span>
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center transition-all" style={{ border: '1px solid var(--border-main)' }}>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <span className="text-xs uppercase tracking-widest font-bold">
+                      {t('admin.initializeEnrollment', 'Start Journey')}
+                    </span>
+                    <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center transition-all group-hover:translate-x-1">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                         <path d="M5 12h14M12 5l7 7-7 7"/>
                       </svg>
                     </div>
                   </button>
                 </div>
               </div>
+
             </div>
           </div>
         </div>

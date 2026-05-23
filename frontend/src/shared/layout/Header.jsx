@@ -361,20 +361,6 @@ const Header = () => {
                       )}
                     </>
                   )}
-                  {user.role !== 'admin' && user.role !== 'responsableCF' && (
-                    <>
-                      <div className="hd-dropdown-section">{t('nav.partnership')}</div>
-                      <Link to="/centres/apply" className="hd-dropdown-link" style={{ color: '#b4915a' }}>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                        {t('nav.applyCentre')}
-                      </Link>
-                      <Link to="/centres/my-requests" className="hd-dropdown-link">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                        {t('nav.myApplications')}
-                      </Link>
-                    </>
-                  )}
-
                   {user.role === 'formateur' && (
                     <>
                       <div className="hd-dropdown-section">{t('nav.formateur')}</div>
@@ -478,15 +464,6 @@ const Header = () => {
               </>
             )}
             
-            {user.role !== 'admin' && user.role !== 'responsableCF' && (
-              <>
-                <div className="hd-drawer-divider" />
-                <div className="hd-drawer-section">{t('nav.partnership')}</div>
-                <Link to="/centres/apply" className={`hd-drawer-link${isActive('/centres/apply') ? ' active' : ''}`} style={{ color: '#b4915a' }}>{t('nav.applyCentre')}</Link>
-                <Link to="/centres/my-requests" className={`hd-drawer-link${isActive('/centres/my-requests') ? ' active' : ''}`}>{t('nav.myApplications')}</Link>
-              </>
-            )}
-
             
             <div className="hd-drawer-divider" />
             <button onClick={logout} className="hd-drawer-btn outline" style={{ background: 'none', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', color: '#c62828' }}>

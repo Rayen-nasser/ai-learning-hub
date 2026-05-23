@@ -19,6 +19,7 @@ import AdminSkills from './features/admin/pages/AdminSkills';
 import AdminPendingCentres from './features/admin/pages/AdminPendingCentres';
 import AdminVerifyCentreDetail from './features/admin/pages/AdminVerifyCentreDetail';
 import AdminCentres from './features/admin/pages/AdminCentres';
+import AdminPayments from './features/admin/pages/AdminPayments';
 
 import ApplyCentre from './features/centres/pages/ApplyCentre';
 import MyRequests from './features/centres/pages/MyRequests';
@@ -29,11 +30,13 @@ import ResponsableCentres from './features/responsableCF/pages/ResponsableCentre
 import ResponsableFormations from './features/responsableCF/pages/ResponsableFormations';
 import ResponsableInscriptions from './features/responsableCF/pages/ResponsableInscriptions';
 import ResponsablePayments from './features/responsableCF/pages/ResponsablePayments';
+import ResponsableFormateurPayments from './features/responsableCF/pages/ResponsableFormateurPayments';
 import FormateurRoute from './features/formateur/components/FormateurRoute';
 import FormateurDashboard from './features/formateur/pages/FormateurDashboard';
 import FormateurFormations from './features/formateur/pages/FormateurFormations';
 import FormateurFormationDetail from './features/formateur/pages/FormateurFormationDetail';
 import FormateurLessonDetail from './features/formateur/pages/FormateurLessonDetail';
+import FormateurEarnings from './features/formateur/pages/FormateurEarnings';
 import ApprenantRoute from './features/apprenant/components/ApprenantRoute';
 import ApprenantDashboard from './features/apprenant/pages/ApprenantDashboard';
 import ApprenantFormations from './features/apprenant/pages/ApprenantFormations';
@@ -100,6 +103,11 @@ function App() {
               <AdminVerifyCentreDetail />
             </AdminRoute>
           } />
+          <Route path="/admin/payments" element={
+            <AdminRoute>
+              <AdminPayments />
+            </AdminRoute>
+          } />
 
           <Route path="/responsable" element={
             <ResponsableCFRoute>
@@ -131,6 +139,11 @@ function App() {
               <AdminCategories />
             </ResponsableCFRoute>
           } />
+          <Route path="/responsable/formateur-payments" element={
+            <ResponsableCFRoute>
+              <ResponsableFormateurPayments />
+            </ResponsableCFRoute>
+          } />
           <Route path="/responsable/my-requests" element={
             <ResponsableCFRoute>
               <MyRequests />
@@ -154,6 +167,11 @@ function App() {
           <Route path="/formateur/formations/:id/lessons/:lessonId" element={
             <FormateurRoute>
               <FormateurLessonDetail />
+            </FormateurRoute>
+          } />
+          <Route path="/formateur/earnings" element={
+            <FormateurRoute>
+              <FormateurEarnings />
             </FormateurRoute>
           } />
           <Route path="/apprenant" element={

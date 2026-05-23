@@ -17,8 +17,9 @@ const paiementSchema = new mongoose.Schema(
     reference: {
       type: String,
       unique: true,
-      sparse: true, // Allows multiple null/undefined values
+      sparse: true,
     },
+    proofImage: { type: String },
   },
   { timestamps: true }
 );

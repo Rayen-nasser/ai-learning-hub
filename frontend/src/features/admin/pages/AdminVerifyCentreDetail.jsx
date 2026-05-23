@@ -17,6 +17,7 @@ export default function AdminVerifyCentreDetail() {
   const [adminMessage, setAdminMessage]       = useState('');
   const [showRejectBox, setShowRejectBox]     = useState(false);
   const [actionError, setActionError]         = useState('');
+  const [creationFee, setCreationFee]         = useState(null);
 
   // Fetch from admin/pending list to get full document data
   const fetchCentre = async () => {
@@ -42,6 +43,25 @@ export default function AdminVerifyCentreDetail() {
 
   useEffect(() => { fetchCentre(); }, [id]);
 
+  // Use centre's montant if set, otherwise fetch from requirements endpoint
+  useEffect(() => {
+    if (centre?.montant) {
+      setCreationFee(centre.montant);
+      return;
+    }
+    const fetchCreationFee = async () => {
+      try {
+        const res = await centreService.getRequirements();
+        if (res.data.creationFee !== undefined) {
+          setCreationFee(res.data.creationFee);
+        }
+      } catch (err) {
+        console.error('Failed to fetch creation fee:', err);
+      }
+    };
+    fetchCreationFee();
+  }, [centre?.montant]);
+
   const handleDocumentStatus = async (docId, status) => {
     setReviewLoading(prev => ({ ...prev, [docId]: status }));
     try {
@@ -63,9 +83,10 @@ export default function AdminVerifyCentreDetail() {
     setActionError('');
     try {
       await centreService.approve(id);
-      navigate('/admin/centres/verify');
+      await fetchCentre();
     } catch (err) {
       setActionError(err.response?.data?.message || t('admin.failedApprove'));
+    } finally {
       setFinalActionLoading(false);
     }
   };
@@ -76,9 +97,10 @@ export default function AdminVerifyCentreDetail() {
     setActionError('');
     try {
       await centreService.reject(id, adminMessage);
-      navigate('/admin/centres/verify');
+      await fetchCentre();
     } catch (err) {
       setActionError(err.response?.data?.message || t('admin.failedReject'));
+    } finally {
       setFinalActionLoading(false);
     }
   };
@@ -295,6 +317,43 @@ export default function AdminVerifyCentreDetail() {
             <h3 className="av-decision-title">{t('admin.finalDecision')}</h3>
             <p className="av-decision-hint">{t('admin.reviewDocsCarefully')}</p>
 
+            {/* Unified Creation Fee — derived from centre.montant or config */}
+            {(() => {
+              const fee = centre?.montant || creationFee;
+              if (!fee) return null;
+              const payStatus = centre?.paiementStatus || 'unpaid';
+              const payStyle = payStatus === 'paid'
+                ? { bg: 'rgba(125,191,125,0.15)', color: '#7dbf7d', border: '1px solid rgba(125,191,125,0.3)' }
+                : payStatus === 'pending'
+                ? { bg: 'rgba(200,168,110,0.15)', color: '#c8a86e', border: '1px solid rgba(200,168,110,0.3)' }
+                : { bg: 'rgba(224,112,112,0.12)', color: '#e07070', border: '1px solid rgba(224,112,112,0.2)' };
+              const payLabel = payStatus === 'paid' ? 'Paid' : payStatus === 'pending' ? 'Pending' : 'Unpaid';
+              return (
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 12,
+                  background: 'rgba(180,145,90,0.08)', border: '1px solid rgba(180,145,90,0.25)',
+                  borderRadius: 12, padding: '14px 16px', marginBottom: 20,
+                }}>
+                  <div style={{ flexShrink: 0, fontSize: 20 }}>💳</div>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontSize: 11, color: '#b4915a', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 2 }}>
+                      Creation Fee
+                    </p>
+                    <p style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'Cormorant Garamond', serif" }}>
+                      {fee.toLocaleString()} <span style={{ fontSize: 14, color: '#b4915a' }}>DT</span>
+                    </p>
+                  </div>
+                  <span style={{
+                    padding: '4px 10px', borderRadius: 20, fontSize: 10, fontWeight: 700,
+                    letterSpacing: '0.06em', textTransform: 'uppercase', flexShrink: 0,
+                    ...payStyle,
+                  }}>
+                    {payLabel}
+                  </span>
+                </div>
+              );
+            })()}
+
             {/* Summary */}
             <div className="av-summary">
               <div className="av-summary-row">
@@ -322,7 +381,114 @@ export default function AdminVerifyCentreDetail() {
               <div className="av-warn">⚠ {t('admin.someDocsInvalid')}</div>
             )}
 
-            {/* Centre is approved — show status only */}
+            {/* Payment Details Section (Visible regardless of center approval status) */}
+            {(centre.paiementStatus === 'pending' || centre.paiementStatus === 'paid') && (
+              <div style={{ marginTop: 16, marginBottom: 20 }}>
+                {centre.paiementStatus === 'pending' && (
+                  <>
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: 10,
+                      background: 'rgba(200,168,110,0.08)', borderRadius: 10,
+                      padding: '12px 14px', marginBottom: 12, fontSize: 13,
+                    }}>
+                      <span style={{ fontSize: 18 }}>💳</span>
+                      <span style={{ color: '#555' }}>{t('admin.paymentMethod')}:</span>
+                      <span style={{ fontWeight: 600, color: 'var(--text-primary)', textTransform: 'capitalize' }}>
+                        {centre.methodePaiement === 'carte' ? t('admin.cardPayment') :
+                         centre.methodePaiement === 'virement' ? t('admin.bankTransferPayment') :
+                         centre.methodePaiement === 'especes' ? t('admin.cashPayment') :
+                         centre.methodePaiement || '—'}
+                      </span>
+                    </div>
+
+                    {centre.proofImage && (
+                      <div style={{ marginBottom: 12 }}>
+                        <p style={{ fontSize: 12, color: '#555', marginBottom: 6 }}>{t('admin.paymentProof')}:</p>
+                        <img
+                          src={centre.proofImage}
+                          alt="Payment proof"
+                          style={{
+                            width: '100%', maxHeight: 200, objectFit: 'contain',
+                            borderRadius: 10, background: 'rgba(0,0,0,0.2)',
+                            border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer',
+                          }}
+                          onClick={() => window.open(centre.proofImage, '_blank')}
+                        />
+                      </div>
+                    )}
+
+                    {centre.montant > 0 && (
+                      <div style={{
+                        display: 'flex', justifyContent: 'space-between',
+                        padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.04)',
+                        fontSize: 13, marginBottom: 12,
+                      }}>
+                        <span style={{ color: '#555' }}>{t('admin.amount')}</span>
+                        <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                          {centre.montant.toLocaleString()} DT
+                        </span>
+                      </div>
+                    )}
+                    {centre.datePaiement && (
+                      <div style={{
+                        display: 'flex', justifyContent: 'space-between',
+                        padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.04)',
+                        fontSize: 13, marginBottom: 12,
+                      }}>
+                        <span style={{ color: '#555' }}>{t('admin.date')}</span>
+                        <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                          {new Date(centre.datePaiement).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
+
+                    <button
+                      className="av-btn-final av-btn-approve"
+                      onClick={async () => {
+                        if (!window.confirm(t('admin.confirmPaymentPrompt'))) return;
+                        setFinalActionLoading(true);
+                        setActionError('');
+                        try {
+                          await centreService.confirmPayment(id);
+                          await fetchCentre();
+                        } catch (err) {
+                          setActionError(err.response?.data?.message || 'Failed to confirm payment');
+                        } finally {
+                          setFinalActionLoading(false);
+                        }
+                      }}
+                      disabled={finalActionLoading}
+                    >
+                      {finalActionLoading ? <><span className="av-mini-spin" /> {t('admin.processing')}</> : `✓ ${t('admin.confirmPayment')}`}
+                    </button>
+                  </>
+                )}
+
+                {centre.paiementStatus === 'paid' && (
+                  <>
+                    <div className="av-action-ok" style={{ textAlign: 'center', fontSize: 13, marginBottom: 8 }}>
+                      ✅ {t('admin.creationFeePaid')}
+                    </div>
+                    {centre.methodePaiement && (
+                      <div style={{
+                        display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'center',
+                        fontSize: 12, color: '#555',
+                      }}>
+                        <span>{t('admin.paymentMethod')}:</span>
+                        <span style={{ fontWeight: 600, color: 'var(--text-primary)', textTransform: 'capitalize' }}>
+                          {centre.methodePaiement === 'carte' ? t('admin.cardPayment') :
+                           centre.methodePaiement === 'virement' ? t('admin.bankTransferPayment') :
+                           centre.methodePaiement === 'especes' ? t('admin.cashPayment') :
+                           centre.methodePaiement}
+                        </span>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* Centre Approval / Rejection Actions */}
             {centre.status === 'approved' ? (
               <div className="av-action-ok" dangerouslySetInnerHTML={{ __html: t('admin.applicationAlreadyApproved') }} />
             ) : (

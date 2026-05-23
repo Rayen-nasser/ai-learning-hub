@@ -126,7 +126,7 @@ export default function AdminSkills() {
         .skill-btn-delete:hover { background: rgba(224,112,112,0.1); border-color: rgba(224,112,112,0.3); }
 
         .skill-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); animation: fadeIn 0.3s ease; }
-        .skill-modal { background: #111114; border: 1px solid var(--border-main); border-radius: 24px; max-width: 480px; width: 100%; box-shadow: 0 32px 80px rgba(0,0,0,0.6); animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .skill-modal { background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 24px; max-width: 480px; width: 100%; box-shadow: 0 32px 80px rgba(0,0,0,0.15); animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         

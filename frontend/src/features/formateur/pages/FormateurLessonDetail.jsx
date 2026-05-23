@@ -2,7 +2,10 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { leconService } from '../services/lecon';
 import { contentService } from '../services/content';
+import { useAuth } from '../../../shared/context/AuthContext';
 import FormateurLayout from '../components/FormateurLayout';
+
+const BASE = import.meta.env.VITE_API_URL || '';
 
 const CONTENT_TYPES = [
   { type: 'video', label: 'Video', icon: 'M23 7l-7 5 7 5V7zM14 5H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z' },
@@ -64,7 +67,7 @@ function QuestionEditor({ question, index, onChange, onDelete }) {
           <select
             value={question.type || 'multiple_choice'}
             onChange={e => updateText('type', e.target.value)}
-            style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, color: 'var(--text-primary)', padding: '4px 8px', fontSize: 13, fontFamily: "'DM Sans', sans-serif" }}
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border-main)', borderRadius: 6, color: 'var(--text-primary)', padding: '4px 8px', fontSize: 13, fontFamily: "'DM Sans', sans-serif" }}
           >
             {QUESTION_TYPES.map(qt => (
               <option key={qt.type} value={qt.type}>{qt.label}</option>
@@ -82,7 +85,7 @@ function QuestionEditor({ question, index, onChange, onDelete }) {
           value={question.questionText || ''}
           onChange={e => updateText('questionText', e.target.value)}
           placeholder="Question text..."
-          style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: 'var(--text-primary)', fontSize: 14, fontFamily: "'DM Sans', sans-serif", boxSizing: 'border-box' }}
+          style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-card)', border: '1px solid var(--border-main)', borderRadius: 8, color: 'var(--text-primary)', fontSize: 14, fontFamily: "'DM Sans', sans-serif", boxSizing: 'border-box' }}
         />
       </div>
 
@@ -101,7 +104,7 @@ function QuestionEditor({ question, index, onChange, onDelete }) {
                 value={opt}
                 onChange={e => updateOption(i, e.target.value)}
                 placeholder={`Option ${String.fromCharCode(65 + i)}`}
-                style={{ flex: 1, padding: '8px 12px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, color: 'var(--text-primary)', fontSize: 13, fontFamily: "'DM Sans', sans-serif", boxSizing: 'border-box' }}
+                style={{ flex: 1, padding: '8px 12px', background: 'var(--bg-card)', border: '1px solid var(--border-main)', borderRadius: 6, color: 'var(--text-primary)', fontSize: 13, fontFamily: "'DM Sans', sans-serif", boxSizing: 'border-box' }}
               />
             </div>
           ))}
@@ -116,7 +119,7 @@ function QuestionEditor({ question, index, onChange, onDelete }) {
             onChange={e => updateText('sampleAnswer', e.target.value)}
             placeholder="Sample answer (optional - for grading reference)"
             rows={2}
-            style={{ width: '100%', padding: '8px 12px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, color: 'var(--text-primary)', fontSize: 13, fontFamily: "'DM Sans', sans-serif", resize: 'vertical', boxSizing: 'border-box' }}
+            style={{ width: '100%', padding: '8px 12px', background: 'var(--bg-card)', border: '1px solid var(--border-main)', borderRadius: 6, color: 'var(--text-primary)', fontSize: 13, fontFamily: "'DM Sans', sans-serif", resize: 'vertical', boxSizing: 'border-box' }}
           />
           <div style={{ fontSize: 11, color: '#555', marginTop: 4 }}>This is for instructor reference only</div>
         </div>
@@ -130,7 +133,7 @@ function QuestionEditor({ question, index, onChange, onDelete }) {
           onChange={e => updateText('points', parseInt(e.target.value) || 1)}
           min={1}
           max={100}
-          style={{ width: 80, padding: '6px 10px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, color: 'var(--text-primary)', fontSize: 13, fontFamily: "'DM Sans', sans-serif", marginLeft: 8 }}
+          style={{ width: 80, padding: '6px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-main)', borderRadius: 6, color: 'var(--text-primary)', fontSize: 13, fontFamily: "'DM Sans', sans-serif", marginLeft: 8 }}
         />
       </div>
     </div>
@@ -139,9 +142,11 @@ function QuestionEditor({ question, index, onChange, onDelete }) {
 
 export default function FormateurLessonDetail() {
   const { id, lessonId } = useParams();
+  const { user } = useAuth();
   const [lesson, setLesson] = useState(null);
   const [contents, setContents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isOwner, setIsOwner] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingContent, setEditingContent] = useState(null);
   const [contentType, setContentType] = useState('video');
@@ -151,6 +156,17 @@ export default function FormateurLessonDetail() {
   const [file, setFile] = useState(null);
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [expandedContent, setExpandedContent] = useState(null);
+
+  const getFullUrl = (url) => {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    return `${BASE}${url.startsWith('/') ? '' : '/'}${url}`;
+  };
+
+  const toggleExpand = (content) => {
+    setExpandedContent(expandedContent?._id === content._id ? null : content);
+  };
 
   useEffect(() => {
     fetchData();
@@ -163,7 +179,9 @@ export default function FormateurLessonDetail() {
         leconService.getById(lessonId),
         contentService.getByLesson(lessonId),
       ]);
-      setLesson(lessonRes.data.data);
+      const l = lessonRes.data.data;
+      setLesson(l);
+      setIsOwner(l.formateur && String(l.formateur._id || l.formateur) === String(user._id));
       setContents(contentsRes.data.data || []);
     } catch (e) {
       console.error('Failed to fetch data', e);
@@ -244,12 +262,6 @@ export default function FormateurLessonDetail() {
     setShowModal(true);
   };
 
-  const getFullUrl = (url) => {
-    if (!url) return '';
-    if (url.startsWith('http')) return url;
-    return `http://localhost:5000${url}`;
-  };
-
   const openEdit = (content) => {
     setEditingContent(content);
     setContentType(content.type);
@@ -322,16 +334,24 @@ export default function FormateurLessonDetail() {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
           Back to formation
         </Link>
-        <div style={{ fontSize: 14, color: '#666', fontStyle: 'italic' }}>
-          Select a content type below to add new material
-        </div>
+        {!isOwner && (
+          <div style={{ fontSize: 13, color: '#e07070', background: 'rgba(224,112,112,0.1)', padding: '8px 14px', borderRadius: 8, border: '1px solid rgba(224,112,112,0.2)' }}>
+            Read-only view — you can only edit content you created
+          </div>
+        )}
+        {isOwner && (
+          <div style={{ fontSize: 14, color: '#666', fontStyle: 'italic' }}>
+            Select a content type below to add new material
+          </div>
+        )}
       </div>
 
+      {isOwner && (
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
         {CONTENT_TYPES.map(ct => (
           <div key={ct.type} onClick={() => openCreate(ct.type)} style={{
             background: 'var(--bg-card)',
-            border: '1px dashed rgba(255,255,255,0.1)',
+            border: '1px dashed var(--border-main)',
             borderRadius: 12,
             padding: 24,
             display: 'flex',
@@ -343,7 +363,7 @@ export default function FormateurLessonDetail() {
             textAlign: 'center',
           }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(200,168,110,0.5)'; e.currentTarget.style.background = 'rgba(200,168,110,0.05)'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.background = 'var(--bg-card)'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-main)'; e.currentTarget.style.background = 'var(--bg-card)'; }}
           >
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c8a86e" strokeWidth="1.5">
               <path d={ct.icon} />
@@ -352,6 +372,7 @@ export default function FormateurLessonDetail() {
           </div>
         ))}
       </div>
+      )}
 
       {contents.length > 0 && (
         <>
@@ -359,78 +380,138 @@ export default function FormateurLessonDetail() {
             Existing Content ({contents.length})
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {contents.map(content => (
+            {contents.map(content => {
+              let parsedQuestions = content.questions;
+              if (typeof parsedQuestions === 'string') { try { parsedQuestions = JSON.parse(parsedQuestions); } catch { parsedQuestions = []; } }
+              const qCount = Array.isArray(parsedQuestions) ? parsedQuestions.length : 0;
+              const isExpanded = expandedContent?._id === content._id;
+
+              return (
               <div key={content._id} style={{
                 background: 'var(--bg-card)',
-                border: '1px solid var(--border-main)',
+                border: isExpanded ? '1px solid #c8a86e' : '1px solid var(--border-main)',
                 borderRadius: 12,
-                padding: 16,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 16,
+                overflow: 'hidden',
               }}>
-                <div style={{ width: 40, height: 40, borderRadius: 8, background: 'rgba(200,168,110,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c8a86e" strokeWidth="2">
-                    <path d={CONTENT_TYPES.find(c => c.type === content.type)?.icon || 'M12 2L2 7l10 5 10-5-10-5z'} />
+                <div onClick={() => toggleExpand(content)} style={{
+                  padding: 16,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 16,
+                  cursor: 'pointer',
+                }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 8, background: 'rgba(200,168,110,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c8a86e" strokeWidth="2">
+                      <path d={CONTENT_TYPES.find(c => c.type === content.type)?.icon || 'M12 2L2 7l10 5 10-5-10-5z'} />
+                    </svg>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-primary)', marginBottom: 4 }}>{content.title}</div>
+                    <div style={{ fontSize: 12, color: '#666' }}>
+                      <span style={{ padding: '2px 6px', background: 'rgba(200,168,110,0.1)', borderRadius: 4, color: '#c8a86e', textTransform: 'capitalize' }}>
+                        {content.type}
+                      </span>
+                      {qCount > 0 && <span style={{ marginLeft: 8 }}>· {qCount} questions</span>}
+                    </div>
+                  </div>
+                  {isOwner && (
+                  <div style={{ display: 'flex', gap: 8 }} onClick={e => e.stopPropagation()}>
+                    <button onClick={() => openEdit(content)} style={{
+                      padding: '6px 14px',
+                      background: 'transparent',
+                      border: '1px solid var(--border-main)',
+                      borderRadius: 6,
+                      color: '#888',
+                      fontSize: 13,
+                      cursor: 'pointer',
+                    }}>
+                      Edit
+                    </button>
+                    <button onClick={() => setConfirmDelete(content)} style={{
+                      padding: '6px 14px',
+                      background: 'transparent',
+                      border: '1px solid rgba(224,112,112,0.3)',
+                      borderRadius: 6,
+                      color: '#e07070',
+                      fontSize: 13,
+                      cursor: 'pointer',
+                    }}>
+                      Delete
+                    </button>
+                  </div>
+                  )}
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2" style={{
+                    transform: isExpanded ? 'rotate(180deg)' : 'none',
+                    transition: 'transform 0.2s',
+                    flexShrink: 0,
+                  }}>
+                    <polyline points="6 9 12 15 18 9" />
                   </svg>
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-primary)', marginBottom: 4 }}>{content.title}</div>
-                  <div style={{ fontSize: 12, color: '#666' }}>
-                    <span style={{ padding: '2px 6px', background: 'rgba(200,168,110,0.1)', borderRadius: 4, color: '#c8a86e', textTransform: 'capitalize' }}>
-                      {content.type}
-                    </span>
-                    {(() => {
-                      let qCount = 0;
-                      if (content.questions) {
-                        if (Array.isArray(content.questions)) {
-                          qCount = content.questions.length;
-                        } else if (typeof content.questions === 'string') {
-                          try {
-                            const parsed = JSON.parse(content.questions);
-                            qCount = Array.isArray(parsed) ? parsed.length : 0;
-                          } catch {
-                            qCount = 0;
-                          }
-                        }
-                      }
-                      return qCount > 0 && <span style={{ marginLeft: 8 }}>· {qCount} questions</span>;
-                    })()}
-                  </div>
+
+                {isExpanded && (
+                <div style={{ padding: '0 16px 16px', borderTop: '1px solid var(--border-main)', paddingTop: 16 }}>
+                  {content.description && (
+                    <p style={{ fontSize: 13, color: '#888', margin: '0 0 16px' }}>{content.description}</p>
+                  )}
+
+                  {content.type === 'video' && content.url && (
+                    <video src={getFullUrl(content.url)} controls style={{ width: '100%', maxHeight: 400, borderRadius: 8 }} />
+                  )}
+
+                  {content.type === 'image' && content.url && (
+                    <img src={getFullUrl(content.url)} alt={content.title} style={{ maxWidth: '100%', maxHeight: 400, borderRadius: 8 }} />
+                  )}
+
+                  {content.type === 'file' && content.url && (
+                    <a href={getFullUrl(content.url)} target="_blank" rel="noopener noreferrer" style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 8,
+                      padding: '8px 16px', background: 'rgba(200,168,110,0.1)',
+                      border: '1px solid rgba(200,168,110,0.3)', borderRadius: 8,
+                      color: '#c8a86e', textDecoration: 'none', fontSize: 13,
+                    }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                      </svg>
+                      Download {content.fileName || 'File'}
+                    </a>
+                  )}
+
+                  {content.type === 'link' && content.url && (
+                    <a href={content.url} target="_blank" rel="noopener noreferrer" style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 8,
+                      padding: '8px 16px', background: 'rgba(200,168,110,0.1)',
+                      border: '1px solid rgba(200,168,110,0.3)', borderRadius: 8,
+                      color: '#c8a86e', textDecoration: 'none', fontSize: 13,
+                    }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+                        <polyline points="15 3 21 3 21 9"/>
+                        <line x1="10" y1="14" x2="21" y2="3"/>
+                      </svg>
+                      Open Link
+                    </a>
+                  )}
+
+                  {content.type === 'test' && (
+                    <div style={{ fontSize: 13, color: '#888' }}>
+                      <span>{qCount} question(s)</span>
+                    </div>
+                  )}
                 </div>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button onClick={() => openEdit(content)} style={{
-                    padding: '6px 14px',
-                    background: 'transparent',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: 6,
-                    color: '#888',
-                    fontSize: 13,
-                    cursor: 'pointer',
-                  }}>
-                    Edit
-                  </button>
-                  <button onClick={() => setConfirmDelete(content)} style={{
-                    padding: '6px 14px',
-                    background: 'transparent',
-                    border: '1px solid rgba(224,112,112,0.3)',
-                    borderRadius: 6,
-                    color: '#e07070',
-                    fontSize: 13,
-                    cursor: 'pointer',
-                  }}>
-                    Delete
-                  </button>
-                </div>
+                )}
               </div>
-            ))}
+              );
+            })}
           </div>
         </>
       )}
 
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 200, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: 20, overflow: 'auto' }} onClick={() => setShowModal(false)}>
-          <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, maxWidth: 600, width: '100%', marginTop: 40, marginBottom: 40 }} onClick={e => e.stopPropagation()}>
+          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-main)', borderRadius: 16, maxWidth: 600, width: '100%', marginTop: 40, marginBottom: 40 }} onClick={e => e.stopPropagation()}>
             <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-main)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h2 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: 24, color: 'var(--text-primary)', fontWeight: 400 }}>
                 {editingContent ? 'Edit' : 'Add'} {CONTENT_TYPES.find(c => c.type === contentType)?.label}
@@ -441,24 +522,24 @@ export default function FormateurLessonDetail() {
               <div style={{ padding: 24, maxHeight: 'calc(100vh - 200px)', overflow: 'auto' }}>
                 <div style={{ marginBottom: 16 }}>
                   <label style={{ display: 'block', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#555', marginBottom: 8 }}>Title *</label>
-                  <input type="text" value={formData.title} onChange={e => setFormData(d => ({ ...d, title: e.target.value }))} required style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: 'var(--text-primary)', fontSize: 14, fontFamily: "'DM Sans', sans-serif", boxSizing: 'border-box' }} />
+                  <input type="text" value={formData.title} onChange={e => setFormData(d => ({ ...d, title: e.target.value }))} required style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-card)', border: '1px solid var(--border-main)', borderRadius: 8, color: 'var(--text-primary)', fontSize: 14, fontFamily: "'DM Sans', sans-serif", boxSizing: 'border-box' }} />
                 </div>
 
                 {editingContent && formData.url && (
                   <div style={{ marginBottom: 16 }}>
                     <label style={{ display: 'block', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#555', marginBottom: 8 }}>Current Content</label>
                     {contentType === 'image' && (
-                      <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+                      <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid var(--border-main)' }}>
                         <img src={getFullUrl(formData.url)} alt="Preview" style={{ width: '100%', maxHeight: 200, objectFit: 'contain', background: '#000' }} />
                       </div>
                     )}
                     {contentType === 'video' && (
-                      <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', background: '#000' }}>
+                      <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid var(--border-main)', background: '#000' }}>
                         <video src={getFullUrl(formData.url)} controls style={{ width: '100%', maxHeight: 200 }} />
                       </div>
                     )}
                     {contentType === 'file' && (
-                      <div style={{ padding: 16, background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12 }}>
+                      <div style={{ padding: 16, background: 'var(--bg-card)', border: '1px solid var(--border-main)', borderRadius: 12 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c8a86e" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
                           <div>
@@ -468,7 +549,7 @@ export default function FormateurLessonDetail() {
                         {formData.url.toLowerCase().endsWith('.pdf') ? (
                           <iframe
                             src={getFullUrl(formData.url)}
-                            style={{ width: '100%', height: 400, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 }}
+                            style={{ width: '100%', height: 400, border: '1px solid var(--border-main)', borderRadius: 8 }}
                             title="PDF Preview"
                           />
                         ) : (
@@ -487,7 +568,7 @@ export default function FormateurLessonDetail() {
                 {contentType === 'link' && (
                   <div style={{ marginBottom: 16 }}>
                     <label style={{ display: 'block', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#555', marginBottom: 8 }}>URL *</label>
-                    <input type="url" value={formData.url} onChange={e => setFormData(d => ({ ...d, url: e.target.value }))} placeholder="https://..." style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: 'var(--text-primary)', fontSize: 14, fontFamily: "'DM Sans', sans-serif", boxSizing: 'border-box' }} />
+                    <input type="url" value={formData.url} onChange={e => setFormData(d => ({ ...d, url: e.target.value }))} placeholder="https://..." style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-card)', border: '1px solid var(--border-main)', borderRadius: 8, color: 'var(--text-primary)', fontSize: 14, fontFamily: "'DM Sans', sans-serif", boxSizing: 'border-box' }} />
                   </div>
                 )}
 
@@ -522,7 +603,7 @@ export default function FormateurLessonDetail() {
                         onChange={e => setPassingGrade(parseInt(e.target.value) || 0)}
                         min={0}
                         max={100}
-                        style={{ width: 80, padding: '8px 12px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: 'var(--text-primary)', fontSize: 14, fontFamily: "'DM Sans', sans-serif", textAlign: 'center' }}
+                        style={{ width: 80, padding: '8px 12px', background: 'var(--bg-card)', border: '1px solid var(--border-main)', borderRadius: 8, color: 'var(--text-primary)', fontSize: 14, fontFamily: "'DM Sans', sans-serif", textAlign: 'center' }}
                       />
                       <span style={{ fontSize: 13, color: '#888' }}>%</span>
                     </div>
@@ -540,29 +621,65 @@ export default function FormateurLessonDetail() {
                         Current file: {formData.url.split('/').pop()}
                       </div>
                     )}
-                    <div style={{ padding: '8px 0' }}>
-                      <input 
-                        type="file" 
+                    <div
+                      onClick={() => document.getElementById(`file-input-${editingContent?._id || 'new'}`)?.click()}
+                      style={{
+                        padding: '24px 16px',
+                        border: '1px dashed var(--border-main)',
+                        borderRadius: 8,
+                        cursor: 'pointer',
+                        textAlign: 'center',
+                        transition: 'all 0.15s',
+                        background: file ? 'rgba(200,168,110,0.05)' : 'transparent',
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(200,168,110,0.5)'; e.currentTarget.style.background = 'rgba(200,168,110,0.05)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = file ? 'rgba(200,168,110,0.5)' : 'var(--border-main)'; e.currentTarget.style.background = file ? 'rgba(200,168,110,0.05)' : 'transparent'; }}
+                    >
+                      <input
+                        id={`file-input-${editingContent?._id || 'new'}`}
+                        type="file"
                         onChange={e => {
                           if (e.target.files && e.target.files.length > 0) {
                             setFile(e.target.files[0]);
                           }
-                        }} 
-                        accept="" 
-                        style={{ color: '#888', fontSize: 14 }} 
+                        }}
+                        accept=""
+                        style={{ display: 'none' }}
                       />
+                      {file ? (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c8a86e" strokeWidth="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                          </svg>
+                          <span style={{ fontSize: 13, color: '#c8a86e' }}>{file.name}</span>
+                          <span style={{ fontSize: 11, color: '#888', marginLeft: 4 }}>(click to change)</span>
+                        </div>
+                      ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="1.5">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                          </svg>
+                          <span style={{ fontSize: 13, color: '#888' }}>Choose File</span>
+                          <span style={{ fontSize: 11, color: '#555' }}>or drag and drop</span>
+                        </div>
+                      )}
                     </div>
-                    {file && <div style={{ marginTop: 8, fontSize: 12, color: '#c8a86e' }}>Selected: {file.name}</div>}
+                    {editingContent && formData.url && !file && (
+                      <div style={{ marginTop: 8, fontSize: 12, color: '#555' }}>Keep current file by leaving this empty</div>
+                    )}
                   </div>
                 )}
 
                 <div>
                   <label style={{ display: 'block', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#555', marginBottom: 8 }}>Description</label>
-                  <textarea value={formData.description} onChange={e => setFormData(d => ({ ...d, description: e.target.value }))} rows={2} style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: 'var(--text-primary)', fontSize: 14, fontFamily: "'DM Sans', sans-serif", resize: 'vertical', boxSizing: 'border-box' }} />
+                  <textarea value={formData.description} onChange={e => setFormData(d => ({ ...d, description: e.target.value }))} rows={2} style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-card)', border: '1px solid var(--border-main)', borderRadius: 8, color: 'var(--text-primary)', fontSize: 14, fontFamily: "'DM Sans', sans-serif", resize: 'vertical', boxSizing: 'border-box' }} />
                 </div>
               </div>
               <div style={{ padding: '20px 24px', borderTop: '1px solid var(--border-main)', display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
-                <button type="button" onClick={() => setShowModal(false)} style={{ padding: '10px 20px', borderRadius: 8, fontSize: 14, cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#888', fontFamily: "'DM Sans', sans-serif" }}>Cancel</button>
+                <button type="button" onClick={() => setShowModal(false)} style={{ padding: '10px 20px', borderRadius: 8, fontSize: 14, cursor: 'pointer', border: '1px solid var(--border-main)', background: 'transparent', color: '#888', fontFamily: "'DM Sans', sans-serif" }}>Cancel</button>
                 <button type="submit" disabled={saving} style={{ padding: '10px 20px', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer', border: 'none', background: 'linear-gradient(135deg, #c8a86e, #b4915a)', color: '#0c0c0e', fontFamily: "'DM Sans', sans-serif", opacity: saving ? 0.5 : 1 }}>
                   {saving ? 'Saving...' : (editingContent ? 'Update' : 'Create')}
                 </button>
@@ -574,11 +691,11 @@ export default function FormateurLessonDetail() {
 
       {confirmDelete && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={() => setConfirmDelete(null)}>
-          <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, maxWidth: 400, width: '100%', padding: 24, textAlign: 'center' }} onClick={e => e.stopPropagation()}>
+          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-main)', borderRadius: 16, maxWidth: 400, width: '100%', padding: 24, textAlign: 'center' }} onClick={e => e.stopPropagation()}>
             <h3 style={{ margin: '0 0 8px', color: 'var(--text-primary)', fontWeight: 500 }}>Delete Content?</h3>
             <p style={{ margin: '0 0 20px', color: '#888', fontSize: 14 }}>Are you sure you want to delete "{confirmDelete.title}"?</p>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-              <button onClick={() => setConfirmDelete(null)} style={{ padding: '10px 20px', borderRadius: 8, fontSize: 14, cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#888', fontFamily: "'DM Sans', sans-serif" }}>Cancel</button>
+              <button onClick={() => setConfirmDelete(null)} style={{ padding: '10px 20px', borderRadius: 8, fontSize: 14, cursor: 'pointer', border: '1px solid var(--border-main)', background: 'transparent', color: '#888', fontFamily: "'DM Sans', sans-serif" }}>Cancel</button>
               <button onClick={handleDelete} style={{ padding: '10px 20px', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer', border: 'none', background: '#e07070', color: '#fff', fontFamily: "'DM Sans', sans-serif" }}>Delete</button>
             </div>
           </div>

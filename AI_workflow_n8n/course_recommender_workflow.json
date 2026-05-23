@@ -19,8 +19,9 @@
     },
     {
       "parameters": {
-        "operation": "getAll",
+        "operation": "find",
         "collection": "formations",
+        "query": "{}",
         "options": {
           "limit": 100
         }
@@ -36,8 +37,9 @@
     },
     {
       "parameters": {
-        "operation": "getAll",
+        "operation": "find",
         "collection": "avis",
+        "query": "{}",
         "options": {
           "limit": 1000
         }
@@ -53,8 +55,9 @@
     },
     {
       "parameters": {
-        "operation": "getAll",
+        "operation": "find",
         "collection": "skills",
+        "query": "{}",
         "options": {}
       },
       "id": "node_skills",
@@ -68,8 +71,9 @@
     },
     {
       "parameters": {
-        "operation": "getAll",
+        "operation": "find",
         "collection": "categories",
+        "query": "{}",
         "options": {}
       },
       "id": "node_categories",
@@ -113,7 +117,7 @@
     },
     {
       "parameters": {
-        "model": "llama3-70b-8192",
+        "model": "llama-3.3-70b-versatile",
         "options": {
           "temperature": 0
         }

@@ -308,7 +308,8 @@ router.patch('/admin/:id/document-status', requireAuth, requireRole('admin'), ce
  *         description: Missing mandatory documents
  */
 const { privateUpload } = require('../middlewares/uploadfile');
-router.post('/', requireAuth, privateUpload.any(), centreFormationController.createCentre);
+// Only Center Managers (responsableCF) and Admins can submit a new training center application
+router.post('/', requireAuth, requireRole('responsableCF', 'admin'), privateUpload.any(), centreFormationController.createCentre);
 
 /**
  * @swagger
@@ -479,6 +480,10 @@ router.get('/:id/documents/:docId', requireAuth, centreFormationController.viewD
  *       403:
  *         description: Not the owner
  */
-router.patch('/:id/documents', requireAuth, privateUpload.any(), centreFormationController.updateDocuments);
+// ───── CREATION FEE PAYMENT ROUTES ─────
+router.post('/:id/pay', requireAuth, centreFormationController.initiateCentrePayment);
+router.post('/:id/payment-proof', requireAuth, uploadSingle('proof', 'images'), centreFormationController.uploadCentreProof);
+router.patch('/:id/confirm-payment', requireAuth, requireRole('admin'), centreFormationController.confirmCentrePayment);
+router.get('/:id/payment-info', requireAuth, centreFormationController.getCentrePaymentInfo);
 
 module.exports = router;

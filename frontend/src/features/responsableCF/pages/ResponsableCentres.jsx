@@ -3,6 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { centreService } from '../services/centre';
 import ResponsableCFLayout from '../components/ResponsableCFLayout';
+import PaymentModal from '../../../shared/components/PaymentModal';
+
+const STATUS_STYLES = {
+  approved: { color: '#7dbf7d', bg: 'rgba(125,191,125,0.12)', label: 'Approved' },
+  pending: { color: '#c8a86e', bg: 'rgba(200,168,110,0.12)', label: 'Pending Review' },
+  rejected: { color: '#e07070', bg: 'rgba(224,112,112,0.12)', label: 'Rejected' },
+};
+
+const PAYMENT_STYLES = {
+  unpaid: { color: '#e07070', bg: 'rgba(224,112,112,0.12)', label: 'Unpaid' },
+  pending: { color: '#c8a86e', bg: 'rgba(200,168,110,0.12)', label: 'Payment Pending' },
+  paid: { color: '#7dbf7d', bg: 'rgba(125,191,125,0.12)', label: 'Paid' },
+};
 
 export default function ResponsableCentres() {
   const navigate = useNavigate();
@@ -15,6 +28,11 @@ export default function ResponsableCentres() {
   const [formData, setFormData] = useState({ nom: '', adresse: '', description: '', telephone: '', logo: null, user_image: null });
   const [logoPreview, setLogoPreview] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  // Payment modal state
+  const [payTarget, setPayTarget] = useState(null);
+  const [paySubmitting, setPaySubmitting] = useState(false);
+  const [paySuccess, setPaySuccess] = useState('');
 
   useEffect(() => {
     fetchCentres();
@@ -83,7 +101,30 @@ export default function ResponsableCentres() {
     }
   };
 
+  const openPayModal = (centre) => {
+    setPayTarget(centre);
+    setPaySuccess('');
+  };
 
+  const handlePay = async (method, cardData, proofFile) => {
+    setPaySubmitting(true);
+    try {
+      await centreService.initiatePayment(payTarget._id, method);
+      if (proofFile) {
+        const fd = new FormData();
+        fd.append('proof', proofFile);
+        await centreService.uploadProof(payTarget._id, fd);
+      }
+      setPaySuccess(`Payment successful! Your creation fee of ${payTarget.montant || 1000} DT has been processed.`);
+      setTimeout(() => {
+        setPayTarget(null);
+        setPaySuccess('');
+        fetchCentres();
+      }, 2000);
+    } finally {
+      setPaySubmitting(false);
+    }
+  };
 
   return (
     <ResponsableCFLayout title={`${t('responsable.my')} <em>${t('responsable.centres')}</em>`} subtitle={t('responsable.manageTrainingCentres')}>
@@ -101,16 +142,21 @@ export default function ResponsableCentres() {
         .rc-card-name { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; color: var(--text-primary); margin: 0 0 8px; }
         .rc-card-address { font-size: 13px; color: #555; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
         .rc-card-desc { font-size: 14px; color: #666; line-height: 1.5; margin: 0 0 16px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .rc-card-actions { display: flex; gap: 8px; }
+        .rc-card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
-        .rc-btn { flex: 1; padding: 8px 16px; border-radius: 8px; font-size: 13px; cursor: pointer; transition: all 0.2s; border: 1px solid rgba(255,255,255,0.1); background: transparent; font-family: 'DM Sans', sans-serif; }
+        .rc-btn { flex: 1; padding: 8px 16px; border-radius: 8px; font-size: 13px; cursor: pointer; transition: all 0.2s; border: 1px solid rgba(255,255,255,0.1); background: transparent; font-family: 'DM Sans', sans-serif; min-width: 0; }
         .rc-btn-edit { color: #7dbf7d; }
         .rc-btn-edit:hover { background: rgba(125,191,125,0.15); }
         .rc-btn-delete { color: #e07070; }
         .rc-btn-delete:hover { background: rgba(224,112,112,0.15); }
+        .rc-btn-pay { color: #b4915a; border-color: rgba(180,145,90,0.3); font-weight: 600; }
+        .rc-btn-pay:hover { background: rgba(180,145,90,0.15); }
+
+        .rc-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-right: 6px; }
+        .rc-status-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
 
         .rc-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .rc-modal { background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; max-width: 500px; width: 100%; }
+        .rc-modal { background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; }
         .rc-modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border-main); }
         .rc-modal-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 400; color: var(--text-primary); }
         .rc-modal-close { background: none; border: none; color: #555; cursor: pointer; font-size: 24px; }
@@ -130,6 +176,17 @@ export default function ResponsableCentres() {
         .rc-form-file { width: 100%; padding: 12px 16px; background: var(--bg-card); border: 1px dashed rgba(255,255,255,0.2); border-radius: 8px; color: #888; font-size: 14px; font-family: 'DM Sans', sans-serif; cursor: pointer; }
         .rc-form-file:hover { border-color: #7dbf7d; }
         .rc-logo-preview { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; margin-top: 12px; border: 1px solid rgba(255,255,255,0.1); }
+
+        .rc-pay-methods { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .rc-pay-method { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 12px; border: 1px solid var(--border-main); cursor: pointer; transition: all 0.2s; background: transparent; }
+        .rc-pay-method:hover { border-color: rgba(180,145,90,0.4); background: rgba(180,145,90,0.04); }
+        .rc-pay-method.selected { border-color: #b4915a; background: rgba(180,145,90,0.08); }
+        .rc-pay-method-icon { font-size: 28px; flex-shrink: 0; }
+        .rc-pay-method-info { flex: 1; }
+        .rc-pay-method-label { font-size: 15px; font-weight: 500; color: var(--text-primary); }
+        .rc-pay-method-desc { font-size: 12px; color: #555; margin-top: 2px; }
+
+        .rc-success-banner { padding: 14px 18px; background: rgba(125,191,125,0.1); border: 1px solid rgba(125,191,125,0.3); border-radius: 10px; color: #7dbf7d; font-size: 14px; font-weight: 500; text-align: center; margin-bottom: 16px; }
 
         .rc-empty { text-align: center; padding: 60px 20px; color: #555; }
         .rc-empty-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; color: #888; margin-bottom: 8px; }
@@ -153,40 +210,56 @@ export default function ResponsableCentres() {
         </div>
       ) : (
         <div className="rc-grid">
-          {centres.map(centre => (
-            <div key={centre._id} className="rc-card">
-              <div className="rc-card-image">
-                {centre.logo ? (
-                  <img src={centre.logo.startsWith('http') ? centre.logo : `http://localhost:5000/${centre.logo}`} alt={centre.nom} />
-                ) : (
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4M9 9v.01M9 12v.01M9 15v.01M9 18v.01"/></svg>
-                )}
-              </div>
-              <div className="rc-card-body">
-                <h3 className="rc-card-name">{centre.nom}</h3>
-                <div className="rc-card-address">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ width: 14, height: 14 }}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                  {centre.adresse || t('responsable.noAddress')}
+          {centres.map(centre => {
+            const st = STATUS_STYLES[centre.status] || STATUS_STYLES.pending;
+            const ps = PAYMENT_STYLES[centre.paiementStatus] || PAYMENT_STYLES.unpaid;
+            return (
+              <div key={centre._id} className="rc-card">
+                <div className="rc-card-image">
+                  {centre.logo ? (
+                    <img src={centre.logo.startsWith('http') ? centre.logo : `http://localhost:5000/${centre.logo}`} alt={centre.nom} />
+                  ) : (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4M9 9v.01M9 12v.01M9 15v.01M9 18v.01"/></svg>
+                  )}
                 </div>
-                <p className="rc-card-desc">{centre.description || t('responsable.noDescription')}</p>
-                <div className="rc-card-actions">
-                  <button className="rc-btn rc-btn-edit" onClick={() => handleEdit(centre)}>{t('common.edit')}</button>
-                  <button 
-                    className="rc-btn rc-btn-delete" 
-                    onClick={() => handleDelete(centre._id)}
-                    disabled={centre.status !== 'rejected'}
-                    title={centre.status !== 'rejected' ? t('responsable.onlyRejectedCanBeDeleted') : ''}
-                    style={centre.status !== 'rejected' ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
-                  >
-                    {t('common.delete')}
-                  </button>
+                <div className="rc-card-body">
+                  <h3 className="rc-card-name">{centre.nom}</h3>
+                  <div className="rc-card-address">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ width: 14, height: 14 }}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    {centre.adresse || t('responsable.noAddress')}
+                  </div>
+                  <div className="rc-status-row">
+                    <span className="rc-badge" style={{ color: st.color, background: st.bg }}>{st.label}</span>
+                    {centre.status === 'approved' && (
+                      <span className="rc-badge" style={{ color: ps.color, background: ps.bg }}>{ps.label}</span>
+                    )}
+                  </div>
+                  <p className="rc-card-desc">{centre.description || t('responsable.noDescription')}</p>
+                  <div className="rc-card-actions">
+                    <button className="rc-btn rc-btn-edit" onClick={() => handleEdit(centre)}>{t('common.edit')}</button>
+                    {centre.status === 'approved' && centre.paiementStatus !== 'paid' && (
+                      <button className="rc-btn rc-btn-pay" onClick={() => openPayModal(centre)}>
+                        {centre.paiementStatus === 'pending' ? 'Upload Proof' : `Pay ${centre.montant || 1000} DT`}
+                      </button>
+                    )}
+                    <button 
+                      className="rc-btn rc-btn-delete" 
+                      onClick={() => handleDelete(centre._id)}
+                      disabled={centre.status !== 'rejected'}
+                      title={centre.status !== 'rejected' ? t('responsable.onlyRejectedCanBeDeleted') : ''}
+                      style={centre.status !== 'rejected' ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+                    >
+                      {t('common.delete')}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
+      {/* Edit Modal */}
       {showModal && (
         <div className="rc-modal-overlay" onClick={() => setShowModal(false)}>
           <div className="rc-modal" onClick={e => e.stopPropagation()}>
@@ -234,6 +307,20 @@ export default function ResponsableCentres() {
           </div>
         </div>
       )}
+
+      <PaymentModal
+        open={!!payTarget}
+        onClose={() => setPayTarget(null)}
+        title="Pay Creation Fee"
+        itemName={payTarget?.nom}
+        amount={payTarget?.montant || 1000}
+        description={`Your creation fee of ${payTarget?.montant || 1000} DT has been processed.`}
+        showCashMethod
+        onPay={handlePay}
+        onPaymentSuccess={() => {}}
+        processing={paySubmitting}
+        success={!!paySuccess}
+      />
     </ResponsableCFLayout>
   );
 }

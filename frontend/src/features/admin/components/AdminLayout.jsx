@@ -16,6 +16,7 @@ const NAV_GROUPS = [
       { path: '/admin/users',      label: 'Users',      icon: 'users'   },
       { path: '/admin/centres',    label: 'Centres',    icon: 'building'},
       { path: '/admin/centres/verify', label: 'Verify Requests', icon: 'check' },
+      { path: '/admin/payments',   label: 'Payments',   icon: 'payments'},
     ]
   },
   {
@@ -39,6 +40,7 @@ const ICONS = {
   logout:   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
   menu:     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>,
   search:   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+  payments: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
 };
 
 export default function AdminLayout({ children, title, subtitle }) {
@@ -277,9 +279,9 @@ export default function AdminLayout({ children, title, subtitle }) {
           border: 1px solid transparent;
         }
         .al-btn-logout-icon:hover {
-          color: #e07070;
-          background: rgba(224, 112, 112, 0.08);
-          border-color: rgba(224, 112, 112, 0.2);
+          color: #c62828;
+          background: rgba(198, 40, 40, 0.08);
+          border-color: rgba(198, 40, 40, 0.2);
         }
         .al-btn-logout-icon svg { width: 20px; height: 20px; stroke-width: 2; }
 
@@ -380,10 +382,6 @@ export default function AdminLayout({ children, title, subtitle }) {
               >
                 {ICONS.menu}
               </button>
-              <div className="al-search-bar" aria-hidden="true">
-                {ICONS.search}
-                <span>Quick search...</span>
-              </div>
             </div>
             
             <div className="al-topbar-right">

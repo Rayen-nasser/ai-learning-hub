@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import centreService from '../services/centres';
+import { useAuth } from '../../../shared/context/AuthContext';
 
 export default function ApplyCentre() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [requirements, setRequirements] = useState([]);
+  const [creationFee, setCreationFee] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -30,8 +33,11 @@ export default function ApplyCentre() {
     const fetchRequirements = async () => {
       try {
         const res = await centreService.getRequirements();
-        // Backend returns { data: [ { type, name, mandatory } ] }
         setRequirements(res.data.data || []);
+        // Grab the unified creation fee returned by the backend
+        if (res.data.creationFee !== undefined) {
+          setCreationFee(res.data.creationFee);
+        }
       } catch (err) {
         console.error('Failed to fetch requirements', err);
       } finally {
@@ -80,10 +86,106 @@ export default function ApplyCentre() {
     }
   };
 
+  // ── Access Guard: only authenticated Center Managers and Admins can apply ──
+  if (!loading && !user) {
+    return (
+      <div style={{
+        minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontFamily: "'DM Sans', sans-serif", padding: '40px 24px',
+      }}>
+        <div style={{
+          maxWidth: 480, width: '100%', textAlign: 'center',
+          background: 'var(--bg-card)', border: '1px solid rgba(224,112,112,0.3)',
+          borderRadius: 24, padding: '56px 40px',
+        }}>
+          <div style={{
+            width: 72, height: 72, borderRadius: '50%', margin: '0 auto 24px',
+            background: 'rgba(224,112,112,0.1)', border: '2px solid rgba(224,112,112,0.4)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32,
+          }}>🔒</div>
+          <h2 style={{
+            fontFamily: "'Cormorant Garamond', serif", fontSize: 28,
+            color: 'var(--text-primary)', marginBottom: 12,
+          }}>Authentication Required</h2>
+          <p style={{ color: '#888', fontSize: 15, lineHeight: 1.7, marginBottom: 32 }}>
+            You must be logged in as a <strong style={{ color: '#b4915a' }}>Center Manager</strong> to
+            submit a training center application.<br /><br />
+            Please <strong style={{ color: '#b4915a' }}>sign in</strong> or
+            <strong style={{ color: '#b4915a' }}> register</strong> with the Center Manager role.
+          </p>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+            <button
+              onClick={() => navigate('/login')}
+              style={{
+                padding: '12px 32px', borderRadius: 10, border: '1px solid rgba(180,145,90,0.3)',
+                cursor: 'pointer', background: 'transparent', color: '#b4915a',
+                fontSize: 14, fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
+              }}
+            >
+              Sign In
+            </button>
+            <button
+              onClick={() => navigate('/register')}
+              style={{
+                padding: '12px 32px', borderRadius: 10, border: 'none', cursor: 'pointer',
+                background: 'linear-gradient(135deg, #b4915a, #c8a86e)', color: '#0c0c0e',
+                fontSize: 14, fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
+              }}
+            >
+              Register
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!loading && user && user.role !== 'responsableCF' && user.role !== 'admin') {
+    return (
+      <div style={{
+        minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontFamily: "'DM Sans', sans-serif", padding: '40px 24px',
+      }}>
+        <div style={{
+          maxWidth: 480, width: '100%', textAlign: 'center',
+          background: 'var(--bg-card)', border: '1px solid rgba(224,112,112,0.3)',
+          borderRadius: 24, padding: '56px 40px',
+        }}>
+          <div style={{
+            width: 72, height: 72, borderRadius: '50%', margin: '0 auto 24px',
+            background: 'rgba(224,112,112,0.1)', border: '2px solid rgba(224,112,112,0.4)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32,
+          }}>🔒</div>
+          <h2 style={{
+            fontFamily: "'Cormorant Garamond', serif", fontSize: 28,
+            color: 'var(--text-primary)', marginBottom: 12,
+          }}>Access Restricted</h2>
+          <p style={{ color: '#888', fontSize: 15, lineHeight: 1.7, marginBottom: 32 }}>
+            Only users registered as <strong style={{ color: '#b4915a' }}>Center Managers</strong> can
+            submit a training center application.<br /><br />
+            If you wish to create a center, please register a new account with the
+            <strong style={{ color: '#b4915a' }}> Center Manager</strong> role.
+          </p>
+          <button
+            onClick={() => navigate('/')}
+            style={{
+              padding: '12px 32px', borderRadius: 10, border: 'none', cursor: 'pointer',
+              background: 'linear-gradient(135deg, #b4915a, #c8a86e)', color: '#0c0c0e',
+              fontSize: 14, fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
+            }}
+          >
+            Back to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) return (
-    <div className="ac-loading">
-      <div className="ac-spinner" />
-      <p>Loading requirements...</p>
+    <div className="ac-loading" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: 16 }}>
+      <div className="ac-spinner" style={{ width: 36, height: 36, border: '3px solid rgba(180,145,90,0.15)', borderTopColor: '#b4915a', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+      <p style={{ color: '#888', fontFamily: "'DM Sans', sans-serif" }}>Loading requirements...</p>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 
@@ -92,7 +194,12 @@ export default function ApplyCentre() {
       <div className="ac-success-card">
         <div className="ac-success-icon">✓</div>
         <h2>Application Submitted!</h2>
-        <p>Your request is now "Pending Review". We will notify you once an admin has reviewed your documents.</p>
+        <p>Your request is now <strong>"Pending Review"</strong>. We will notify you once an admin has reviewed your documents.</p>
+        {creationFee !== null && (
+          <p style={{ color: '#b4915a', fontSize: 14, marginBottom: 8 }}>
+            💳 Upon approval, a unified creation fee of <strong>{creationFee.toLocaleString()} DT</strong> will be applied.
+          </p>
+        )}
         <button onClick={() => navigate('/centres/my-requests')} className="ac-btn-primary">Go to My Requests</button>
       </div>
     </div>
@@ -173,6 +280,41 @@ export default function ApplyCentre() {
         <h1>Create Your Training Center</h1>
         <p>Fill in the details and upload the required legal documents to begin the verification process.</p>
       </div>
+
+      {/* ── Unified Creation Fee Banner ── */}
+      {creationFee !== null && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 16,
+          background: 'linear-gradient(135deg, rgba(180,145,90,0.1), rgba(200,168,110,0.06))',
+          border: '1px solid rgba(180,145,90,0.3)', borderRadius: 16,
+          padding: '20px 28px', marginBottom: 32,
+        }}>
+          <div style={{
+            width: 52, height: 52, borderRadius: 12, flexShrink: 0,
+            background: 'rgba(180,145,90,0.15)', border: '1px solid rgba(180,145,90,0.3)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
+          }}>💳</div>
+          <div>
+            <p style={{ fontSize: 12, color: '#b4915a', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>
+              Unified Creation Fee
+            </p>
+            <p style={{ fontSize: 26, fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'Cormorant Garamond', serif", marginBottom: 2 }}>
+              {creationFee.toLocaleString()} <span style={{ fontSize: 16, color: '#b4915a' }}>DT</span>
+            </p>
+            <p style={{ fontSize: 12, color: '#777', lineHeight: 1.5 }}>
+              This flat-rate license fee is applied automatically to all training centers upon Admin approval.
+            </p>
+          </div>
+          <div style={{ marginLeft: 'auto', flexShrink: 0 }}>
+            <span style={{
+              padding: '6px 14px', borderRadius: 20, fontSize: 11, fontWeight: 700,
+              letterSpacing: '0.08em', textTransform: 'uppercase',
+              background: 'rgba(180,145,90,0.15)', color: '#b4915a',
+              border: '1px solid rgba(180,145,90,0.3)',
+            }}>Standard Rate</span>
+          </div>
+        </div>
+      )}
 
       <div className="ac-requirements">
         <h3>

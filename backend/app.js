@@ -60,6 +60,7 @@ var reportRouter          = require('./routes/report.routes');
 var notificationRouter    = require('./routes/notification.routes');
 var skillRouter           = require('./routes/skill.route');
 var publicRouter          = require('./routes/public.routes');
+var formateurPaiementRouter = require('./routes/formateurPaiement.routes');
 
 // ── Enregistrement des routes ────────────────────────────
 app.use('/users',        usersRouter);
@@ -77,6 +78,7 @@ app.use('/reports',      reportRouter);
 app.use('/notifications', notificationRouter);
 app.use('/skills',       skillRouter);
 app.use('/public',       publicRouter);
+app.use('/formateur-paiements', formateurPaiementRouter);
 
 const swaggerOptions = {
   definition: {

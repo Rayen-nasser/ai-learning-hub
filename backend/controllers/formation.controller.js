@@ -53,14 +53,22 @@ module.exports.getAllFormations = asyncHandler(async (req, res) => {
     if (dureeMax) query.duree.$lte = Number(dureeMax);
   }
 
+  const isAdmin = req.user && req.user.role === 'admin';
+
   const formations = await formationModel
     .find(query)
-    .populate("centreId")
+    .populate({
+      path: "centreId",
+      match: isAdmin ? {} : { status: "approved", paiementStatus: "paid" }
+    })
     .populate("categorieId")
     .populate("requiredSkills")
     .populate("formateurIds", "nom prenom email role user_image");
 
-  const sanitizedFormations = formations.map(sanitizeFormation);
+  // Filter out formations whose centre doesn't match the criteria (so centreId is null)
+  const validFormations = isAdmin ? formations : formations.filter(f => f.centreId !== null);
+
+  const sanitizedFormations = validFormations.map(sanitizeFormation);
   
   return sendSuccess(res, sanitizedFormations, "Formations retrieved successfully");
 });
@@ -73,15 +81,24 @@ module.exports.getFormationById = asyncHandler(async (req, res) => {
     return sendError(res, "Invalid formation ID format", 400);
   }
 
+  const isAdmin = req.user && req.user.role === 'admin';
+
   const formation = await formationModel
     .findById(req.params.id)
-    .populate("centreId")
+    .populate({
+      path: "centreId",
+      match: isAdmin ? {} : { status: "approved", paiementStatus: "paid" }
+    })
     .populate("categorieId")
     .populate("requiredSkills")
     .populate("formateurIds", "nom prenom email role user_image");
 
   if (!formation) {
     return sendError(res, "Formation not found", 404);
+  }
+
+  if (!formation.centreId && !isAdmin) {
+    return sendError(res, "Formation not found or unavailable", 404);
   }
 
   return sendSuccess(res, sanitizeFormation(formation), "Formation retrieved successfully");
@@ -102,6 +119,16 @@ module.exports.createFormation = asyncHandler(async (req, res) => {
     const isAdmin = req.user.role === 'admin';
     if (!isOwner && !isAdmin) {
       return sendError(res, "Access denied. You can only add formations to your own centres.", 403);
+    }
+
+    // Centre must be approved before formations can be added
+    if (centre.status !== 'approved' && !isAdmin) {
+      return sendError(res, "Centre must be approved by an administrator before you can add formations.", 400);
+    }
+
+    // Centre creation fee must be paid
+    if (centre.paiementStatus !== 'paid' && !isAdmin) {
+      return sendError(res, "Centre creation fee must be paid and confirmed before you can add formations.", 400);
     }
   }
 
@@ -304,10 +331,10 @@ module.exports.getAvailableFormateurs = asyncHandler(async (req, res) => {
   let results = formateurs;
   if (requiredSkills.length > 0) {
     results = formateurs.map(f => {
-      const matchCount = f.skills.filter(s => 
+      const matchedSkills = f.skills.filter(s =>
         requiredSkills.some(rs => rs.toString() === s._id.toString())
-      ).length;
-      return { ...f.toObject(), matchCount };
+      );
+      return { ...f.toObject(), matchCount: matchedSkills.length, matchedSkills: matchedSkills.map(s => s.name) };
     }).sort((a, b) => b.matchCount - a.matchCount);
   }
 
@@ -340,10 +367,10 @@ module.exports.getMyCentreFormations = asyncHandler(async (req, res) => {
     return sendError(res, "Only responsableCF can access this endpoint", 403);
   }
 
-  // Find the centres owned by this ResponsableCF
-  const centres = await centreFormationModel.find({ responsableId: req.user._id });
+  // Find approved centres owned by this ResponsableCF
+  const centres = await centreFormationModel.find({ responsableId: req.user._id, status: "approved" });
   if (!centres || centres.length === 0) {
-    return sendError(res, "You don't have any centres assigned", 404);
+    return sendSuccess(res, [], "No formations yet — your centre must be approved first");
   }
 
   const centreIds = centres.map(c => c._id);

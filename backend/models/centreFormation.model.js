@@ -28,7 +28,23 @@ const centreFormationSchema = new mongoose.Schema(
       adminNote: { type: String },
       isPublic: { type: Boolean, default: true }
     }],
-    adminMessage: { type: String }
+    adminMessage: { type: String },
+    bankAccountHolder: { type: String },
+    bankName: { type: String },
+    bankRib: { type: String },
+    // Unified creation fee assigned automatically by the system upon admin approval
+    montant: { type: Number, default: 0 },
+    paiementStatus: {
+      type: String,
+      enum: ["unpaid", "pending", "paid"],
+      default: "unpaid",
+    },
+    methodePaiement: {
+      type: String,
+      enum: ["carte", "virement", "especes"],
+    },
+    proofImage: { type: String },
+    datePaiement: { type: Date },
   },
   { timestamps: true }
 );

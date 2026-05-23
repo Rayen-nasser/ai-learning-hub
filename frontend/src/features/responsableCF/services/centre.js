@@ -9,4 +9,9 @@ export const centreService = {
   create: (data) => client.post('/centres', data),
   update: (id, data) => client.put(`/centres/${id}`, data),
   delete: (id) => client.delete(`/centres/${id}`),
+  // Creation fee payment
+  initiatePayment: (id, methodePaiement) => client.post(`/centres/${id}/pay`, { methodePaiement }),
+  uploadProof: (id, formData) => client.post(`/centres/${id}/payment-proof`, formData),
+  confirmPayment: (id) => client.patch(`/centres/${id}/confirm-payment`),
+  getPaymentInfo: (id) => client.get(`/centres/${id}/payment-info`),
 };

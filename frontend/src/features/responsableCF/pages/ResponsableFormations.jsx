@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { formationService } from '../services/formation';
 import { centreService } from '../services/centre';
-import { favoriService } from '../../../services/api';
 import categorieService from '../../formations/services/categories';
 import skillService from '../../profile/services/skill';
 import ResponsableCFLayout from '../components/ResponsableCFLayout';
@@ -66,7 +65,7 @@ function ConfirmModal({ formation, onConfirm, onCancel }) {
 }
 
 // ── Formation Card ────────────────────────────────────────────────────────────
-function FormationCard({ formation, onEdit, onDelete, onAssign }) {
+function FormationCard({ formation, onEdit, onDelete }) {
   const isFree = formation.prix === 0;
   const formateurs = formation.formateurIds || [];
 
@@ -133,7 +132,6 @@ function FormationCard({ formation, onEdit, onDelete, onAssign }) {
 
         <div style={styles.cardActions}>
           <button style={{ ...styles.actionBtn, color: '#c8a86e' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(200,168,110,0.12)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'} onClick={() => onEdit(formation)}>Edit</button>
-          <button style={{ ...styles.actionBtn, color: '#7ca8d4' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(124,168,212,0.1)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'} onClick={() => onAssign(formation)}>Assign</button>
           <button style={{ ...styles.actionBtn, color: '#e07070' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(224,112,112,0.1)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'} onClick={() => onDelete(formation)}>Delete</button>
         </div>
       </div>
@@ -333,166 +331,12 @@ function FormationModal({ editing, centres, categories, allSkills, onClose, onSu
   );
 }
 
-// ── Assign Formateurs Modal ───────────────────────────────────────────────────
-function AssignModal({ formation, formateurs, onClose, onAssign, loadingSuitable, userFavs, onToggleFav }) {
-  const [selected, setSelected] = useState([]);
-  const [assigning, setAssigning] = useState(false);
-
-  useEffect(() => {
-    setSelected(formation.formateurIds?.map(f => f._id || f) || []);
-  }, [formation.formateurIds]);
-
-  const toggle = id => setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-
-  const handleConfirm = async () => {
-    setAssigning(true);
-    try { await onAssign(selected); }
-    finally { setAssigning(false); }
-  };
-
-  return (
-    <div style={styles.overlay} onClick={onClose}>
-      <div style={{ ...styles.modal, maxWidth: 480 }} onClick={e => e.stopPropagation()}>
-        <div style={styles.modalHeader}>
-          <div>
-            <h2 style={styles.modalTitle}>Manage formateurs</h2>
-            <div style={{ fontSize: 12, color: '#555', marginTop: 2 }}>{formation.titre}</div>
-          </div>
-          <button style={styles.closeBtn} onClick={onClose}>&times;</button>
-        </div>
-
-        <div style={{ ...styles.modalBody, maxHeight: 400 }}>
-          <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#555', marginBottom: 14 }}>
-            {loadingSuitable ? 'Finding best matches...' : `Assign or remove formateurs (${selected.length} selected)`}
-          </div>
-          
-          {loadingSuitable ? (
-            <div style={{ textAlign: 'center', padding: '40px 0' }}>
-              <div style={{ width: 24, height: 24, borderRadius: '50%', border: '2px solid var(--border-main)', borderTopColor: '#c8a86e', animation: 'toastIn .8s linear infinite', margin: '0 auto' }} />
-            </div>
-          ) : formateurs.length === 0
-            ? <div style={{ textAlign: 'center', padding: '40px 0', color: '#555' }}>
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" style={{ marginBottom: 12, opacity: 0.3 }}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                <p>No formateurs available in the system</p>
-              </div>
-            : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {[...formateurs]
-                  .sort((a, b) => {
-                    const aSel = selected.includes(a._id);
-                    const bSel = selected.includes(b._id);
-                    if (aSel && !bSel) return -1;
-                    if (!aSel && bSel) return 1;
-                    return 0;
-                  })
-                  .map(f => {
-                    const isSelected = selected.includes(f._id);
-                    return (
-                      <div key={f._id} onClick={() => toggle(f._id)} style={{
-                        ...styles.formateurItem,
-                        ...(isSelected ? styles.formateurItemSelected : {}),
-                        padding: '10px 14px',
-                        marginBottom: 0
-                      }}>
-                        <div style={{ ...styles.formateurAvatar, width: 34, height: 34 }}>
-                          {f.user_image
-                            ? <img src={f.user_image.startsWith('http') ? f.user_image : `http://localhost:5000/${f.user_image}`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            : (f.prenom?.[0] || f.nom?.[0] || '?').toUpperCase()
-                          }
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 14, color: isSelected ? '#c8a86e' : 'var(--text-primary)', fontWeight: 500, transition: 'color .2s', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            {f.prenom} {f.nom}
-                            {f.matchCount > 0 && (
-                               <span style={{ 
-                                 fontSize: '10px', 
-                                 background: 'rgba(74,168,125,0.08)', 
-                                 color: '#4aa87d', 
-                                 padding: '3px 8px', 
-                                 borderRadius: '20px', 
-                                 border: '1px solid rgba(74,168,125,0.2)',
-                                 fontWeight: '600',
-                                 letterSpacing: '0.02em',
-                                 boxShadow: '0 2px 8px rgba(74,168,125,0.05)'
-                               }}>
-                                 {f.matchCount} skill match{f.matchCount > 1 ? 'es' : ''}
-                               </span>
-                            )}
-                          </div>
-                          <div style={{ fontSize: 11, color: '#555', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: f.matchedSkills?.length > 0 ? '6px' : '0' }}>
-                            {f.email}
-                          </div>
-                          {f.matchedSkills?.length > 0 && (
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-                              {f.matchedSkills.slice(0, 3).map((sk, idx) => (
-                                <span key={idx} style={{ 
-                                  fontSize: '9px', 
-                                  background: 'rgba(200,168,110,0.08)', 
-                                  color: '#c8a86e', 
-                                  padding: '2px 7px', 
-                                  borderRadius: '4px', 
-                                  border: '1px solid rgba(200,168,110,0.15)',
-                                  fontWeight: '500'
-                                }}>
-                                  {typeof sk === 'object' ? sk.name : sk}
-                                </span>
-                              ))}
-                              {f.matchedSkills.length > 3 && <span style={{ fontSize: '9px', color: '#444', alignSelf: 'center' }}>+{f.matchedSkills.length - 3}</span>}
-                            </div>
-                          )}
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <button
-                            onClick={(e) => onToggleFav(f._id, 'formateur', e)}
-                            style={{
-                              background: 'none',
-                              border: 'none',
-                              padding: 0,
-                              cursor: 'pointer',
-                              color: userFavs.has(f._id) ? '#e07070' : '#444',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              transition: 'all 0.2s'
-                            }}
-                            title={userFavs.has(f._id) ? 'Remove from favorites' : 'Add to favorites'}
-                          >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill={userFavs.has(f._id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
-                              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
-                            </svg>
-                          </button>
-                          <div style={{ ...styles.checkCircle, ...(isSelected ? styles.checkCircleSelected : {}), width: 18, height: 18, fontSize: 10 }}>
-                            {isSelected && '✓'}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })
-                }
-              </div>
-            )
-          }
-        </div>
-
-        <div style={styles.modalFooter}>
-          <button style={styles.btnCancel} onClick={onClose}>Cancel</button>
-          <button style={{ ...styles.btnPrimary, minWidth: 140, opacity: assigning ? 0.7 : 1 }} onClick={handleConfirm} disabled={assigning}>
-            {assigning ? 'Saving...' : 'Save Assignments'}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function ResponsableFormations() {
   const [formations, setFormations] = useState([]);
   const [centres, setCentres] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [formateurs, setFormateurs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [loadingSuitable, setLoadingSuitable] = useState(false);
   const [allSkills, setAllSkills] = useState([]);
 
   const [search, setSearch] = useState('');
@@ -501,10 +345,7 @@ export default function ResponsableFormations() {
 
   const [showForm, setShowForm] = useState(false);
   const [editingFormation, setEditingFormation] = useState(null);
-  const [showAssign, setShowAssign] = useState(false);
-  const [assignTarget, setAssignTarget] = useState(null);
   const [confirmTarget, setConfirmTarget] = useState(null);
-  const [userFavs, setUserFavs] = useState(new Set());
 
   const { toasts, show: toast } = useToast();
 
@@ -512,56 +353,44 @@ export default function ResponsableFormations() {
 
   const fetchData = async () => {
     setLoading(true);
-    try {
-      const [formationsRes, centresRes, categoriesRes, formateursRes, skillsRes] = await Promise.all([
-        formationService.getAll(),
-        centreService.getMyCentres(),
-        categorieService.getAll(),
-        formationService.getAvailableFormateurs(),
-        skillService.getAll(),
-      ]);
-      setFormations(formationsRes.data.data || []);
-      setCentres(centresRes.data.data || []);
-      setCategories(categoriesRes.data.data || []);
-      setFormateurs(formateursRes.data.data || []);
-      setAllSkills(skillsRes.data.data || skillsRes.data || []);
-      
-      const favRes = await favoriService.getMyFavoris().catch(() => ({ data: { data: [] } }));
-      const favData = favRes.data.data || favRes.data;
-      setUserFavs(new Set(favData.map(f => f.cibleId?._id || f.cibleId)));
-    } catch {
-      toast('Failed to load data', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
+    const results = await Promise.allSettled([
+      formationService.getAll(),
+      centreService.getMyCentres(),
+      categorieService.getAll(),
+      skillService.getAll(),
+    ]);
 
-  const handleOpenAssign = async (target) => {
-    setAssignTarget(target);
-    setShowAssign(true);
-    setLoadingSuitable(true);
-    try {
-      const res = await formationService.getAvailableFormateurs(target._id);
-      setFormateurs(res.data.data || []);
-    } catch {
-      toast('Failed to load suitable formateurs', 'error');
-    } finally {
-      setLoadingSuitable(false);
+    const [formationsRes, centresRes, categoriesRes, skillsRes] = results.map(r =>
+      r.status === 'fulfilled' ? r.value : { data: { data: [] } }
+    );
+
+    setFormations(formationsRes.data.data || []);
+    setCentres(centresRes.data.data || []);
+    setCategories(categoriesRes.data.data || []);
+    setAllSkills(skillsRes.data.data || skillsRes.data || []);
+
+    if (results.some(r => r.status === 'rejected')) {
+      toast('Some data failed to load', 'error');
     }
+    
+    setLoading(false);
   };
 
   const handleSubmit = async (data) => {
     try {
       if (editingFormation) {
-        await formationService.update(editingFormation._id, data);
+        const res = await formationService.update(editingFormation._id, data);
         toast('Formation updated successfully');
+        setFormations(prev => prev.map(f =>
+          f._id === editingFormation._id ? (res.data.data || res.data) : f
+        ));
       } else {
-        await formationService.create(data);
+        const res = await formationService.create(data);
         toast('Formation created successfully');
+        setFormations(prev => [...prev, res.data.data || res.data]);
       }
       setShowForm(false);
       setEditingFormation(null);
-      fetchData();
     } catch (err) {
       toast(err.response?.data?.message || 'Failed to save formation', 'error');
       throw err;
@@ -572,49 +401,10 @@ export default function ResponsableFormations() {
     try {
       await formationService.delete(confirmTarget._id);
       toast('Formation deleted');
+      setFormations(prev => prev.filter(f => f._id !== confirmTarget._id));
       setConfirmTarget(null);
-      fetchData();
     } catch {
       toast('Failed to delete formation', 'error');
-    }
-  };
-
-  const handleAssign = async (formateurIds) => {
-    try {
-      const res = await formationService.assignFormateurs(assignTarget._id, formateurIds);
-      const updatedFormation = res.data.data;
-      
-      setFormations(prev => prev.map(f => f._id === updatedFormation._id ? updatedFormation : f));
-      setAssignTarget(updatedFormation);
-      
-      toast(`${formateurIds.length} formateur${formateurIds.length !== 1 ? 's' : ''} assigned`);
-      setShowAssign(false);
-      setAssignTarget(null);
-    } catch (err) {
-      toast(err.response?.data?.message || 'Failed to assign formateurs', 'error');
-      throw err;
-    }
-  };
-
-  const handleToggleFav = async (id, type, e) => {
-    e.stopPropagation();
-    try {
-      if (userFavs.has(id)) {
-        const res = await favoriService.getMyFavoris();
-        const all = res.data.data || res.data;
-        const target = all.find(f => (f.cibleId?._id || f.cibleId) === id);
-        if (target) {
-          await favoriService.remove(target._id);
-          setUserFavs(prev => { const n = new Set(prev); n.delete(id); return n; });
-          toast('Removed from favorites');
-        }
-      } else {
-        await favoriService.add({ cibleId: id, typeCible: type });
-        setUserFavs(prev => new Set([...prev, id]));
-        toast('Added to favorites');
-      }
-    } catch {
-      toast('Failed to update favorites', 'error');
     }
   };
 
@@ -627,6 +417,7 @@ export default function ResponsableFormations() {
   });
 
   const uniqueFormateurs = new Set(formations.flatMap(f => f.formateurIds?.map(fm => fm._id || fm) || []));
+  const approvedCentres = centres.filter(c => c.status === 'approved' && c.paiementStatus === 'paid');
 
   return (
     <ResponsableCFLayout title="My <em>Formations</em>" subtitle="Manage your training courses">
@@ -650,7 +441,7 @@ export default function ResponsableFormations() {
         </div>
         <select style={styles.select} value={filterCentre} onChange={e => setFilterCentre(e.target.value)}>
           <option value="">All centres</option>
-          {centres.map(c => <option key={c._id} value={c._id}>{c.nom}</option>)}
+          {approvedCentres.map(c => <option key={c._id} value={c._id}>{c.nom}</option>)}
         </select>
         <select style={styles.select} value={filterCat} onChange={e => setFilterCat(e.target.value)}>
           <option value="">All categories</option>
@@ -658,7 +449,7 @@ export default function ResponsableFormations() {
         </select>
         <button style={{ ...styles.btnPrimary, display: 'flex', alignItems: 'center', gap: 6 }}
           onClick={() => { setEditingFormation(null); setShowForm(true); }}
-          disabled={centres.length === 0}>
+          disabled={approvedCentres.length === 0}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg>
           Add formation
         </button>
@@ -678,8 +469,8 @@ export default function ResponsableFormations() {
         ))}
       </div>
 
-      {centres.length === 0 && !loading && (
-        <div style={styles.alertWarn}>Please create a centre first before adding formations.</div>
+      {approvedCentres.length === 0 && !loading && (
+        <div style={styles.alertWarn}>Your centre must be approved by an administrator and the creation fee must be paid before you can add formations.</div>
       )}
 
       {/* Grid */}
@@ -707,7 +498,6 @@ export default function ResponsableFormations() {
               formation={f}
               onEdit={f => { setEditingFormation(f); setShowForm(true); }}
               onDelete={f => setConfirmTarget(f)}
-              onAssign={f => handleOpenAssign(f)}
             />
           ))}
         </div>
@@ -717,22 +507,11 @@ export default function ResponsableFormations() {
       {showForm && (
         <FormationModal
           editing={editingFormation}
-          centres={centres}
+          centres={approvedCentres}
           categories={categories}
           allSkills={allSkills}
           onClose={() => { setShowForm(false); setEditingFormation(null); }}
           onSubmit={handleSubmit}
-        />
-      )}
-      {showAssign && assignTarget && (
-        <AssignModal
-          formation={assignTarget}
-          formateurs={formateurs}
-          loadingSuitable={loadingSuitable}
-          onClose={() => { setShowAssign(false); setAssignTarget(null); }}
-          onAssign={handleAssign}
-          userFavs={userFavs}
-          onToggleFav={handleToggleFav}
         />
       )}
       {confirmTarget && (

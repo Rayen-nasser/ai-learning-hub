@@ -15,11 +15,11 @@ const isFormateurAssigned = async (userId, formationId) => {
 const checkAccess = async (lecon, user) => {
   const leconObj = lecon.toObject ? lecon.toObject() : lecon;
 
-  if (user.role === 'admin') {
-    return { hasAccess: true, role: 'admin' };
+  if (user.role === 'admin' || user.role === 'responsableCF') {
+    return { hasAccess: true, role: user.role };
   }
 
-  const isFormateur = leconObj.formateurId && leconObj.formateurId.toString() === user._id.toString();
+  const isFormateur = leconObj.formateurId && String(leconObj.formateurId._id || leconObj.formateurId) === String(user._id);
   if (isFormateur) {
     return { hasAccess: true, role: 'formateur' };
   }
@@ -66,13 +66,10 @@ const checkFormateurCanModify = async (lecon, user) => {
   const leconObj = lecon.toObject ? lecon.toObject() : lecon;
 
   if (user.role === 'formateur') {
-    const isOwner = leconObj.formateurId && leconObj.formateurId.toString() === user._id.toString();
-    if (isOwner) return true;
-
-    if (leconObj.formationId) {
-      const formationId = leconObj.formationId._id || leconObj.formationId;
-      return await isFormateurAssigned(user._id, formationId);
-    }
+    if (!leconObj.formateurId) return false;
+    const ownerId = String(leconObj.formateurId._id || leconObj.formateurId);
+    const userId = String(user._id);
+    return ownerId === userId;
   }
 
   return false;
@@ -96,14 +93,15 @@ module.exports.getLecons = async (req, res) => {
       query.formationId = formationId;
     }
 
+    // Hide lessons from students until RCF has paid the formateur
+    if (user.role === 'apprenant') {
+      query.formateurPaye = { $ne: false };
+    }
+
     const lecons = await leconModel.find(query)
       .populate("formationId", "titre description prix duree")
       .populate("formateurId", "nom prenom")
       .sort({ order: 1, createdAt: 1 });
-
-    if (lecons.length === 0) {
-      return res.status(404).json({ message: "No lessons found" });
-    }
 
     const enrichedLecons = await Promise.all(lecons.map(async (lecon) => {
       const leconObj = lecon.toObject ? lecon.toObject() : lecon;
@@ -148,9 +146,14 @@ module.exports.getLeconById = async (req, res) => {
     }
 
     const user = req.user;
-    const access = await checkAccess(lecon, user);
     const leconObj = lecon.toObject ? lecon.toObject() : lecon;
 
+    // Block students from viewing lessons whose formateur hasn't been paid
+    if (user.role === 'apprenant' && leconObj.formateurPaye === false) {
+      return res.status(403).json({ message: "This lesson is not yet available" });
+    }
+
+    const access = await checkAccess(lecon, user);
     if (!access.hasAccess) {
       return res.status(403).json({
         message: "Access denied. You must be enrolled in the formation or the lesson must be accessible."
@@ -182,8 +185,9 @@ module.exports.createLecon = async (req, res) => {
       return res.status(400).json({ message: "Lesson title is required" });
     }
 
+    let formation = null;
     if (formationId) {
-      const formation = await formationModel.findById(formationId);
+      formation = await formationModel.findById(formationId);
       if (!formation) {
         return res.status(400).json({ message: "Formation not found" });
       }
@@ -213,6 +217,22 @@ module.exports.createLecon = async (req, res) => {
       order: order || 0,
     });
 
+    // If formateur has an active per-lesson contract, mark lesson as unpaid
+    if (req.user.role === 'formateur' && formation?.centreId) {
+      try {
+        const FormateurContrat = require("../models/formateurContrat.model");
+        const activeContrat = await FormateurContrat.findOne({
+          formateurId: req.user._id,
+          centreId: formation.centreId,
+          mode: "par_lecon",
+          statut: "actif",
+        });
+        if (activeContrat) {
+          newLecon.formateurPaye = false;
+        }
+      } catch { /* non-blocking */ }
+    }
+
     await newLecon.save();
 
     // Notify enrolled students
@@ -238,6 +258,13 @@ module.exports.createLecon = async (req, res) => {
       );
       await Promise.all(notifyPromises);
     }
+
+    // Auto-create per-lesson payment if formateur has active contract
+    if (req.user.role === 'formateur' && formationId) {
+      const { autoCreatePerLessonPayment } = require("./formateurPaiement.controller");
+      autoCreatePerLessonPayment(newLecon, req.user._id, formationId);
+    }
+
     const populatedLecon = await leconModel.findById(newLecon._id)
       .populate("formationId", "titre description prix duree")
       .populate("formateurId", "nom prenom");
@@ -265,7 +292,7 @@ module.exports.updateLecon = async (req, res) => {
 
     const canModify = await checkFormateurCanModify(lecon, req.user);
     if (!canModify) {
-      return res.status(403).json({ message: "Access denied. You can only update lessons of formations you're assigned to." });
+      return res.status(403).json({ message: "Access denied. You can only update your own lessons." });
     }
 
     const { titre, description, duree, estAccessible, order } = req.body;
@@ -310,7 +337,7 @@ module.exports.deleteLecon = async (req, res) => {
 
     const canModify = await checkFormateurCanModify(lecon, req.user);
     if (!canModify) {
-      return res.status(403).json({ message: "Access denied. You can only delete lessons of formations you're assigned to." });
+      return res.status(403).json({ message: "Access denied. You can only delete your own lessons." });
     }
 
     await leconContentModel.deleteMany({ leconId: req.params.id });

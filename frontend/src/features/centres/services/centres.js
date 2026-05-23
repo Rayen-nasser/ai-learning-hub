@@ -23,6 +23,9 @@ const centreService = {
   
   // Private Document View
   getDocumentUrl: (id, docId) => `${client.defaults.baseURL}/centres/${id}/documents/${docId}`,
+  
+  // Creation Fee Payment (Admin)
+  confirmPayment: (id) => client.patch(`/centres/${id}/confirm-payment`),
 };
 
 export default centreService;

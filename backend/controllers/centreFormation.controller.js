@@ -13,18 +13,15 @@ const sanitizeCentre = (centre) => {
   const obj = centre.toObject ? centre.toObject() : { ...centre };
 
   // ── Fix logo URL ─────────────────────────────────────────
-  if (obj.logo) {
-    let p = obj.logo;
-    // Strip any accidental baseUrl prefix already in the stored path
-    if (p.startsWith(config.baseUrl)) {
-      p = p.slice(config.baseUrl.length);
-    }
-    // Ensure leading slash
-    if (!p.startsWith('/') && !p.startsWith('http')) {
-      p = '/' + p;
-    }
-    obj.logo = p.startsWith('http') ? p : `${config.baseUrl}${p}`;
-  }
+  const fixUrl = (val) => {
+    if (!val) return val;
+    let p = val;
+    if (p.startsWith(config.baseUrl)) p = p.slice(config.baseUrl.length);
+    if (!p.startsWith('/') && !p.startsWith('http')) p = '/' + p;
+    return p.startsWith('http') ? p : `${config.baseUrl}${p}`;
+  };
+  obj.logo = fixUrl(obj.logo);
+  obj.proofImage = fixUrl(obj.proofImage);
 
   // ── Replace raw document paths with a secure proxy viewUrl ──
   // Private files must never be exposed as direct public URLs.
@@ -44,8 +41,8 @@ const sanitizeCentre = (centre) => {
 
 module.exports.getAllCentres = async (req, res) => {
   try {
-    // By default, only show approved centres. Admins can see all.
-    const filter = req.user && req.user.role === 'admin' ? {} : { status: "approved" };
+    // By default, only show approved and paid centres. Admins can see all.
+    const filter = req.user && req.user.role === 'admin' ? {} : { status: "approved", paiementStatus: "paid" };
     
     const centres = await centreFormationModel.find(filter).populate("responsableId", PUBLIC_USER_FIELDS);
     res.status(200).json({ message: "Centres retrieved successfully", data: centres.map(sanitizeCentre) });
@@ -306,28 +303,24 @@ module.exports.approveCentre = async (req, res) => {
       return res.status(400).json({ message: "Centre is already approved" });
     }
 
+    // Automatically assign the unified platform creation fee from global config
+    centre.montant = config.creationFee;
     centre.status = 'approved';
+    centre.paiementStatus = 'unpaid';
     await centre.save();
-
-    // Update user role to responsableCF
-    const user = await userModel.findById(centre.responsableId);
-    if (user && user.role !== 'admin' && user.role !== 'responsableCF') {
-      user.role = 'responsableCF';
-      await user.save();
-    }
 
     const { createNotification } = require("../utils/notification");
     await createNotification({
       userId: centre.responsableId,
       type: "centre_verified",
-      title: "Centre approuvé ! 🎉",
-      message: `Félicitations ! Votre centre "${centre.nom}" a été approuvé par l'administrateur.`,
+      title: "Centre Approved! 🎉",
+      message: `Congratulations! Your centre "${centre.nom}" has been approved. The creation fee of ${config.creationFee} DT has been applied.`,
       relatedId: centre._id,
       relatedModel: "CentreFormation"
     });
 
     res.status(200).json({ 
-      message: "Centre approved successfully and user promoted to responsableCF", 
+      message: "Centre approved successfully. Unified creation fee applied.", 
       data: sanitizeCentre(centre) 
     });
   } catch (error) {
@@ -431,6 +424,8 @@ module.exports.getVerificationRequirements = async (req, res) => {
   res.status(200).json({ 
     message: "Training center verification requirements", 
     data: requirements,
+    // Unified creation fee applied to ALL centers upon approval
+    creationFee: config.creationFee,
     technical: {
       maxFileSize: "100MB",
       allowedFormats: ["PDF", "JPG", "PNG", "DOCX"]
@@ -660,6 +655,136 @@ module.exports.deleteCentre = async (req, res) => {
 
     await centreFormationModel.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: "Centre deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// ───── CF: INITIATE CENTRE CREATION FEE PAYMENT ─────
+module.exports.initiateCentrePayment = async (req, res) => {
+  try {
+    const { methodePaiement } = req.body;
+    if (!methodePaiement || !["carte", "virement", "especes"].includes(methodePaiement)) {
+      return res.status(400).json({ message: "Invalid payment method. Choose: carte, virement, or especes." });
+    }
+
+    const centre = await centreFormationModel.findById(req.params.id);
+    if (!centre) return res.status(404).json({ message: "Centre not found" });
+
+    const isOwner = centre.responsableId?.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === 'admin';
+    if (!isOwner && !isAdmin) return res.status(403).json({ message: "Access denied." });
+
+    if (centre.status !== 'approved') {
+      return res.status(400).json({ message: "Centre must be approved before payment." });
+    }
+    if (centre.paiementStatus === 'paid') {
+      return res.status(400).json({ message: "Creation fee already paid." });
+    }
+
+    centre.methodePaiement = methodePaiement;
+
+    if (methodePaiement === 'carte') {
+      centre.paiementStatus = 'paid';
+      centre.datePaiement = new Date();
+    } else {
+      centre.paiementStatus = 'pending';
+    }
+
+    await centre.save();
+
+    const { createNotification } = require("../utils/notification");
+    if (methodePaiement === 'carte') {
+      await createNotification({
+        userId: centre.responsableId,
+        type: "centre_payment_confirmed",
+        title: "Payment Confirmed",
+        message: `Your payment of ${centre.montant} DT for centre "${centre.nom}" has been confirmed.`,
+        relatedId: centre._id,
+        relatedModel: "CentreFormation"
+      });
+    } else {
+      await createNotification({
+        userId: centre.responsableId,
+        type: "centre_payment_pending",
+        title: "Payment Pending",
+        message: `Your payment of ${centre.montant} DT for centre "${centre.nom}" is pending. Please upload your proof of payment.`,
+        relatedId: centre._id,
+        relatedModel: "CentreFormation"
+      });
+    }
+
+    res.status(200).json({ message: "Payment initiated successfully.", data: sanitizeCentre(centre) });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// ───── CF: UPLOAD PROOF OF PAYMENT ─────
+module.exports.uploadCentreProof = async (req, res) => {
+  try {
+    const centre = await centreFormationModel.findById(req.params.id);
+    if (!centre) return res.status(404).json({ message: "Centre not found" });
+
+    const isOwner = centre.responsableId?.toString() === req.user._id.toString();
+    if (!isOwner) return res.status(403).json({ message: "Access denied." });
+
+    if (centre.paiementStatus !== 'pending') {
+      return res.status(400).json({ message: "Payment is not in pending status." });
+    }
+
+    if (!req.file) return res.status(400).json({ message: "No proof file uploaded." });
+
+    centre.proofImage = `${req.file.folder}/${req.file.filename}`;
+    await centre.save();
+
+    res.status(200).json({ message: "Proof uploaded successfully.", data: sanitizeCentre(centre) });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// ───── ADMIN: CONFIRM CENTRE CREATION FEE PAYMENT ─────
+module.exports.confirmCentrePayment = async (req, res) => {
+  try {
+    const centre = await centreFormationModel.findById(req.params.id);
+    if (!centre) return res.status(404).json({ message: "Centre not found" });
+
+    if (centre.paiementStatus !== 'pending') {
+      return res.status(400).json({ message: "Payment is not pending." });
+    }
+
+    centre.paiementStatus = 'paid';
+    centre.datePaiement = new Date();
+    await centre.save();
+
+    const { createNotification } = require("../utils/notification");
+    await createNotification({
+      userId: centre.responsableId,
+      type: "centre_payment_confirmed",
+      title: "Payment Confirmed 🎉",
+      message: `Your payment of ${centre.montant} DT for centre "${centre.nom}" has been confirmed by the administrator.`,
+      relatedId: centre._id,
+      relatedModel: "CentreFormation"
+    });
+
+    res.status(200).json({ message: "Centre payment confirmed successfully.", data: sanitizeCentre(centre) });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// ───── GET CENTRE PAYMENT STATUS ─────
+module.exports.getCentrePaymentInfo = async (req, res) => {
+  try {
+    const centre = await centreFormationModel.findById(req.params.id).select("montant paiementStatus methodePaiement proofImage datePaiement status responsableId");
+    if (!centre) return res.status(404).json({ message: "Centre not found" });
+
+    const isOwner = centre.responsableId?.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === 'admin';
+    if (!isOwner && !isAdmin) return res.status(403).json({ message: "Access denied." });
+
+    res.status(200).json({ message: "Payment info retrieved.", data: centre });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

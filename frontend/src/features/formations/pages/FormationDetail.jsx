@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { formationService, leconService, avisService, inscriptionService, favoriService, contentService, paiementService } from '../../../services/api';
 import { useAuth } from '../../../shared/context/AuthContext';
+import PaymentModal from '../../../shared/components/PaymentModal';
 
 /* ── Star rating component ── */
 const StarRating = ({ value, onChange, readonly = false }) => {
@@ -60,7 +61,6 @@ const FormationDetail = () => {
 
   // Payment state
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('carte');
   const [processingPayment, setProcessingPayment] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
 
@@ -133,6 +133,12 @@ const FormationDetail = () => {
       return;
     }
 
+    // Only students can enroll in courses
+    if (user.role !== 'apprenant') {
+      setError('Only students can enroll in courses');
+      return;
+    }
+
     // For free courses, enroll immediately. For paid, open modal.
     if (formation.prix === 0 || formation.prix === '0' || !formation.prix) {
       setEnrolling(true);
@@ -148,40 +154,36 @@ const FormationDetail = () => {
     }
   };
 
-  const handlePaymentConfirm = async () => {
+  const handlePaymentConfirm = async (method, cardData, proofFile) => {
     setProcessingPayment(true);
     setError('');
 
     try {
-      // Create the payment record on the backend
-      // Note: Backend confirms "carte" payments automatically
-      await paiementService.create({
+      const res = await paiementService.create({
         formationId: id,
-        methodePaiement: paymentMethod
+        methodePaiement: method
       });
 
-      // Simulate processing delay for "Wow" factor
+      const payment = res.data.data;
+
+      if (method === 'virement' && proofFile && payment?._id) {
+        const formData = new FormData();
+        formData.append('proof', proofFile);
+        await paiementService.uploadProof(payment._id, formData);
+      }
+
       await new Promise(resolve => setTimeout(resolve, 1800));
 
       setPaymentSuccess(true);
       setEnrolled(true);
 
-      // Auto-close and navigate after a brief success display
       setTimeout(() => {
         setShowPaymentModal(false);
         navigate('/apprenant/formations');
       }, 2000);
-    } catch (err) {
-      setError(err.response?.data?.message || 'Payment processing failed');
     } finally {
       setProcessingPayment(false);
     }
-  };
-
-  const handlePaymentCancel = () => {
-    setShowPaymentModal(false);
-    setError('');
-    // We don't need to call backend cancel anymore as we haven't created the payment yet
   };
 
   const handleFavorite = async () => {
@@ -470,36 +472,44 @@ const FormationDetail = () => {
                   </div>
                 )}
 
-                <button
-                  className="fd-enroll-btn"
-                  onClick={handleInscription}
-                  disabled={enrolling}
-                >
-                  {enrolling ? (
-                    <><div className="fd-inline-spin" /> Processing…</>
-                  ) : (
-                    <>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-                        <line x1="1" y1="10" x2="23" y2="10"/>
-                      </svg>
-                      Enroll Now
-                    </>
-                  )}
-                </button>
-                <p className="fd-enroll-hint" style={{ marginTop: 12, marginBottom: 0 }}>
-                  {user ? (
-                    <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                      </svg>
-                      Secure enrollment
-                    </span>
-                  ) : (
-                    <><Link to="/login" style={{ color: '#b4915a' }}>Sign in</Link> to enroll</>
-                  )}
-                </p>
+                {user && user.role !== 'apprenant' ? (
+                  <div style={{ textAlign: 'center', padding: '14px', background: 'rgba(180,145,90,0.08)', border: '1px solid rgba(180,145,90,0.2)', borderRadius: 10, fontSize: 13, color: '#888' }}>
+                    Only students can enroll in courses
+                  </div>
+                ) : (
+                  <>
+                    <button
+                      className="fd-enroll-btn"
+                      onClick={handleInscription}
+                      disabled={enrolling}
+                    >
+                      {enrolling ? (
+                        <><div className="fd-inline-spin" /> Processing…</>
+                      ) : (
+                        <>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                            <line x1="1" y1="10" x2="23" y2="10"/>
+                          </svg>
+                          Enroll Now
+                        </>
+                      )}
+                    </button>
+                    <p className="fd-enroll-hint" style={{ marginTop: 12, marginBottom: 0 }}>
+                      {user ? (
+                        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                          </svg>
+                          Secure enrollment
+                        </span>
+                      ) : (
+                        <><Link to="/login" style={{ color: '#b4915a' }}>Sign in</Link> to enroll</>
+                      )}
+                    </p>
+                  </>
+                )}
               </>
             )}
 
@@ -749,139 +759,23 @@ const FormationDetail = () => {
         </div>
       </div>
 
-      {/* Payment Modal */}
-      {showPaymentModal && (
-        <div className="pm-overlay" onClick={(e) => e.target === e.currentTarget && !processingPayment && handlePaymentCancel()}>
-          <div className="pm-modal">
-            <div className="pm-header">
-              <h2 className="pm-title">Secure Checkout</h2>
-              {!paymentSuccess && !processingPayment && (
-                <button className="pm-close" onClick={handlePaymentCancel}>×</button>
-              )}
-            </div>
-
-            <div className="pm-body">
-              {paymentSuccess ? (
-                <div className="pm-success" style={{ animation: 'pm-bounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
-                  <div className="pm-success-icon">✓</div>
-                  <h3>Payment Confirmed!</h3>
-                  <p>You've been successfully enrolled in<br /><strong>{formation.titre}</strong></p>
-                  <div style={{ marginTop: 24, fontSize: 12, color: '#444' }}>Redirecting to your dashboard...</div>
-                </div>
-              ) : (
-                <>
-                  <div className="pm-course-info">
-                    <div className="pm-course-title">{formation.titre}</div>
-                    <div className="pm-course-price">{formation.prix} <span style={{ fontSize: 14, fontWeight: 300 }}>DT</span></div>
-                  </div>
-
-                  <div className="pm-divider" />
-
-                  <div className="pm-method-section">
-                    <h4>Select Payment Method</h4>
-                    <div className="pm-methods">
-                      <label className={`pm-method ${paymentMethod === 'carte' ? 'selected' : ''}`}>
-                        <input type="radio" name="payment" value="carte" checked={paymentMethod === 'carte'} onChange={() => setPaymentMethod('carte')} />
-                        <span className="pm-method-icon">💳</span>
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                          <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-primary)' }}>Credit or Debit Card</span>
-                          <span style={{ fontSize: '11px', color: '#555' }}>Instant access granted</span>
-                        </div>
-                      </label>
-                      <label className={`pm-method ${paymentMethod === 'virement' ? 'selected' : ''}`}>
-                        <input type="radio" name="payment" value="virement" checked={paymentMethod === 'virement'} onChange={() => setPaymentMethod('virement')} />
-                        <span className="pm-method-icon">🏛️</span>
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                          <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-primary)' }}>Bank Transfer</span>
-                          <span style={{ fontSize: '11px', color: '#555' }}>Requires manual verification</span>
-                        </div>
-                      </label>
-                    </div>
-                  </div>
-
-                  {paymentMethod === 'carte' && (
-                    <div className="pm-card-form" style={{ animation: 'pm-fadein 0.3s ease' }}>
-                      <input type="text" placeholder="Card Number" className="pm-input" defaultValue="4242 4242 4242 4242" />
-                      <div className="pm-card-row">
-                        <input type="text" placeholder="MM / YY" className="pm-input" defaultValue="12/26" />
-                        <input type="text" placeholder="CVC" className="pm-input" defaultValue="123" />
-                      </div>
-                    </div>
-                  )}
-
-                  {error && <div className="pm-error">{error}</div>}
-
-                  <button className="pm-pay-btn" onClick={handlePaymentConfirm} disabled={processingPayment}>
-                    {processingPayment ? (
-                      <><div className="fd-inline-spin" style={{ borderColor: 'rgba(0,0,0,0.1)', borderTopColor: '#000' }} /> Finalizing...</>
-                    ) : (
-                      <>Enroll & Pay {formation.prix} DT</>
-                    )}
-                  </button>
-
-                  <button className="pm-cancel-btn" onClick={handlePaymentCancel} disabled={processingPayment}>
-                    Cancel
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      <style>{`
-        @keyframes pm-bounce { 0% { transform: scale(0.8); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-        @keyframes pm-fadein { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-      `}</style>
-
-      <style>{`
-        .pm-overlay {
-          position: fixed; inset: 0; z-index: 1000;
-          background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
-          display: flex; align-items: center; justify-content: center;
-          padding: 24px;
-        }
-        .pm-modal {
-          width: 100%; max-width: 440px;
-          background: var(--bg-card); border: 1px solid var(--border-main);
-          border-radius: 20px; overflow: hidden;
-        }
-        .pm-header {
-          padding: 24px 28px 20px; display: flex; align-items: center; justify-content: space-between;
-          background: linear-gradient(135deg, #faf9f6, #f0eee8);
-          border-bottom: 1px solid var(--border-main);
-        }
-        .pm-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; color: var(--text-primary); margin: 0; }
-.pm-close { background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 8px; width: 32px; height: 32px; color: var(--text-secondary); cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; }
-.pm-close:hover { color: var(--text-primary); }
-        .pm-body { padding: 28px; }
-        .pm-course-info { text-align: center; margin-bottom: 20px; }
-        .pm-course-title { font-size: 16px; color: var(--text-primary); margin-bottom: 8px; }
-        .pm-course-price { font-family: 'Cormorant Garamond', serif; font-size: 32px; color: #b4915a; }
-        .pm-divider { height: 1px; background: var(--border-main); margin: 20px 0; }
-        .pm-method-section h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-secondary); margin: 0 0 12px; }
-        .pm-methods { display: flex; flex-direction: column; gap: 8px; }
-        .pm-method { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1px solid var(--border-main); border-radius: 10px; cursor: pointer; transition: all 0.2s; }
-        .pm-method:hover { border-color: rgba(180,145,90,0.3); }
-        .pm-method.selected { border-color: #b4915a; background: rgba(180,145,90,0.08); }
-        .pm-method input { display: none; }
-        .pm-method-icon { font-size: 20px; }
-        .pm-method span:last-child { font-size: 14px; color: var(--text-primary); }
-        .pm-card-form { margin-top: 16px; }
-        .pm-card-row { display: flex; gap: 12px; }
-        .pm-input { width: 100%; padding: 12px 14px; background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 8px; color: var(--text-primary); font-size: 14px; margin-bottom: 10px; outline: none; }
-        .pm-input:focus { border-color: #b4915a; }
-        .pm-error { padding: 10px 14px; background: rgba(198,40,40,0.08); border: 1px solid rgba(198,40,40,0.25); border-radius: 8px; color: #c62828; font-size: 13px; margin: 16px 0; }
-        .pm-pay-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #b4915a, #c8a86e); border: none; border-radius: 10px; color: #ffffff; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .pm-pay-btn:hover { opacity: 0.9; }
-        .pm-pay-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.pm-cancel-btn { width: 100%; padding: 12px; background: transparent; border: 1px solid var(--border-main); border-radius: 10px; color: var(--text-secondary); font-size: 14px; cursor: pointer; margin-top: 10px; }
-.pm-cancel-btn:hover { border-color: var(--text-primary); color: var(--text-primary); }
-        .pm-success { text-align: center; padding: 20px 0; }
-        .pm-success-icon { width: 60px; height: 60px; border-radius: 50%; background: rgba(74,168,125,0.15); border: 2px solid #4aa87d; color: #4aa87d; font-size: 28px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
-        .pm-success h3 { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--text-primary); margin: 0 0 8px; }
-        .pm-success p { font-size: 14px; color: var(--text-secondary); margin: 0; }
-      `}</style>
+      <PaymentModal
+        open={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        title="Secure Checkout"
+        itemName={formation.titre}
+        amount={formation.prix}
+        bankDetails={formation?.centreId?.bankRib ? {
+          accountHolder: formation.centreId.bankAccountHolder,
+          bankName: formation.centreId.bankName,
+          rib: formation.centreId.bankRib,
+        } : null}
+        description={`You've been successfully enrolled in ${formation.titre}`}
+        onPay={handlePaymentConfirm}
+        onPaymentSuccess={() => {}}
+        processing={processingPayment}
+        success={paymentSuccess}
+      />
     </>
   );
 };

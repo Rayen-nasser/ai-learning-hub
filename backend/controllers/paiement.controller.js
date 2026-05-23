@@ -21,6 +21,7 @@ const formatPaiement = (p, formation) => {
     inscriptionId: p.inscriptionId?._id,
     inscriptionStatut: p.inscriptionId?.statut,
     formationId: formationObj?._id || p.inscriptionId?.formationId,
+    formationTitre: formationObj?.titre || 'Unknown',
     formation: formationObj ? {
       titre: formationObj.titre,
       description: formationObj.description,
@@ -35,6 +36,7 @@ const formatPaiement = (p, formation) => {
     apprenantId: p.apprenantId?._id,
     apprenantNom: p.apprenantId?.nom,
     apprenantPrenom: p.apprenantId?.prenom,
+    proofImage: p.proofImage,
   };
 };
 
@@ -350,6 +352,36 @@ module.exports.cancelPaiement = asyncHandler(async (req, res) => {
   // For now, we leave the inscription as is
   
   return sendSuccess(res, null, "Payment cancelled successfully");
+});
+
+// @desc    Upload payment proof image (apprenant only - for their own pending virement)
+// @route   POST /paiements/:id/upload-proof
+// @access  Private (Owner only)
+module.exports.uploadProof = asyncHandler(async (req, res) => {
+  const paiement = await paiementModel.findById(req.params.id);
+
+  if (!paiement) {
+    return sendError(res, "Payment not found", 404);
+  }
+
+  const isOwner = paiement.apprenantId.toString() === req.user._id.toString();
+  if (!isOwner) {
+    return sendError(res, "You can only upload proof for your own payments", 403);
+  }
+
+  if (paiement.statut !== "en_attente") {
+    return sendError(res, "Can only upload proof for pending payments", 400);
+  }
+
+  if (!req.file) {
+    return sendError(res, "No file uploaded", 400);
+  }
+
+  const imageUrl = `/images/${req.file.filename}`;
+  paiement.proofImage = imageUrl;
+  await paiement.save();
+
+  return sendSuccess(res, { proofImage: imageUrl }, "Payment proof uploaded successfully");
 });
 
 // Note: Delete payment endpoint removed - payments should never be deleted for audit trail

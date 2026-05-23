@@ -10,14 +10,21 @@ const STATUS_STYLES = {
   rejected: { color: '#e07070', bg: 'rgba(224,112,112,0.12)', label: 'Rejected' },
 };
 
+const PAYMENT_STYLES = {
+  unpaid:  { color: '#e07070', bg: 'rgba(224,112,112,0.12)', label: 'Unpaid' },
+  pending: { color: '#c8a86e', bg: 'rgba(200,168,110,0.12)', label: 'Payment Pending' },
+  paid:    { color: '#7dbf7d', bg: 'rgba(125,191,125,0.12)', label: 'Paid' },
+};
+
 export default function AdminCentres() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [centres, setCentres]         = useState([]);
   const [loading, setLoading]         = useState(true);
   const [error, setError]             = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [search, setSearch]           = useState('');
+  const [statusFilter, setStatusFilter]   = useState('');
+  const [paymentFilter, setPaymentFilter] = useState('');
+  const [search, setSearch]               = useState('');
   const [deleteId, setDeleteId]       = useState(null);
   const [deleting, setDeleting]       = useState(false);
 
@@ -52,9 +59,10 @@ export default function AdminCentres() {
 
   const filtered = centres.filter(c => {
     const matchStatus = !statusFilter || c.status === statusFilter;
+    const matchPayment = !paymentFilter || (c.paiementStatus || 'unpaid') === paymentFilter;
     const q = search.toLowerCase();
     const matchSearch = !q || c.nom?.toLowerCase().includes(q) || c.adresse?.toLowerCase().includes(q);
-    return matchStatus && matchSearch;
+    return matchStatus && matchPayment && matchSearch;
   });
 
   const counts = {
@@ -62,6 +70,12 @@ export default function AdminCentres() {
     approved: centres.filter(c => c.status === 'approved').length,
     pending:  centres.filter(c => c.status === 'pending').length,
     rejected: centres.filter(c => c.status === 'rejected').length,
+  };
+
+  const paymentCounts = {
+    unpaid:  centres.filter(c => (c.paiementStatus || 'unpaid') === 'unpaid').length,
+    pending: centres.filter(c => c.paiementStatus === 'pending').length,
+    paid:    centres.filter(c => c.paiementStatus === 'paid').length,
   };
 
   return (
@@ -80,6 +94,8 @@ export default function AdminCentres() {
         .acm-chip.active-approved { background:rgba(125,191,125,.12); color:#7dbf7d; border-color:rgba(125,191,125,.3); }
         .acm-chip.active-pending  { background:rgba(200,168,110,.12); color:#c8a86e; border-color:rgba(200,168,110,.3); }
         .acm-chip.active-rejected { background:rgba(224,112,112,.12); color:#e07070; border-color:rgba(224,112,112,.3); }
+        .acm-chip.active-unpaid   { background:rgba(224,112,112,.12); color:#e07070; border-color:rgba(224,112,112,.3); }
+        .acm-chip.active-paid     { background:rgba(125,191,125,.12); color:#7dbf7d; border-color:rgba(125,191,125,.3); }
         .acm-chip-badge { margin-left:6px; padding:1px 6px; border-radius:10px; background:rgba(255,255,255,.06); font-size:11px; }
 
         .acm-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:20px; }
@@ -153,10 +169,27 @@ export default function AdminCentres() {
             <button
               key={f.key}
               className={`acm-chip ${statusFilter === f.key ? `active-${f.cls}` : ''}`}
-              onClick={() => setStatusFilter(f.key)}
+              onClick={() => { setStatusFilter(f.key); setPaymentFilter(''); }}
             >
               {f.label}
               <span className="acm-chip-badge">{f.key === '' ? counts.all : counts[f.key]}</span>
+            </button>
+          ))}
+        </div>
+        <div className="acm-filters" style={{ marginTop: 8 }}>
+          {[
+            { key: '',      label: t('admin.allPayments'), cls: 'all'      },
+            { key: 'unpaid', label: t('admin.unpaid'),     cls: undefined  },
+            { key: 'pending',label: t('admin.pendingPayment'), cls: 'pending'  },
+            { key: 'paid',   label: t('admin.paid'),       cls: undefined  },
+          ].map(f => (
+            <button
+              key={f.key}
+              className={`acm-chip ${paymentFilter === f.key ? `active-${f.cls || (f.key === '' ? 'all' : f.key)}` : ''}`}
+              onClick={() => { setPaymentFilter(f.key); setStatusFilter(''); }}
+            >
+              {f.label}
+              {f.key !== '' && <span className="acm-chip-badge">{paymentCounts[f.key]}</span>}
             </button>
           ))}
         </div>
@@ -212,6 +245,15 @@ export default function AdminCentres() {
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                       {new Date(centre.createdAt).toLocaleDateString()}
                     </span>
+                    {(() => {
+                      const ps = PAYMENT_STYLES[centre.paiementStatus || 'unpaid'];
+                      return (
+                        <span style={{ color: ps.color }}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                          {ps.label} {centre.montant ? `- ${centre.montant} DT` : ''}
+                        </span>
+                      );
+                    })()}
                   </div>
                 </div>
 

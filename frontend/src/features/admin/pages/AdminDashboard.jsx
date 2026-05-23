@@ -1,18 +1,33 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import adminService from '../services/admin';
+import centreService from '../../centres/services/centres';
 import AdminLayout from '../components/AdminLayout';
 
 const ITEMS_PER_PAGE = 10;
 
 export default function AdminDashboard() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   
   const ROLES = {
     apprenant: { label: t('admin.apprenantRole'), color: '#6a9fd8', bg: 'rgba(106,159,216,.15)' },
     formateur: { label: t('admin.formateurRole'), color: '#c8a86e', bg: 'rgba(200,168,110,.15)' },
     responsableCF: { label: t('admin.responsableCFRole'), color: '#7dbf7d', bg: 'rgba(125,191,125,.15)' },
     admin: { label: t('admin.adminRole'), color: '#e07070', bg: 'rgba(224,112,112,.15)' },
+  };
+
+  const STATUS_STYLES = {
+    approved: { label: t('admin.approved'), color: '#7dbf7d', bg: 'rgba(125,191,125,0.12)' },
+    pending:  { label: t('admin.pending'),  color: '#c8a86e', bg: 'rgba(200,168,110,0.12)' },
+    rejected: { label: t('admin.rejected'), color: '#e07070', bg: 'rgba(224,112,112,0.12)' },
+  };
+
+  const PAYMENT_STYLES = {
+    unpaid:  { label: t('admin.unpaid'),        color: '#e07070', bg: 'rgba(224,112,112,0.12)' },
+    pending: { label: t('admin.pendingPayment'), color: '#c8a86e', bg: 'rgba(200,168,110,0.12)' },
+    paid:    { label: t('admin.paid'),           color: '#7dbf7d', bg: 'rgba(125,191,125,0.12)' },
   };
 
   const [users, setUsers] = useState([]);
@@ -22,6 +37,10 @@ export default function AdminDashboard() {
   const [search, setSearch] = useState('');
   const [actionLoading, setActionLoading] = useState(null);
   const [stats, setStats] = useState({ total: 0, apprenant: 0, formateur: 0, responsableCF: 0, admin: 0, blocked: 0 });
+  const [centreStats, setCentreStats] = useState({ total: 0, approved: 0, pending: 0, rejected: 0, unpaid: 0, paymentPending: 0, paid: 0 });
+  const [recentCentres, setRecentCentres] = useState([]);
+  const [pendingPaymentCentres, setPendingPaymentCentres] = useState([]);
+  const [confirmingPaymentId, setConfirmingPaymentId] = useState(null);
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 });
 
   const fetchStats = async () => {
@@ -38,6 +57,26 @@ export default function AdminDashboard() {
       });
     } catch (err) {
       console.error('Failed to fetch stats:', err);
+    }
+  };
+
+  const fetchCentreStats = async () => {
+    try {
+      const res = await centreService.getAdminAll();
+      const all = res.data.data || [];
+      setCentreStats({
+        total: all.length,
+        approved: all.filter(c => c.status === 'approved').length,
+        pending: all.filter(c => c.status === 'pending').length,
+        rejected: all.filter(c => c.status === 'rejected').length,
+        unpaid: all.filter(c => (c.paiementStatus || 'unpaid') === 'unpaid').length,
+        paymentPending: all.filter(c => c.paiementStatus === 'pending').length,
+        paid: all.filter(c => c.paiementStatus === 'paid').length,
+      });
+      setRecentCentres(all.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5));
+      setPendingPaymentCentres(all.filter(c => c.paiementStatus === 'pending'));
+    } catch (err) {
+      console.error('Failed to fetch centre stats:', err);
     }
   };
 
@@ -69,6 +108,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchStats();
+    fetchCentreStats();
   }, []);
 
   useEffect(() => {
@@ -173,6 +213,163 @@ export default function AdminDashboard() {
         <div className="au-stat"><div className="au-stat-val">{stats.admin}</div><div className="au-stat-label">{t('admin.admins')}</div></div>
         <div className="au-stat"><div className="au-stat-val" style={{color: '#e07070'}}>{stats.blocked}</div><div className="au-stat-label">{t('admin.blocked')}</div></div>
       </div>
+
+      <div className="au-stats">
+        <div className="au-stat"><div className="au-stat-val">{centreStats.total}</div><div className="au-stat-label">{t('admin.totalCentres')}</div></div>
+        <div className="au-stat"><div className="au-stat-val">{centreStats.approved}</div><div className="au-stat-label">{t('admin.approved')}</div></div>
+        <div className="au-stat"><div className="au-stat-val" style={{color: '#c8a86e'}}>{centreStats.pending}</div><div className="au-stat-label">{t('admin.pending')}</div></div>
+        <div className="au-stat"><div className="au-stat-val" style={{color: '#e07070'}}>{centreStats.rejected}</div><div className="au-stat-label">{t('admin.rejected')}</div></div>
+        <div className="au-stat"><div className="au-stat-val" style={{color: '#e07070'}}>{centreStats.unpaid}</div><div className="au-stat-label">{t('admin.unpaid')}</div></div>
+        <div className="au-stat"><div className="au-stat-val" style={{color: '#c8a86e'}}>{centreStats.paymentPending}</div><div className="au-stat-label">{t('admin.pendingPayment')}</div></div>
+        <div className="au-stat"><div className="au-stat-val" style={{color: '#7dbf7d'}}>{centreStats.paid}</div><div className="au-stat-label">{t('admin.paid')}</div></div>
+      </div>
+
+      {/* Pending Payments Section */}
+      {pendingPaymentCentres.length > 0 && (
+        <div style={{marginBottom: 32}}>
+          <h3 style={{fontFamily: "'Cormorant Garamond',serif", fontSize: 22, color: 'var(--text-primary)', marginBottom: 16}}>
+            {t('admin.pendingPayments')}
+            <span style={{fontSize: 13, color: '#c8a86e', fontFamily: 'DM Sans', marginLeft: 10, fontWeight: 400}}>
+              ({pendingPaymentCentres.length})
+            </span>
+          </h3>
+          <div className="au-table-wrap">
+            <table className="au-table">
+              <thead>
+                <tr>
+                  <th>{t('admin.centreName')}</th>
+                  <th>{t('admin.managerTh')}</th>
+                  <th>{t('admin.paymentMethod')}</th>
+                  <th>{t('admin.amount')}</th>
+                  <th>{t('admin.paymentProof')}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {pendingPaymentCentres.map(c => (
+                  <tr key={c._id}>
+                    <td style={{fontWeight: 500, color: 'var(--text-primary)'}}>{c.nom}</td>
+                    <td style={{color: '#555', fontSize: 13}}>
+                      {c.id_responsable?.prenom || c.responsableId?.prenom} {c.id_responsable?.nom || c.responsableId?.nom}
+                    </td>
+                    <td>
+                      <span style={{
+                        display: 'inline-flex', padding: '3px 10px', borderRadius: 6,
+                        fontSize: 11, fontWeight: 600, textTransform: 'capitalize',
+                        color: 'var(--text-primary)', background: 'rgba(180,145,90,0.1)',
+                      }}>
+                        {c.methodePaiement === 'carte' ? t('admin.cardPayment') :
+                         c.methodePaiement === 'virement' ? t('admin.bankTransferPayment') :
+                         c.methodePaiement === 'especes' ? t('admin.cashPayment') :
+                         c.methodePaiement || '—'}
+                      </span>
+                    </td>
+                    <td style={{fontWeight: 600, color: 'var(--text-primary)'}}>
+                      {c.montant?.toLocaleString()} DT
+                    </td>
+                    <td>
+                      {c.proofImage ? (
+                        <img
+                          src={c.proofImage}
+                          alt="Proof"
+                          style={{width: 48, height: 48, borderRadius: 8, objectFit: 'cover', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.08)'}}
+                          onClick={() => window.open(c.proofImage, '_blank')}
+                        />
+                      ) : (
+                        <span style={{color: '#555', fontSize: 12}}>—</span>
+                      )}
+                    </td>
+                    <td>
+                      <button
+                        className="au-btn"
+                        style={{color: '#7dbf7d', borderColor: 'rgba(125,191,125,0.3)', background: confirmingPaymentId === c._id ? 'rgba(125,191,125,0.1)' : 'transparent'}}
+                        disabled={confirmingPaymentId === c._id}
+                        onClick={async () => {
+                          if (!window.confirm(t('admin.confirmPaymentPrompt'))) return;
+                          setConfirmingPaymentId(c._id);
+                          try {
+                            await centreService.confirmPayment(c._id);
+                            setPendingPaymentCentres(prev => prev.filter(p => p._id !== c._id));
+                            setCentreStats(prev => ({
+                              ...prev, paid: prev.paid + 1, paymentPending: prev.paymentPending - 1,
+                            }));
+                          } catch (err) {
+                            setError(err.response?.data?.message || 'Failed to confirm payment');
+                          } finally {
+                            setConfirmingPaymentId(null);
+                          }
+                        }}
+                      >
+                        {confirmingPaymentId === c._id ? t('admin.processing') : `✓ ${t('admin.confirmPayment')}`}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {recentCentres.length > 0 && (
+        <div style={{marginBottom: 32}}>
+          <h3 style={{fontFamily: "'Cormorant Garamond',serif", fontSize: 22, color: 'var(--text-primary)', marginBottom: 16}}>{t('admin.recentCentreApplications')}</h3>
+          <div className="au-table-wrap">
+            <table className="au-table">
+              <thead>
+                <tr>
+                  <th>{t('admin.centreName')}</th>
+                  <th>{t('admin.managerTh')}</th>
+                  <th>{t('admin.statusTh')}</th>
+                  <th>{t('admin.paymentTh')}</th>
+                  <th>{t('admin.dateTh')}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentCentres.map(c => (
+                  <tr key={c._id}>
+                    <td style={{fontWeight: 500, color: 'var(--text-primary)'}}>{c.nom}</td>
+                    <td style={{color: '#555', fontSize: 13}}>
+                      {c.id_responsable?.prenom} {c.id_responsable?.nom}
+                    </td>
+                    <td>
+                      <span style={{
+                        display: 'inline-flex', padding: '3px 10px', borderRadius: 6,
+                        fontSize: 11, fontWeight: 600,
+                        color: STATUS_STYLES[c.status]?.color || '#c8a86e',
+                        background: STATUS_STYLES[c.status]?.bg || 'rgba(200,168,110,0.12)',
+                      }}>
+                        {STATUS_STYLES[c.status]?.label || c.status}
+                      </span>
+                    </td>
+                    <td>
+                      <span style={{
+                        display: 'inline-flex', padding: '3px 10px', borderRadius: 6,
+                        fontSize: 11, fontWeight: 600,
+                        color: PAYMENT_STYLES[c.paiementStatus || 'unpaid']?.color,
+                        background: PAYMENT_STYLES[c.paiementStatus || 'unpaid']?.bg,
+                      }}>
+                        {PAYMENT_STYLES[c.paiementStatus || 'unpaid']?.label}
+                      </span>
+                    </td>
+                    <td style={{color: '#555', fontSize: 13}}>{new Date(c.createdAt).toLocaleDateString()}</td>
+                    <td>
+                      <button
+                        className="au-btn"
+                        style={{color: '#b4915a', borderColor: 'rgba(180,145,90,0.3)'}}
+                        onClick={() => navigate(`/admin/centres/verify/${c._id}`)}
+                      >
+                        {t('admin.view')}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {error && <div className="au-error">{error}</div>}
 

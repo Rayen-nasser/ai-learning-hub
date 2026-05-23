@@ -13,8 +13,9 @@ export const paiementService = {
   getMyPaiements: ()         => client.get('/paiements/me'),
   getById:        (id)       => client.get(`/paiements/${id}`),
   create:         (data)     => client.post('/paiements', data),
-  confirm:        (id)       => client.post(`/paiements/confirm/${id}`),
+  confirm:        (id)       => client.put(`/paiements/${id}/confirm`),
   cancel:         (id)       => client.put(`/paiements/${id}/cancel`),
+  uploadProof:    (id, formData) => client.post(`/paiements/${id}/upload-proof`, formData),
 };
 
 export const favoriService = {

@@ -41,7 +41,7 @@ const MyInscriptions = () => {
         .mi-list { display: flex; flex-direction: column; gap: 12px; }
         .mi-card { display: flex; align-items: center; gap: 20px; padding: 20px 24px; border-radius: 12px; border: 1px solid rgba(255,255,255,.07); background: rgba(255,255,255,.02); transition: border-color .2s; }
         .mi-card:hover { border-color: rgba(255,255,255,.12); }
-        .mi-card-icon { width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0; background: linear-gradient(135deg, #111114, #1a1a22); border: 1px solid rgba(255,255,255,.06); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 20px; color: rgba(180,145,90,.5); }
+        .mi-card-icon { width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0; background: var(--bg-main); border: 1px solid var(--border-main); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 20px; color: rgba(180,145,90,.5); }
         .mi-card-info { flex: 1; min-width: 0; }
         .mi-card-name { font-size: 15px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .mi-card-date { font-size: 12px; color: #444; }

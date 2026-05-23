@@ -211,4 +211,43 @@ router.put('/:id/confirm', requireAuth, requireRole('responsableCF'), paiementCo
  */
 router.put('/:id/cancel', requireAuth, paiementController.cancelPaiement);
 
+/**
+ * @swagger
+ * /paiements/{id}/upload-proof:
+ *   post:
+ *     summary: Upload payment proof image (virement receipt)
+ *     tags: [Paiements]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               proof:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Proof uploaded
+ *       400:
+ *         description: Payment already confirmed or no file
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Payment not found
+ */
+const { uploadSingle } = require('../middlewares/uploadfile');
+router.post('/:id/upload-proof', requireAuth, uploadSingle('proof', 'images'), paiementController.uploadProof);
+
 module.exports = router;

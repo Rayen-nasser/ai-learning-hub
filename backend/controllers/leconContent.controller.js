@@ -18,28 +18,22 @@ const checkFormateurAccess = async (leconId, user) => {
   if (!lecon) return false;
   
   if (user.role === 'formateur') {
-    const isOwner = lecon.formateurId && lecon.formateurId.toString() === user._id.toString();
-    if (isOwner) return true;
-    
-    if (lecon.formationId) {
-      return await isFormateurAssigned(user._id, lecon.formationId);
-    }
+    return lecon.formateurId && String(lecon.formateurId._id || lecon.formateurId) === String(user._id);
   }
   
   return false;
 };
 
 const checkApprenantAccess = async (lecon, user) => {
-  // Admin and Formateur always have access
-  if (user.role === 'admin' || user.role === 'formateur') return true;
+  // Admin and ResponsableCF always have access
+  if (user.role === 'admin' || user.role === 'responsableCF') return true;
   
-  // Check if user is the formateur of this lesson
-  if (lecon.formateurId && lecon.formateurId.toString() === user._id.toString()) return true;
+  // Lesson owner always has access
+  if (lecon.formateurId && String(lecon.formateurId._id || lecon.formateurId) === String(user._id)) return true;
   
-  // Check if formateur is assigned to the formation
+  // Assigned formateurs can read content (view only)
   if (user.role === 'formateur' && lecon.formationId) {
-    const assigned = await isFormateurAssigned(user._id, lecon.formationId);
-    if (assigned) return true;
+    return await isFormateurAssigned(user._id, lecon.formationId);
   }
   
   // Check if user has paid and confirmed inscription
@@ -153,7 +147,7 @@ module.exports.createContent = async (req, res) => {
 
     const hasAccess = await checkFormateurAccess(leconId, req.user);
     if (!hasAccess) {
-      return res.status(403).json({ message: "Access denied. You can only add content to lessons of formations you're assigned to." });
+      return res.status(403).json({ message: "Access denied. You can only add content to lessons you created." });
     }
 
     let url, fileName, filePath, fileSize, mimeType;
@@ -240,7 +234,7 @@ module.exports.updateContent = async (req, res) => {
 
     const hasAccess = await checkFormateurAccess(content.leconId, req.user);
     if (!hasAccess) {
-      return res.status(403).json({ message: "Access denied. You can only update content of lessons you're assigned to." });
+      return res.status(403).json({ message: "Access denied. You can only update content you created." });
     }
 
     const { title, description, order, url, sourceType, linkTitle, linkUrl, linkDescription, passingGrade, questions } = req.body;
@@ -327,7 +321,7 @@ module.exports.deleteContent = async (req, res) => {
 
     const hasAccess = await checkFormateurAccess(content.leconId, req.user);
     if (!hasAccess) {
-      return res.status(403).json({ message: "Access denied. You can only delete content of lessons you're assigned to." });
+      return res.status(403).json({ message: "Access denied. You can only delete content you created." });
     }
 
     await leconContentModel.findByIdAndDelete(req.params.id);

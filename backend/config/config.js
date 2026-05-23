@@ -27,6 +27,9 @@ const config = {
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // Limit each IP to 100 requests per windowMs
   },
+
+  // Unified creation fee applied to all training centers upon approval (configurable via .env)
+  creationFee: parseInt(process.env.CENTER_CREATION_FEE) || 1000,
 };
 
 module.exports = config;

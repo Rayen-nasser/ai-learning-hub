@@ -53,9 +53,9 @@ const MyFavoris = () => {
 
         .mf-card-thumb {
           height: 120px;
-          background: linear-gradient(135deg, #111114, #1a1a22);
+          background: var(--bg-main);
           display: flex; align-items: center; justify-content: center;
-          position: relative; border-bottom: 1px solid var(--bg-card);
+          position: relative; border-bottom: 1px solid var(--border-main);
         }
         .mf-thumb-glyph { font-family: 'Cormorant Garamond', serif; font-size: 56px; color: rgba(180,145,90,0.12); font-weight: 300; }
 
@@ -65,12 +65,12 @@ const MyFavoris = () => {
           display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
         }
         .mf-card-desc {
-          font-size: 12px; color: #555; line-height: 1.6; font-weight: 300; margin-bottom: 16px;
+          font-size: 12px; color: var(--text-secondary); line-height: 1.6; font-weight: 300; margin-bottom: 16px;
           display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
         }
         .mf-card-footer {
           display: flex; gap: 8px;
-          padding: 14px 20px; border-top: 1px solid var(--bg-card);
+          padding: 14px 20px; border-top: 1px solid var(--border-main);
         }
         .mf-view-btn {
           flex: 1; padding: 9px 12px; border-radius: 8px; text-align: center;

@@ -34,8 +34,9 @@ const strengthColor = ['', '#e07070', '#e09a40', '#7dbf7d', '#4aa87d'];
 
 /* ─── roles config ─── */
 const ROLES = [
-  { value: 'apprenant',    label: 'Student',         desc: 'Join courses & track progress',      icon: '🎓' },
-  { value: 'formateur',    label: 'Trainer',          desc: 'Create & deliver training',           icon: '🧑‍🏫' },
+  { value: 'apprenant',     label: 'Student',         desc: 'Join courses & track progress',      icon: '🎓' },
+  { value: 'formateur',     label: 'Trainer',          desc: 'Create & deliver training',           icon: '🧑‍🏫' },
+  { value: 'responsableCF', label: 'Center Manager',   desc: 'Create & manage a training center',   icon: '🏢' },
 ];
 
 
@@ -183,8 +184,13 @@ const RegisterForm = () => {
       Object.entries(formData).forEach(([k, v]) => {
         if (v !== null && v !== '') data.append(k, v);
       });
-      await register(data);
-      navigate('/profile');
+      const result = await register(data);
+      // Center Managers must apply for their center immediately after signup
+      if (formData.role === 'responsableCF') {
+        navigate('/centres/apply');
+      } else {
+        navigate('/profile');
+      }
     } catch (err) {
       setError(err.response?.data?.message || t('register.failed'));
       setStep(0);

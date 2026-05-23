@@ -1319,7 +1319,24 @@ export default function ApprenantLearning() {
                   <span className="learn-lesson-num">{String(index + 1).padStart(2, '0')}</span>
                   <div className="learn-lesson-info">
                     <div className="learn-lesson-name">{lesson.titre || lesson.title}</div>
-                    <div className="learn-lesson-dur">{lesson.duree || lesson.duration || 0} min</div>
+                    <div className="learn-lesson-dur">
+                      {lesson.duree || lesson.duration || 0} min
+                    </div>
+                    {lesson.formateur && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 4 }}>
+                        <div style={{
+                          width: 16, height: 16, borderRadius: '50%',
+                          background: 'linear-gradient(135deg,#c8a86e,#b4915a)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 8, fontWeight: 600, color: '#fff', flexShrink: 0,
+                        }}>
+                          {(lesson.formateur.prenom?.[0] || '').toUpperCase()}
+                        </div>
+                        <span style={{ fontSize: 11, color: '#888' }}>
+                          {lesson.formateur.prenom} {lesson.formateur.nom}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -1336,6 +1353,19 @@ export default function ApprenantLearning() {
                       <div className="learn-lesson-meta">
                         <span>Lesson {currentIndex + 1} of {lessons.length}</span>
                         <span>{(currentLesson.duree || currentLesson.duration || 0) * 60} min</span>
+                        {currentLesson.formateur && (
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#888' }}>
+                            <div style={{
+                              width: 20, height: 20, borderRadius: '50%',
+                              background: 'linear-gradient(135deg,#c8a86e,#b4915a)',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              fontSize: 9, fontWeight: 600, color: '#fff', flexShrink: 0,
+                            }}>
+                              {(currentLesson.formateur.prenom?.[0] || '').toUpperCase()}
+                            </div>
+                            {currentLesson.formateur.prenom} {currentLesson.formateur.nom}
+                          </span>
+                        )}
                       </div>
                       {contents.some(c => c.type === 'file' || c.type === 'link') && (
                         <button className="ai-quick-btn-inline" onClick={() => handleAiAction('summarize')}>

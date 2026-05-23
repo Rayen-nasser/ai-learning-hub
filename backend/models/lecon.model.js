@@ -8,6 +8,7 @@ const leconSchema = new mongoose.Schema(
     formationId: { type: mongoose.Schema.Types.ObjectId, ref: "Formation" },
     formateurId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     estAccessible: { type: Boolean, default: false },
+    formateurPaye: { type: Boolean, default: true },
   },
   { timestamps: true }
 );
