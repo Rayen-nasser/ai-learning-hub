@@ -137,7 +137,7 @@ module.exports.createFormation = asyncHandler(async (req, res) => {
     if (!categorie) return sendError(res, "Category not found", 400);
   }
 
-  const image = req.file ? `${req.file.folder}/${req.file.filename}` : undefined;
+  const image = req.file ? `/${req.file.folder}/${req.file.filename}` : undefined;
   const skillsArray = parseJsonIfString(requiredSkills);
   
   const newFormation = new formationModel({ titre, description, prix, duree, centreId, categorieId, image, requiredSkills: skillsArray });
@@ -177,7 +177,7 @@ module.exports.updateFormation = asyncHandler(async (req, res) => {
   if (requiredSkills !== undefined) {
     updates.requiredSkills = parseJsonIfString(requiredSkills);
   }
-  if (req.file) updates.image = `${req.file.folder}/${req.file.filename}`;
+  if (req.file) updates.image = `/${req.file.folder}/${req.file.filename}`;
 
   if (Object.keys(updates).length === 0) {
     return sendError(res, "No fields to update", 400);

@@ -117,7 +117,21 @@ Import `course_recommender_workflow.json` and `study_buddy_workflow.json` into n
 
 - [Backend Documentation](./backend/README.md)
 - [Frontend Documentation](./frontend/README.md)
+- [E2E Test Documentation](./e2e/README.md)
 - [AI Workflow Documentation](./AI_workflow_n8n/README.md)
+
+---
+
+## 🧪 Testing
+
+| Suite | Location | Command | Count |
+|---|---|---|---|
+| **Backend unit** | `backend/tests/unit/` | `npm test` (in `backend/`) | 36 |
+| **Backend integration** | `backend/tests/integration/` | `npm test` (in `backend/`) | 58 |
+| **Frontend (Vitest)** | `frontend/src/test/` | `npm test` (in `frontend/`) | 209 (7 files) |
+| **E2E (Playwright)** | `e2e/tests/` | `npm test` (in `e2e/`) | 17 pass / 2 skip |
+
+See the [E2E README](./e2e/README.md) for detailed setup, common gotchas, and how to add new tests.
 
 ---
 

@@ -76,22 +76,26 @@ const createUploadMiddleware = (folder = 'uploads', isPublic = true) => {
       return (req, res, cb) => {
         middleware(req, res, (err) => {
           if (err) return cb(err);
-          if (req.file) {
-            req.file.folder = folder;
-            req.file.isPublic = isPublic;
-          }
           if (req.files && req.files.length > 0) {
-            req.files.forEach(f => { 
-              f.folder = folder; 
-              f.isPublic = isPublic;
-            });
             req.file = req.files[0];
+            req.file.folder = folder;
           }
           cb();
         });
       };
     },
-    array: multerInstance.array,
+    array: (fieldName, maxCount) => {
+      const middleware = multerInstance.array(fieldName, maxCount);
+      return (req, res, cb) => {
+        middleware(req, res, (err) => {
+          if (err) return cb(err);
+          if (req.files) {
+            req.files.forEach(f => f.folder = folder);
+          }
+          cb();
+        });
+      };
+    },
     fields: (fieldsArray) => {
       const middleware = multerInstance.fields(fieldsArray);
       return (req, res, cb) => {
@@ -99,16 +103,13 @@ const createUploadMiddleware = (folder = 'uploads', isPublic = true) => {
           if (err) return cb(err);
           if (req.files) {
             Object.keys(req.files).forEach(key => {
-              req.files[key].forEach(f => {
-                f.folder = folder;
-                f.isPublic = isPublic;
-              });
+              req.files[key].forEach(f => f.folder = folder);
             });
           }
           cb();
         });
       };
-    }
+    },
   };
 };
 

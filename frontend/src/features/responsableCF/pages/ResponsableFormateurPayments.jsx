@@ -8,7 +8,6 @@ const BASE = import.meta.env.VITE_API_URL || '';
 
 const MODE_LABELS = {
   par_lecon: 'Per Lesson',
-  montant_fixe: 'Fixed Amount',
 };
 
 const STATUT_STYLES = {
@@ -27,7 +26,7 @@ export default function ResponsableFormateurPayments() {
   const [activeTab, setActiveTab] = useState('contrats');
   const [showModal, setShowModal] = useState(false);
   const [editingContrat, setEditingContrat] = useState(null);
-  const [formData, setFormData] = useState({ formateurId: '', centreId: '', mode: 'par_lecon', montantFixe: '', prixParLecon: '' });
+  const [formData, setFormData] = useState({ formateurId: '', centreId: '', prixParLecon: '' });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [paySubmitting, setPaySubmitting] = useState(false);
@@ -68,7 +67,7 @@ export default function ResponsableFormateurPayments() {
 
   const openCreateModal = async () => {
     setEditingContrat(null);
-    setFormData({ formationId: '', formateurId: '', centreId: '', mode: 'par_lecon', montantFixe: '', prixParLecon: '' });
+    setFormData({ formationId: '', formateurId: '', centreId: '', prixParLecon: '' });
     setMatchingFormateurs([]);
     try {
       const fRes = await formateurPaymentService.getFormations();
@@ -102,8 +101,6 @@ export default function ResponsableFormateurPayments() {
     setFormData({
       formateurId: contrat.formateurId?._id || contrat.formateurId,
       centreId: contrat.centreId?._id || contrat.centreId,
-      mode: contrat.mode,
-      montantFixe: contrat.montantFixe || '',
       prixParLecon: contrat.prixParLecon || '',
     });
     setShowModal(true);
@@ -117,9 +114,7 @@ export default function ResponsableFormateurPayments() {
       const data = {
         formateurId: formData.formateurId,
         centreId: formData.centreId,
-        mode: formData.mode,
-        montantFixe: formData.mode === 'montant_fixe' ? Number(formData.montantFixe) : 0,
-        prixParLecon: formData.mode === 'par_lecon' ? Number(formData.prixParLecon) : 0,
+        prixParLecon: Number(formData.prixParLecon),
       };
 
       if (editingContrat) {
@@ -156,17 +151,6 @@ export default function ResponsableFormateurPayments() {
       setError(err.response?.data?.message || 'Payment failed');
     } finally {
       setPaySubmitting(false);
-    }
-  };
-
-  const handleCreateFixedPayment = async (contrat) => {
-    const montant = prompt(`Enter amount for fixed payment (${contrat.montantFixe} DT recommended):`, contrat.montantFixe);
-    if (!montant) return;
-    try {
-      await formateurPaymentService.createPayment({ contratId: contrat._id, montant: Number(montant) });
-      fetchData();
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to create payment');
     }
   };
 
@@ -367,9 +351,8 @@ export default function ResponsableFormateurPayments() {
                 }}>
                   {c.statut === 'actif' ? 'Active' : c.statut === 'en_attente' ? 'Pending' : 'Terminated'}
                 </span>
-                <span className="fp-amount">{c.mode === 'par_lecon' ? `${c.prixParLecon} DT/lesson` : `${c.montantFixe} DT/mo`}</span>
+                <span className="fp-amount">{c.prixParLecon} DT/lesson</span>
                 {c.statut === 'actif' && <button className="fp-btn" onClick={() => openAssignModal(c)}>Assign Course</button>}
-                {c.mode === 'montant_fixe' && <button className="fp-btn fp-btn-pay" onClick={() => handleCreateFixedPayment(c)}>+ Pay</button>}
                 <button className="fp-btn" onClick={() => openEditModal(c)}>Edit</button>
                 <button className="fp-btn fp-btn-danger" onClick={() => handleDeleteContrat(c._id)}>Delete</button>
               </div>
@@ -478,24 +461,9 @@ export default function ResponsableFormateurPayments() {
                 </div>
                 <input type="hidden" name="centreId" value={formData.centreId} />
                 <div className="fp-form-group">
-                  <label className="fp-form-label">Payment Mode</label>
-                  <select className="fp-form-select" value={formData.mode} onChange={e => setFormData(d => ({ ...d, mode: e.target.value }))}>
-                    <option value="par_lecon">Per Lesson</option>
-                    <option value="montant_fixe">Fixed Amount</option>
-                  </select>
+                  <label className="fp-form-label">Price Per Lesson (DT)</label>
+                  <input type="number" className="fp-form-input" value={formData.prixParLecon} onChange={e => setFormData(d => ({ ...d, prixParLecon: e.target.value }))} placeholder="e.g. 50" min="1" required />
                 </div>
-                {formData.mode === 'par_lecon' && (
-                  <div className="fp-form-group">
-                    <label className="fp-form-label">Price Per Lesson (DT)</label>
-                    <input type="number" className="fp-form-input" value={formData.prixParLecon} onChange={e => setFormData(d => ({ ...d, prixParLecon: e.target.value }))} placeholder="e.g. 50" min="1" required />
-                  </div>
-                )}
-                {formData.mode === 'montant_fixe' && (
-                  <div className="fp-form-group">
-                    <label className="fp-form-label">Fixed Amount (DT/month)</label>
-                    <input type="number" className="fp-form-input" value={formData.montantFixe} onChange={e => setFormData(d => ({ ...d, montantFixe: e.target.value }))} placeholder="e.g. 500" min="1" required />
-                  </div>
-                )}
               </div>
               <div className="fp-modal-footer">
                 <button type="button" className="fp-btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>

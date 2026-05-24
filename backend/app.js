@@ -114,8 +114,12 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-const server = http.createServer(app);
-server.listen(config.port, () => {
-  connectToMongoDB();
-  console.log(`Server is running on ${config.baseUrl}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  const server = http.createServer(app);
+  server.listen(config.port, () => {
+    connectToMongoDB();
+    console.log(`Server is running on ${config.baseUrl}`);
+  });
+}
+
+module.exports = app;

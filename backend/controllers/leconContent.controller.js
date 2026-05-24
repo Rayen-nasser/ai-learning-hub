@@ -155,7 +155,7 @@ module.exports.createContent = async (req, res) => {
     if (req.file) {
       url = `/${req.file.folder}/${req.file.filename}`;
       fileName = req.file.originalname;
-      filePath = req.file.path;
+      filePath = `/${req.file.folder}/${req.file.filename}`;
       fileSize = req.file.size;
       mimeType = req.file.mimetype;
     }
@@ -253,7 +253,7 @@ module.exports.updateContent = async (req, res) => {
     if (req.file) {
       updates.url = `/${req.file.folder}/${req.file.filename}`;
       updates.fileName = req.file.originalname;
-      updates.filePath = req.file.path;
+      updates.filePath = `/${req.file.folder}/${req.file.filename}`;
       updates.fileSize = req.file.size;
       updates.mimeType = req.file.mimetype;
       updates.sourceType = 'upload';

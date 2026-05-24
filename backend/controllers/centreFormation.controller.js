@@ -271,7 +271,7 @@ module.exports.updateCentre = async (req, res) => {
     if (description !== undefined) updates.description = description;
     if (telephone !== undefined) updates.telephone = telephone;
     if (logo !== undefined) updates.logo = logo;
-    if (req.file) updates.logo = `${req.file.folder}/${req.file.filename}`;
+    if (req.file) updates.logo = `/${req.file.folder}/${req.file.filename}`;
 
     if (Object.keys(updates).length === 0) {
       return res.status(400).json({ message: "No fields to update" });
@@ -735,7 +735,7 @@ module.exports.uploadCentreProof = async (req, res) => {
 
     if (!req.file) return res.status(400).json({ message: "No proof file uploaded." });
 
-    centre.proofImage = `${req.file.folder}/${req.file.filename}`;
+    centre.proofImage = `/${req.file.folder}/${req.file.filename}`;
     await centre.save();
 
     res.status(200).json({ message: "Proof uploaded successfully.", data: sanitizeCentre(centre) });

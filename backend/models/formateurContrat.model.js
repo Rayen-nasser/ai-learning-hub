@@ -6,10 +6,8 @@ const formateurContratSchema = new mongoose.Schema(
     centreId: { type: mongoose.Schema.Types.ObjectId, ref: "CentreFormation", required: true },
     mode: {
       type: String,
-      enum: ["par_lecon", "montant_fixe"],
-      required: true,
+      default: "par_lecon",
     },
-    montantFixe: { type: Number, default: 0 },
     prixParLecon: { type: Number, default: 0 },
     statut: {
       type: String,

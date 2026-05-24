@@ -21,7 +21,6 @@ router.get('/formations', requireAuth, requireRole('responsableCF'), controller.
 // ── Payments ──
 router.get('/payments', requireAuth, requireRole('responsableCF'), controller.getPayments);
 router.get('/payments/mine', requireAuth, requireRole('formateur'), controller.getMyPayments);
-router.post('/payments', requireAuth, requireRole('responsableCF'), controller.createPayment);
 router.put('/payments/:id/pay', requireAuth, requireRole('responsableCF'), controller.payPayment);
 
 module.exports = router;

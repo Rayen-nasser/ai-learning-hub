@@ -8,8 +8,7 @@ const paiementFormateurSchema = new mongoose.Schema(
     montant: { type: Number, required: true },
     mode: {
       type: String,
-      enum: ["par_lecon", "montant_fixe"],
-      required: true,
+      default: "par_lecon",
     },
     leconId: { type: mongoose.Schema.Types.ObjectId, ref: "Lecon" },
     leconTitre: { type: String },

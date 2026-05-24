@@ -24,22 +24,14 @@ module.exports.getFormateursForMyCentres = asyncHandler(async (req, res) => {
 // @route   POST /formateur-paiements/contrats
 // @access  Private (ResponsableCF)
 module.exports.createContrat = asyncHandler(async (req, res) => {
-  const { formateurId, mode, montantFixe, prixParLecon, dateDebut } = req.body;
+  const { formateurId, prixParLecon, dateDebut } = req.body;
 
-  if (!formateurId || !mode) {
-    return sendError(res, "formateurId and mode are required", 400);
+  if (!formateurId) {
+    return sendError(res, "formateurId is required", 400);
   }
 
-  if (!["par_lecon", "montant_fixe"].includes(mode)) {
-    return sendError(res, "Invalid mode. Must be par_lecon or montant_fixe", 400);
-  }
-
-  if (mode === "par_lecon" && (!prixParLecon || prixParLecon <= 0)) {
-    return sendError(res, "prixParLecon must be greater than 0 for per-lesson contracts", 400);
-  }
-
-  if (mode === "montant_fixe" && (!montantFixe || montantFixe <= 0)) {
-    return sendError(res, "montantFixe must be greater than 0 for fixed amount contracts", 400);
+  if (!prixParLecon || prixParLecon <= 0) {
+    return sendError(res, "prixParLecon must be greater than 0", 400);
   }
 
   const centres = await centreFormationModel.find({ responsableId: req.user._id }).select("_id");
@@ -66,9 +58,7 @@ module.exports.createContrat = asyncHandler(async (req, res) => {
   const contrat = await FormateurContrat.create({
     formateurId,
     centreId,
-    mode,
-    montantFixe: mode === "montant_fixe" ? montantFixe : 0,
-    prixParLecon: mode === "par_lecon" ? prixParLecon : 0,
+    prixParLecon,
     dateDebut: dateDebut || Date.now(),
   });
 
@@ -136,10 +126,8 @@ module.exports.updateContrat = asyncHandler(async (req, res) => {
     return sendError(res, "Access denied", 403);
   }
 
-  const { mode, montantFixe, prixParLecon, statut, dateFin } = req.body;
+  const { prixParLecon, statut, dateFin } = req.body;
 
-  if (mode) contrat.mode = mode;
-  if (montantFixe !== undefined) contrat.montantFixe = montantFixe;
   if (prixParLecon !== undefined) contrat.prixParLecon = prixParLecon;
   if (statut) contrat.statut = statut;
   if (dateFin) contrat.dateFin = dateFin;
@@ -251,37 +239,6 @@ module.exports.getMyPayments = asyncHandler(async (req, res) => {
     .sort({ createdAt: -1 });
 
   return sendSuccess(res, payments, "My payments retrieved successfully");
-});
-
-// @desc    Create a payment (for montant fixe)
-// @route   POST /formateur-paiements/payments
-// @access  Private (ResponsableCF)
-module.exports.createPayment = asyncHandler(async (req, res) => {
-  const { contratId, montant, description } = req.body;
-
-  if (!contratId || !montant) {
-    return sendError(res, "contratId and montant are required", 400);
-  }
-
-  const contrat = await FormateurContrat.findById(contratId);
-  if (!contrat) return sendError(res, "Contract not found", 404);
-
-  const centre = await centreFormationModel.findById(contrat.centreId);
-  if (!centre || centre.responsableId.toString() !== req.user._id.toString()) {
-    return sendError(res, "Access denied", 403);
-  }
-
-  const payment = await PaiementFormateur.create({
-    contratId: contrat._id,
-    formateurId: contrat.formateurId,
-    centreId: contrat.centreId,
-    montant,
-    mode: "montant_fixe",
-    leconTitre: description || "Fixed payment",
-  });
-
-  const populated = await payment.populate("formateurId", "nom prenom email");
-  return sendSuccess(res, populated, "Payment created successfully", 201);
 });
 
 // @desc    Mark a payment as paid

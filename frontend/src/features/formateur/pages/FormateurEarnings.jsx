@@ -108,7 +108,7 @@ export default function FormateurEarnings() {
                 <div className="fe-card-info">
                   <div className="fe-card-title">{c.centreId?.nom || 'Centre'}</div>
                   <div className="fe-card-sub">
-                    {c.mode === 'par_lecon' ? `Per Lesson · ${c.prixParLecon} DT/lesson` : `Fixed Amount · ${c.montantFixe} DT/month`}
+                    Per Lesson · {c.prixParLecon} DT/lesson
                   </div>
                 </div>
               </div>
@@ -130,9 +130,9 @@ export default function FormateurEarnings() {
           <div className="fe-card-left">
             <div className="fe-card-info">
               <div className="fe-card-title">{c.centreId?.nom || 'Centre'}</div>
-              <div className="fe-card-sub">
-                {c.mode === 'par_lecon' ? `Per Lesson · ${c.prixParLecon} DT/lesson` : `Fixed Amount · ${c.montantFixe} DT/month`}
-              </div>
+                  <div className="fe-card-sub">
+                    Per Lesson · {c.prixParLecon} DT/lesson
+                  </div>
             </div>
           </div>
           <div className="fe-card-right">

@@ -49,7 +49,7 @@ module.exports.createCategorie = async (req, res) => {
       return sendError(res, "Category with this name already exists", 400);
     }
 
-    const image = req.file ? `${req.file.folder}/${req.file.filename}` : req.body.image;
+    const image = req.file ? `/${req.file.folder}/${req.file.filename}` : req.body.image;
     const ownerId = req.user._id;
 
     const newCategorie = new categorieModel({ nom, description, image, ownerId });
@@ -82,7 +82,7 @@ module.exports.updateCategorie = async (req, res) => {
     if (description !== undefined) updates.description = description;
     
     if (req.file) {
-      updates.image = `${req.file.folder}/${req.file.filename}`;
+      updates.image = `/${req.file.folder}/${req.file.filename}`;
     } else if (req.body.image !== undefined) {
       updates.image = req.body.image;
     }
